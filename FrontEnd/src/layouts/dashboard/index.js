@@ -1,7 +1,7 @@
 /*!
 
 =========================================================
-* Vision UI Free React - v1.0.0
+* GDS - v1.0.0
 =========================================================
 
 * Product Page: https://www.creative-tim.com/product/vision-ui-free-react
@@ -21,19 +21,19 @@ import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import { Card, LinearProgress, Stack } from "@mui/material";
 
-// Vision UI Dashboard React components
+// GDS components
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiProgress from "components/VuiProgress";
 
-// Vision UI Dashboard React example components
+// GDS example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import MiniStatisticsCard from "examples/Cards/StatisticsCards/MiniStatisticsCard";
 import linearGradient from "assets/theme/functions/linearGradient";
 
-// Vision UI Dashboard React base styles
+// GDS base styles
 import typography from "assets/theme/base/typography";
 import colors from "assets/theme/base/colors";
 

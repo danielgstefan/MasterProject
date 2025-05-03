@@ -1,7 +1,7 @@
 /*!
 
 =========================================================
-* Vision UI Free React - v1.0.0
+* GDS - v1.0.0
 =========================================================
 
 * Product Page: https://www.creative-tim.com/product/vision-ui-free-react
@@ -17,7 +17,7 @@
 */
 
 /** 
-  All of the routes for the Vision UI Dashboard React are added here,
+  All of the routes for the GDS are added here,
   You can add a new route, customize the routes and delete the routes here.
 
   Once you add a new route on this file it will be visible automatically on
@@ -38,7 +38,7 @@
   10. The `component` key is used to store the component of its route.
 */
 
-// Vision UI Dashboard React layouts
+// GDS layouts
 import Dashboard from "layouts/dashboard";
 import Tables from "layouts/tables";
 import Billing from "layouts/billing";
@@ -47,7 +47,7 @@ import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 
-// Vision UI Dashboard React icons
+// GDS icons
 import { IoRocketSharp } from "react-icons/io5";
 import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";

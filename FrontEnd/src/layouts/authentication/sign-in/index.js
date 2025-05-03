@@ -19,7 +19,10 @@
 import { useState } from "react";
 
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+
+// Authentication service
+import AuthService from "services/AuthService";
 
 // Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
@@ -41,9 +44,44 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
 
 function SignIn() {
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const history = useHistory();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    setMessage("");
+    setLoading(true);
+
+    if (!identifier  || !password) {
+      setMessage("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
+    AuthService.login(identifier, password)
+      .then(() => {
+        history.push("/dashboard");
+        window.location.reload();
+      })
+      .catch((error) => {
+        const resMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+
+        setLoading(false);
+        setMessage(resMessage);
+      });
+  };
 
   return (
     <CoverLayout
@@ -54,11 +92,11 @@ function SignIn() {
       motto="THE VISION UI DASHBOARD"
       image={bgSignIn}
     >
-      <VuiBox component="form" role="form">
+      <VuiBox component="form" role="form" onSubmit={handleLogin}>
         <VuiBox mb={2}>
           <VuiBox mb={1} ml={0.5}>
             <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-              Email
+              Username or Email
             </VuiTypography>
           </VuiBox>
           <GradientBorder
@@ -71,7 +109,13 @@ function SignIn() {
               palette.gradients.borderLight.angle
             )}
           >
-            <VuiInput type="email" placeholder="Your email..." fontWeight="500" />
+            <VuiInput
+                type="text"
+                placeholder="Your username or email..."
+                fontWeight="500"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+            />
           </GradientBorder>
         </VuiBox>
         <VuiBox mb={2}>
@@ -93,12 +137,21 @@ function SignIn() {
             <VuiInput
               type="password"
               placeholder="Your password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               sx={({ typography: { size } }) => ({
                 fontSize: size.sm,
               })}
             />
           </GradientBorder>
         </VuiBox>
+        {message && (
+          <VuiBox mb={2}>
+            <VuiTypography variant="button" color="error" fontWeight="medium">
+              {message}
+            </VuiTypography>
+          </VuiBox>
+        )}
         <VuiBox display="flex" alignItems="center">
           <VuiSwitch color="info" checked={rememberMe} onChange={handleSetRememberMe} />
           <VuiTypography
@@ -112,8 +165,14 @@ function SignIn() {
           </VuiTypography>
         </VuiBox>
         <VuiBox mt={4} mb={1}>
-          <VuiButton color="info" fullWidth>
-            SIGN IN
+          <VuiButton 
+            type="submit" 
+            color="info" 
+            fullWidth 
+            disabled={loading}
+            onClick={handleLogin}
+          >
+            {loading ? "LOADING..." : "SIGN IN"}
           </VuiButton>
         </VuiBox>
         <VuiBox mt={3} textAlign="center">

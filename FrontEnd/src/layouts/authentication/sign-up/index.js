@@ -19,7 +19,10 @@
 import { useState } from "react";
 
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+
+// Authentication service
+import AuthService from "services/AuthService";
 
 // @mui material components
 import Icon from "@mui/material/Icon";
@@ -49,10 +52,70 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 // Images
 import bgSignIn from "assets/images/signUpImage.png";
 
-function SignIn() {
+function SignUp() {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [successful, setSuccessful] = useState(false);
+  const history = useHistory();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    console.log("handleRegister called");
+
+    setMessage("");
+    setSuccessful(false);
+    setLoading(true);
+
+    if (!username || !email || !password) {
+      setMessage("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
+    console.log("Sending registration request with:", { username, email, password });
+
+    try {
+      // Add a timeout to ensure the UI updates before making the API call
+      setTimeout(() => {
+        AuthService.register(username, email, password)
+          .then(response => {
+            console.log("Registration successful:", response);
+            setMessage(response.data.message);
+            setSuccessful(true);
+            setLoading(false);
+
+            // Redirect to sign-in page after successful registration
+            setTimeout(() => {
+              history.push("/authentication/sign-in");
+            }, 2000);
+          })
+          .catch(error => {
+            console.error("Registration failed:", error);
+            const resMessage =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            setMessage(resMessage || "Network error. Please check if the backend server is running.");
+            setSuccessful(false);
+            setLoading(false);
+          });
+      }, 100);
+    } catch (error) {
+      console.error("Exception during registration:", error);
+      setMessage("An unexpected error occurred. Please try again.");
+      setSuccessful(false);
+      setLoading(false);
+    }
+  };
 
   return (
     <CoverLayout
@@ -70,6 +133,10 @@ function SignIn() {
           role="form"
           borderRadius="inherit"
           p="45px"
+          onSubmit={(e) => {
+            console.log("Form submitted");
+            handleRegister(e);
+          }}
           sx={({ palette: { secondary } }) => ({
             backgroundColor: secondary.focus,
           })}
@@ -198,6 +265,8 @@ function SignIn() {
             >
               <VuiInput
                 placeholder="Your full name..."
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 sx={({ typography: { size } }) => ({
                   fontSize: size.sm,
                 })}
@@ -223,6 +292,8 @@ function SignIn() {
               <VuiInput
                 type="email"
                 placeholder="Your email..."
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 sx={({ typography: { size } }) => ({
                   fontSize: size.sm,
                 })}
@@ -248,12 +319,25 @@ function SignIn() {
               <VuiInput
                 type="password"
                 placeholder="Your password..."
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 sx={({ typography: { size } }) => ({
                   fontSize: size.sm,
                 })}
               />
             </GradientBorder>
           </VuiBox>
+          {message && (
+            <VuiBox mb={2}>
+              <VuiTypography 
+                variant="button" 
+                color={successful ? "success" : "error"} 
+                fontWeight="medium"
+              >
+                {message}
+              </VuiTypography>
+            </VuiBox>
+          )}
           <VuiBox display="flex" alignItems="center">
             <VuiSwitch color="info" checked={rememberMe} onChange={handleSetRememberMe} />
             <VuiTypography
@@ -267,8 +351,13 @@ function SignIn() {
             </VuiTypography>
           </VuiBox>
           <VuiBox mt={4} mb={1}>
-            <VuiButton color="info" fullWidth>
-              SIGN UP
+            <VuiButton 
+              type="submit" 
+              color="info" 
+              fullWidth 
+              disabled={loading}
+            >
+              {loading ? "LOADING..." : "SIGN UP"}
             </VuiButton>
           </VuiBox>
           <VuiBox mt={3} textAlign="center">
@@ -291,4 +380,4 @@ function SignIn() {
   );
 }
 
-export default SignIn;
+export default SignUp;

@@ -1,4 +1,4 @@
-n# [Vision UI Free React](https://demos.creative-tim.com/vision-ui-dashboard-react) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?url=https://www.creative-tim.com/product/vision-ui-dashboard-react&text=Check%20Vision%20UI%20Dashboard%20made%20by%20@simmmple_web%20and%20@CreativeTim%20#webdesign%20#dashboard%20#react)
+# [GDS](https://demos.creative-tim.com/vision-ui-dashboard-react) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?url=https://www.creative-tim.com/product/vision-ui-dashboard-react&text=Check%20GDS%20made%20by%20@simmmple_web%20and%20@CreativeTim%20#webdesign%20#dashboard%20#react)
 
 ![version](https://img.shields.io/badge/version-1.0.0-blue.svg) [![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/vision-ui-dashboard-react.svg?maxAge=2592000)](https://github.com/creativetimofficial/vision-ui-dashboard-react/issues?q=is%3Aopen+is%3Aissue) [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/creativetimofficial/vision-ui-dashboard-react.svg?maxAge=2592000)](https://github.com/creativetimofficial/vision-ui-dashboard-react/issues?q=is%3Aissue+is%3Aclosed)
 
@@ -49,7 +49,7 @@ Let us know your thoughts below. And good luck with development!
 
 ## Table of Contents
 
-- [Vision UI Dashboard Free React](https://demos.creative-tim.com/vision-ui-dashboard-react/?ref=readme-vudreact)
+- [GDS](https://demos.creative-tim.com/vision-ui-dashboard-react/?ref=readme-vudreact)
 - [Table of Contents](#table-of-contents)
 - [Versions](#versions)
 - [Demo](#demo)
@@ -70,7 +70,7 @@ Let us know your thoughts below. And good luck with development!
 
 | React | Chakra |
 | ]------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [![Vision UI Dashboard Free React](https://i.ibb.co/RYKtQ4M/vision-ui-free-react-ct.png)](https://www.creative-tim.com/product/vision-ui-dashboard-react?ref=readme-vudreact) | [![Vision UI Dashboard Free Chakra](https://i.ibb.co/kg5mNxm/vision-ui-free-chakra-ct.png)](https://www.creative-tim.com/product/vision-ui-dashboard-chakra?ref=readme-vudreact) |
+| [![GDS](https://i.ibb.co/RYKtQ4M/vision-ui-free-react-ct.png)](https://www.creative-tim.com/product/vision-ui-dashboard-react?ref=readme-vudreact) | [![GDS Chakra](https://i.ibb.co/kg5mNxm/vision-ui-free-chakra-ct.png)](https://www.creative-tim.com/product/vision-ui-dashboard-chakra?ref=readme-vudreact) |
 
 ## Demo
 
@@ -93,16 +93,33 @@ Quick start options:
 1. Download and Install NodeJs 16 from the [official website](https://nodejs.org/en/about/previous-releases) or use [nvm](https://github.com/nvm-sh/nvm) to quickly switch versions.
 2. Navigate to the projects root directory and run `yarn install` or `npm install` to install the projects dependencies.
 
+## Source Map Warning Fix
+
+If you encounter the following warning during development or build:
+
+```
+WARNING in ./node_modules/stylis-plugin-rtl/dist/stylis-rtl.js
+Module Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+Failed to parse source map from 'node_modules\stylis-plugin-rtl\src\stylis-rtl.ts'
+```
+
+This is due to a missing source map file in the stylis-plugin-rtl package. The warning doesn't affect functionality but can be annoying. To fix it, we've added environment files that disable source map generation:
+
+- `.env.development.local` - Disables source maps during development
+- `.env.production.local` - Disables source maps during production builds
+
+These files contain the setting `GENERATE_SOURCEMAP=false` which tells Create React App not to generate source maps.
+
 ## Documentation
 
-The documentation for the Vision UI Dashboard Free is hosted at our [website](https://www.creative-tim.com/learning-lab/react/overview/vision-ui-dashboard/?ref=readme-vudreact).
+The documentation for the GDS is hosted at our [website](https://www.creative-tim.com/learning-lab/react/overview/vision-ui-dashboard/?ref=readme-vudreact).
 
 ## File Structure
 
 Within the download you'll find the following directories and files:
 
 ```
-vision-dashboard-react-free/
+gds/
 ├── public
 │   ├── apple-icon.png
 │   ├── favicon.ico
@@ -387,9 +404,9 @@ At present, we officially aim to support the last two versions of the following 
 
 ## Reporting Issues
 
-We use GitHub Issues as the official bug tracker for the Vision UI Dashboard. Here are some advices for our users that want to report an issue:
+We use GitHub Issues as the official bug tracker for the GDS. Here are some advices for our users that want to report an issue:
 
-1. Make sure that you are using the latest version of the Vision UI Dashbaord. Check the CHANGELOG from your dashboard on our [CHANGE LOG File](https://github.com/creativetimofficial/vision-ui-dashboard-react/blob/main/CHANGELOG.md?ref=readme-vudreact).
+1. Make sure that you are using the latest version of the GDS. Check the CHANGELOG from your dashboard on our [CHANGE LOG File](https://github.com/creativetimofficial/vision-ui-dashboard-react/blob/main/CHANGELOG.md?ref=readme-vudreact).
 2. Providing us reproducible steps for the issue will shorten the time it takes for it to be fixed.
 3. Some issues may be browser specific, so specifying in what browser you encountered the issue might help.
 

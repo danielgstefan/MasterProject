@@ -127,7 +127,7 @@ export const lineChartOptionsDashboard = {
     curve: "smooth",
   },
   xaxis: {
-    type: "datetime",
+    type: "category",
     categories: [
       "Jan",
       "Feb",
@@ -212,7 +212,7 @@ export const lineChartOptionsProfile1 = {
     curve: "smooth",
   },
   xaxis: {
-    type: "datetime",
+    type: "category",
     categories: [
       "Jan",
       "Feb",
@@ -300,7 +300,7 @@ export const lineChartOptionsProfile2 = {
     curve: "smooth",
   },
   xaxis: {
-    type: "datetime",
+    type: "category",
     categories: [
       "Jan",
       "Feb",

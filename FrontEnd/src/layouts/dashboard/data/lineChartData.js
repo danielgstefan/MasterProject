@@ -1,7 +1,7 @@
 /*!
 
 =========================================================
-* Vision UI Free React - v1.0.0
+* GDS - v1.0.0
 =========================================================
 
 * Product Page: https://www.creative-tim.com/product/vision-ui-free-react

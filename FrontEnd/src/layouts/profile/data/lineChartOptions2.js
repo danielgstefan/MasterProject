@@ -34,7 +34,7 @@ export const lineChartOptionsProfile2 = {
     curve: "smooth",
   },
   xaxis: {
-    type: "datetime",
+    type: "category",
     categories: [
       "Jan",
       "Feb",

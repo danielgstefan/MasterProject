@@ -1,7 +1,7 @@
 /*!
 
 =========================================================
-* Vision UI Free React - v1.0.0
+* GDS - v1.0.0
 =========================================================
 
 * Product Page: https://www.creative-tim.com/product/vision-ui-free-react
@@ -23,25 +23,33 @@ class BarChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      chartData: [],
-      chartOptions: {},
+      chartData: props.barChartData || [],
+      chartOptions: props.barChartOptions || {},
     };
   }
 
   componentDidMount() {
     const { barChartData, barChartOptions } = this.props;
 
-    this.setState({
-      chartData: barChartData,
-      chartOptions: barChartOptions,
-    });
+    if (barChartData && barChartOptions) {
+      this.setState({
+        chartData: barChartData,
+        chartOptions: barChartOptions,
+      });
+    }
   }
 
   render() {
+    const { chartData, chartOptions } = this.state;
+
+    if (!chartData || !chartOptions) {
+      return null;
+    }
+
     return (
       <Chart
-        options={this.state.chartOptions}
-        series={this.state.chartData}
+        options={chartOptions}
+        series={chartData}
         type="bar"
         width="100%"
         height="100%"

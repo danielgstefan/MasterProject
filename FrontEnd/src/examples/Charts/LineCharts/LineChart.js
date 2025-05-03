@@ -1,7 +1,7 @@
 /*!
 
 =========================================================
-* Vision UI Free React - v1.0.0
+* GDS - v1.0.0
 =========================================================
 
 * Product Page: https://www.creative-tim.com/product/vision-ui-free-react
@@ -24,25 +24,33 @@ class LineChart extends React.Component {
     super(props);
 
     this.state = {
-      chartData: [],
-      chartOptions: {},
+      chartData: props.lineChartData || [],
+      chartOptions: props.lineChartOptions || {},
     };
   }
 
   componentDidMount() {
     const { lineChartData, lineChartOptions } = this.props;
 
-    this.setState({
-      chartData: lineChartData,
-      chartOptions: lineChartOptions,
-    });
+    if (lineChartData && lineChartOptions) {
+      this.setState({
+        chartData: lineChartData,
+        chartOptions: lineChartOptions,
+      });
+    }
   }
 
   render() {
+    const { chartData, chartOptions } = this.state;
+
+    if (!chartData || !chartOptions) {
+      return null;
+    }
+
     return (
       <ReactApexChart
-        options={this.state.chartOptions}
-        series={this.state.chartData}
+        options={chartOptions}
+        series={chartData}
         type="area"
         width="100%"
         height="100%"
