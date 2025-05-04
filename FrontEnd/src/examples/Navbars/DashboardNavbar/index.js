@@ -19,7 +19,7 @@
 import { useState, useEffect } from "react";
 
 // react-router components
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useHistory } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
@@ -29,6 +29,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Icon from "@mui/material/Icon";
 
 // Vision UI Dashboard React components
@@ -60,8 +61,11 @@ import {
 // Images
 import team2 from "assets/images/team-2.jpg";
 import logoSpotify from "assets/images/small-logos/logo-spotify.svg";
+import { useAuth } from "../../../context/AuthContext";
 
 function DashboardNavbar({ absolute, light, isMini }) {
+  const { user, logout } = useAuth();
+  const history = useHistory();
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useVisionUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator } = controller;
@@ -98,6 +102,11 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
+
+  const handleLogout = () => {
+    logout();
+    history.push("/authentication/sign-in");
+  };
 
   // Render the notifications menu
   const renderMenu = () => (
@@ -166,24 +175,45 @@ function DashboardNavbar({ absolute, light, isMini }) {
               />
             </VuiBox>
             <VuiBox color={light ? "white" : "inherit"}>
-              <Link to="/authentication/sign-in">
-                <IconButton sx={navbarIconButton} size="small">
-                  <Icon
-                    sx={({ palette: { dark, white } }) => ({
-                      color: light ? white.main : dark.main,
-                    })}
+              {user ? (
+                <>
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={(e) => setOpenMenu(e.currentTarget)}
                   >
-                    account_circle
-                  </Icon>
-                  <VuiTypography
-                    variant="button"
-                    fontWeight="medium"
-                    color={light ? "white" : "dark"}
+                    <Icon>account_circle</Icon>
+                    <VuiTypography
+                      variant="button"
+                      fontWeight="medium"
+                      color={light ? "white" : "dark"}
+                      ml={1}
+                    >
+                      {user.username}
+                    </VuiTypography>
+                  </IconButton>
+                  <Menu
+                    anchorEl={openMenu}
+                    open={Boolean(openMenu)}
+                    onClose={() => setOpenMenu(false)}
                   >
-                    Sign in
-                  </VuiTypography>
-                </IconButton>
-              </Link>
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <Link to="/authentication/sign-in">
+                  <IconButton size="small" color="inherit">
+                    <Icon>account_circle</Icon>
+                    <VuiTypography
+                      variant="button"
+                      fontWeight="medium"
+                      color={light ? "white" : "dark"}
+                    >
+                      Sign In
+                    </VuiTypography>
+                  </IconButton>
+                </Link>
+              )}
               <IconButton
                 size="small"
                 color="inherit"

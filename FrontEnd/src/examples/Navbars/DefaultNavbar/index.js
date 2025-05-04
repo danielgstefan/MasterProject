@@ -42,7 +42,11 @@ import breakpoints from "assets/theme/base/breakpoints";
 import colors from "assets/theme/base/colors";
 import borders from "assets/theme/base/borders";
 
-function DefaultNavbar({ transparent, light, action }) {
+function DefaultNavbar({ 
+  transparent = false, 
+  light = false, 
+  action = false 
+}) {
   const { borderCol } = colors;
   const { borderWidth } = borders;
   const [mobileNavbar, setMobileNavbar] = useState(false);
