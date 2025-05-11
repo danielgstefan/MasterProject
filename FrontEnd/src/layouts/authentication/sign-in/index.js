@@ -43,6 +43,9 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 // Images
 import bgSignIn from "assets/images/signInImage.png";
 
+// Auth context
+import { useAuth } from "../../../context/AuthContext";
+
 function SignIn() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -50,37 +53,50 @@ function SignIn() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const history = useHistory();
+  const { login } = useAuth();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     setMessage("");
     setLoading(true);
 
-    if (!identifier  || !password) {
+    if (!identifier || !password) {
       setMessage("Please fill in all fields");
       setLoading(false);
       return;
     }
 
-    AuthService.login(identifier, password)
-      .then(() => {
+    try {
+      const response = await AuthService.login(identifier, password);
+      if (response && response.token) {
+        const userData = {
+          id: response.id,
+          username: response.username,
+          email: response.email,
+          roles: response.roles
+        };
+        
+        await login(userData);
         history.push("/dashboard");
-        window.location.reload();
-      })
-      .catch((error) => {
-        const resMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
+      } else {
+        setMessage("Invalid response from server");
+      }
+    } catch (error) {
+      const resMessage =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
 
-        setLoading(false);
-        setMessage(resMessage);
-      });
+      setLoading(false);
+      setMessage(resMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

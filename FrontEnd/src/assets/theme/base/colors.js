@@ -139,6 +139,7 @@ export default {
       deg: "123.64deg",
       main: "rgba(255, 255, 255, 0) -22.38%",
       state: "rgba(255, 255, 255, 0.039) 70.38%",
+      stateSecondary: "rgba(255, 255, 255, 0.02) 100%"
     },
 
     sidenav: {

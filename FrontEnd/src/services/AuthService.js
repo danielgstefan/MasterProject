@@ -51,28 +51,57 @@ class AuthService {
 
   /**
    * Login a user.
-   * @param {string} identifier - The username OR email
+   * @param {string} username - The username
    * @param {string} password - The password
    * @returns {Promise} - A promise that resolves to the user data
    */
-  login(identifier, password) {
-    return axios.post(API_URL + "signin", {
-      username: identifier,
-      password
-    }, {
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      }
-    })
-    .then(response => {
-      if (response.data.token) {
+  async login(username, password) {
+    try {
+      const response = await axios.post(
+        API_URL + "signin",
+        {
+          username,
+          password
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      if (response.data && response.data.token) {
         this.setToken(response.data.token);
         this.setRefreshToken(response.data.refreshToken);
-        this.setUserData(response.data.user);
+        
+        const userData = {
+          id: response.data.id,
+          username: response.data.username,
+          email: response.data.email,
+          roles: response.data.roles
+        };
+        
+        this.setUserData(userData);
+        return response.data;
+      } else {
+        throw new Error('Invalid response format');
       }
-      return response.data;
-    });
+    } catch (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Login error response:', error.response.data);
+        throw error.response.data;
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received:', error.request);
+        throw new Error('No response from server');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error setting up request:', error.message);
+        throw error;
+      }
+    }
   }
 
   /**
@@ -111,14 +140,6 @@ class AuthService {
   }
 
   /**
-   * Get the stored refresh token.
-   * @returns {string|null} - The refresh token or null if not found
-   */
-  getRefreshToken() {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-  }
-
-  /**
    * Set the user data in storage.
    * @param {Object} userData - The user data
    */
@@ -129,7 +150,12 @@ class AuthService {
   /**
    * Logout the current user.
    */
-  logout() {
+  async logout() {
+    try {
+      await axios.post(API_URL + "signout");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -175,20 +201,29 @@ class AuthService {
   }
 
   /**
-   * Get the current user from local storage.
-   * @returns {Object|null} - The current user or null if not logged in
+   * Get the current user data from storage.
+   * @returns {Object|null} - The user data or null if not found
    */
   getCurrentUser() {
-    const userData = localStorage.getItem(USER_KEY);
-    return userData ? JSON.parse(userData) : null;
+    const userStr = localStorage.getItem(USER_KEY);
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 
   /**
-   * Check if the user is authenticated.
-   * @returns {boolean} - True if the user is authenticated
+   * Check if a user is authenticated.
+   * @returns {boolean} - True if authenticated, false otherwise
    */
   isAuthenticated() {
-    return !!this.getToken() && !!this.getCurrentUser();
+    const token = this.getToken();
+    const user = this.getCurrentUser();
+    return !!(token && user);
   }
 }
 

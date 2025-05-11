@@ -30,13 +30,13 @@ import VuiBox from "components/VuiBox";
 // Vision UI Dashboard React context
 import { useVisionUIController, setLayout } from "context";
 
-function PageLayout({ children }) {
+function PageLayout({ children, background = "default" }) {
   const [, dispatch] = useVisionUIController();
   const { pathname } = useLocation();
 
   useEffect(() => {
     setLayout(dispatch, "page");
-  }, [pathname]);
+  }, [pathname, dispatch]);
 
   return (
     <VuiBox
@@ -60,14 +60,10 @@ function PageLayout({ children }) {
   );
 }
 
-// Setting default values for the props for PageLayout
-PageLayout.defaultProps = {
-  background: "default",
-};
-
 // Typechecking props for the PageLayout
 PageLayout.propTypes = {
   children: PropTypes.node.isRequired,
+  background: PropTypes.oneOf(["white", "light", "default"]),
 };
 
 export default PageLayout;

@@ -22,7 +22,7 @@ function navbar(theme, ownerState) {
 
   const { dark, white, text, transparent, gradients, borderCol } = palette;
   const { navbarBoxShadow } = boxShadows;
-  const { linearGradient, pxToRem } = functions;
+  const { linearGradient, tripleLinearGradient, pxToRem } = functions;
   const { borderRadius } = borders;
 
   return {
@@ -32,11 +32,12 @@ function navbar(theme, ownerState) {
     backgroundImage:
       transparentNavbar || absolute
         ? `none`
-        : `${linearGradient(
+        : `${tripleLinearGradient(
             gradients.navbar.main,
             gradients.navbar.state,
+            gradients.navbar.stateSecondary,
             gradients.navbar.deg
-          )} !importants`,
+          )} !important`,
 
     color: () => {
       let color;
