@@ -40,27 +40,28 @@
 
 // GDS layouts
 import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
-import Billing from "layouts/billing";
-import RTL from "layouts/rtl";
+import Shop from "layouts/shop";
+import Tuning from "layouts/tuning";
+import Forum from "layouts/forum";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 
 // GDS icons
-import { IoRocketSharp } from "react-icons/io5";
-import { IoIosDocument } from "react-icons/io";
+import { IoHome } from "react-icons/io5";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoBuild } from "react-icons/io5";
 import { BsCreditCardFill } from "react-icons/bs";
-import { IoStatsChart } from "react-icons/io5";
-import { IoHome } from "react-icons/io5";
+import { IoChatbubbles } from "react-icons/io5";
+import { IoCarSport } from "react-icons/io5";
+import { IoRocketSharp } from "react-icons/io5";
+import { IoIosDocument } from "react-icons/io";
 
 const routes = [
   {
     type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
+    name: "Home",
+    key: "home",
     route: "/dashboard",
     icon: <IoHome size="15px" color="inherit" />,
     component: Dashboard,
@@ -68,32 +69,32 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Tables",
-    key: "tables",
-    route: "/tables",
-    icon: <IoStatsChart size="15px" color="inherit" />,
-    component: Tables,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Billing",
-    key: "billing",
-    route: "/billing",
+    name: "Shop",
+    key: "shop",
+    route: "/shop",
     icon: <BsCreditCardFill size="15px" color="inherit" />,
-    component: Billing,
+    component: Shop,
     noCollapse: true,
   },
   {
     type: "collapse",
-    name: "RTL",
-    key: "rtl",
-    route: "/rtl",
-    icon: <IoBuild size="15px" color="inherit" />,
-    component: RTL,
+    name: "Tuning Services",
+    key: "tuning",
+    route: "/tuning",
+    icon: <IoCarSport size="15px" color="inherit" />,
+    component: Tuning,
     noCollapse: true,
   },
-  { type: "title", title: "Account Pages", key: "account-pages" },
+  {
+    type: "collapse",
+    name: "Forum",
+    key: "forum",
+    route: "/forum",
+    icon: <IoChatbubbles size="15px" color="inherit" />,
+    component: Forum,
+    noCollapse: true,
+  },
+  { type: "title", title: "Account", key: "account-pages" },
   {
     type: "collapse",
     name: "Profile",
