@@ -39,7 +39,8 @@ import org.springframework.http.MediaType;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    
+
+
     @Autowired
     AuthenticationManager authenticationManager;
     
@@ -155,9 +156,20 @@ public class AuthController {
 
     @PostMapping("/signout")
     public ResponseEntity<?> logoutUser() {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long userId = userDetails.getId();
-        refreshTokenService.deleteByUserId(userId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated()) {
+            Object principal = auth.getPrincipal();
+            if (principal instanceof UserDetailsImpl) {
+                Long userId = ((UserDetailsImpl) principal).getId();
+                refreshTokenService.deleteByUserId(userId);
+            }
+            SecurityContextHolder.clearContext();
+        } else {
+            // Nu e autentificat – poate a expirat tokenul, etc.
+            System.out.println("No authenticated user found during logout.");
+        }
+
         return ResponseEntity.ok(new MessageResponse("Log out successful!"));
     }
 }
