@@ -47,6 +47,7 @@ function Forum() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [postLikes, setPostLikes] = useState({});
 
   // State for creating/editing posts
   const [newPostContent, setNewPostContent] = useState("");
@@ -68,6 +69,22 @@ function Forum() {
     fetchCategories();
   }, [currentPage, selectedCategory]);
 
+  // Fetch like information for a post
+  const fetchLikeInfo = async (postId) => {
+    try {
+      const response = await ForumService.getLikeInfo(postId);
+      setPostLikes(prev => ({
+        ...prev,
+        [postId]: {
+          likeCount: response.data.likeCount,
+          userLikeStatus: response.data.userLikeStatus
+        }
+      }));
+    } catch (err) {
+      console.error(`Error fetching like info for post ${postId}:`, err);
+    }
+  };
+
   // Fetch posts from the backend
   const fetchPosts = async () => {
     setLoading(true);
@@ -81,6 +98,11 @@ function Forum() {
       setPosts(response.data.content);
       setTotalPages(response.data.totalPages);
       setLoading(false);
+
+      // Fetch like information for each post
+      response.data.content.forEach(post => {
+        fetchLikeInfo(post.id);
+      });
     } catch (err) {
       console.error("Error fetching posts:", err);
       setError("Failed to load posts. Please try again later.");
@@ -230,12 +252,37 @@ function Forum() {
     }
 
     try {
-      if (isLike) {
-        await ForumService.likePost(postId);
+      const currentLikeStatus = postLikes[postId]?.userLikeStatus;
+
+      // If user already liked/disliked and clicks the same button, remove the like
+      if ((isLike && currentLikeStatus === true) || (!isLike && currentLikeStatus === false)) {
+        await ForumService.removeLike(postId);
+        setNotification({
+          open: true,
+          message: "Reaction removed",
+          severity: "success"
+        });
       } else {
-        await ForumService.dislikePost(postId);
+        // Otherwise, set the new like/dislike
+        if (isLike) {
+          await ForumService.likePost(postId);
+          setNotification({
+            open: true,
+            message: "Post liked",
+            severity: "success"
+          });
+        } else {
+          await ForumService.dislikePost(postId);
+          setNotification({
+            open: true,
+            message: "Post disliked",
+            severity: "success"
+          });
+        }
       }
-      fetchPosts();
+
+      // Refresh like info for this post
+      fetchLikeInfo(postId);
     } catch (err) {
       console.error("Error liking/disliking post:", err);
       setNotification({
@@ -454,26 +501,33 @@ function Forum() {
                         {post.content}
                       </VuiTypography>
 
-                      <VuiBox display="flex" gap={2}>
+                      <VuiBox display="flex" gap={2} alignItems="center">
                         {/* Like button */}
-                        <IconButton 
-                          size="small" 
-                          sx={{ color: "white" }}
-                          onClick={() => handleLikePost(post.id, true)}
-                          disabled={!isAuthenticated}
-                        >
-                          <IoThumbsUpOutline />
-                        </IconButton>
+                        <VuiBox display="flex" alignItems="center">
+                          <IconButton 
+                            size="small" 
+                            sx={{ color: postLikes[post.id]?.userLikeStatus === true ? "info.main" : "white" }}
+                            onClick={() => handleLikePost(post.id, true)}
+                            disabled={!isAuthenticated}
+                          >
+                            {postLikes[post.id]?.userLikeStatus === true ? <IoThumbsUp /> : <IoThumbsUpOutline />}
+                          </IconButton>
+                          <VuiTypography variant="caption" color="text">
+                            {postLikes[post.id]?.likeCount || 0}
+                          </VuiTypography>
+                        </VuiBox>
 
                         {/* Dislike button */}
-                        <IconButton 
-                          size="small" 
-                          sx={{ color: "white" }}
-                          onClick={() => handleLikePost(post.id, false)}
-                          disabled={!isAuthenticated}
-                        >
-                          <IoThumbsDownOutline />
-                        </IconButton>
+                        <VuiBox display="flex" alignItems="center">
+                          <IconButton 
+                            size="small" 
+                            sx={{ color: postLikes[post.id]?.userLikeStatus === false ? "error.main" : "white" }}
+                            onClick={() => handleLikePost(post.id, false)}
+                            disabled={!isAuthenticated}
+                          >
+                            {postLikes[post.id]?.userLikeStatus === false ? <IoThumbsDown /> : <IoThumbsDownOutline />}
+                          </IconButton>
+                        </VuiBox>
 
                         {/* Comment button */}
                         <IconButton size="small" sx={{ color: "white" }}>
