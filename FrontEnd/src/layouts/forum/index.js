@@ -55,6 +55,8 @@ function Forum() {
   const [newComments, setNewComments] = useState({});
   const [expandedComments, setExpandedComments] = useState({});
   const [commentCounts, setCommentCounts] = useState({});
+  const [editingComment, setEditingComment] = useState(null);
+  const [editCommentContent, setEditCommentContent] = useState("");
 
   // State for creating/editing posts
   const [newPostContent, setNewPostContent] = useState("");
@@ -174,6 +176,76 @@ function Forum() {
     } else {
       // If comments are collapsed, fetch and expand them
       fetchComments(postId);
+    }
+  };
+
+  // Handle starting to edit a comment
+  const handleEditComment = (comment) => {
+    setEditingComment(comment);
+    setEditCommentContent(comment.content);
+  };
+
+  // Handle saving the edited comment
+  const handleUpdateComment = async () => {
+    if (!editingComment) return;
+
+    if (!editCommentContent.trim()) {
+      setNotification({
+        open: true,
+        message: "Comment cannot be empty",
+        severity: "error"
+      });
+      return;
+    }
+
+    try {
+      await ForumService.updateComment(editingComment.id, editCommentContent);
+      setNotification({
+        open: true,
+        message: "Comment updated successfully",
+        severity: "success"
+      });
+      // Refresh comments for the post
+      fetchComments(editingComment.post.id);
+      // Reset editing state
+      setEditingComment(null);
+      setEditCommentContent("");
+    } catch (err) {
+      console.error(`Error updating comment ${editingComment.id}:`, err);
+      setNotification({
+        open: true,
+        message: "Failed to update comment. Please try again.",
+        severity: "error"
+      });
+    }
+  };
+
+  // Handle canceling comment edit
+  const handleCancelEditComment = () => {
+    setEditingComment(null);
+    setEditCommentContent("");
+  };
+
+  // Handle deleting a comment
+  const handleDeleteComment = async (comment) => {
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+      try {
+        await ForumService.deleteComment(comment.id);
+        setNotification({
+          open: true,
+          message: "Comment deleted successfully",
+          severity: "success"
+        });
+        // Refresh comments for the post
+        fetchComments(comment.post.id);
+      } catch (err) {
+        console.error(`Error deleting comment ${comment.id}:`, err);
+        setNotification({
+          open: true,
+          message: "Failed to delete comment. Please try again.",
+          severity: "error"
+        });
+      }
     }
   };
 
@@ -397,6 +469,13 @@ function Forum() {
   const canEditPost = (post) => {
     if (!isAuthenticated || !currentUser) return false;
     return post.author.id === currentUser.id || 
+           (currentUser.roles && currentUser.roles.includes("ROLE_ADMIN"));
+  };
+
+  // Check if user can edit/delete a comment
+  const canEditComment = (comment) => {
+    if (!isAuthenticated || !currentUser) return false;
+    return comment.author.id === currentUser.id || 
            (currentUser.roles && currentUser.roles.includes("ROLE_ADMIN"));
   };
 
@@ -664,13 +743,82 @@ function Forum() {
                                       <VuiTypography variant="caption" color="info.main">
                                         {comment.author.username}
                                       </VuiTypography>
-                                      <VuiTypography variant="caption" color="text">
-                                        {formatDate(comment.createdAt)}
-                                      </VuiTypography>
+                                      <VuiBox display="flex" alignItems="center">
+                                        <VuiTypography variant="caption" color="text" mr={2}>
+                                          {formatDate(comment.createdAt)}
+                                        </VuiTypography>
+                                        {/* Edit/Delete buttons for comment owner */}
+                                        {canEditComment(comment) && (
+                                          <VuiBox>
+                                            <IconButton 
+                                              size="small" 
+                                              sx={{ color: "white", p: 0.5 }}
+                                              onClick={() => handleEditComment(comment)}
+                                            >
+                                              <IoPencilOutline size={14} />
+                                            </IconButton>
+                                            <IconButton 
+                                              size="small" 
+                                              sx={{ color: "white", p: 0.5 }}
+                                              onClick={() => handleDeleteComment(comment)}
+                                            >
+                                              <IoTrashOutline size={14} />
+                                            </IconButton>
+                                          </VuiBox>
+                                        )}
+                                      </VuiBox>
                                     </VuiBox>
-                                    <VuiTypography variant="body2" color="white">
-                                      {comment.content}
-                                    </VuiTypography>
+                                    {editingComment && editingComment.id === comment.id ? (
+                                      // Edit form
+                                      <VuiBox>
+                                        <TextField
+                                          fullWidth
+                                          multiline
+                                          rows={2}
+                                          value={editCommentContent}
+                                          onChange={(e) => setEditCommentContent(e.target.value)}
+                                          sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                              backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                              borderRadius: "8px",
+                                              "& fieldset": {
+                                                borderColor: "rgba(255, 255, 255, 0.2)",
+                                              },
+                                              "&:hover fieldset": {
+                                                borderColor: "rgba(255, 255, 255, 0.4)",
+                                              },
+                                            },
+                                            "& .MuiInputBase-input": {
+                                              color: "white",
+                                            },
+                                            mb: 1
+                                          }}
+                                        />
+                                        <VuiBox display="flex" justifyContent="flex-end" gap={1}>
+                                          <VuiButton 
+                                            variant="outlined" 
+                                            color="white" 
+                                            size="small"
+                                            onClick={handleCancelEditComment}
+                                          >
+                                            Cancel
+                                          </VuiButton>
+                                          <VuiButton 
+                                            variant="contained" 
+                                            color="info" 
+                                            size="small"
+                                            onClick={handleUpdateComment}
+                                          >
+                                            Update
+                                          </VuiButton>
+                                        </VuiBox>
+                                      </VuiBox>
+                                    ) : (
+                                      // Comment content
+                                      <VuiTypography variant="body2" color="white">
+                                        {comment.content}
+                                      </VuiTypography>
+                                    )}
                                   </VuiBox>
                                 </Card>
                               ))}
