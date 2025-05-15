@@ -54,6 +54,7 @@ function Forum() {
   const [loadingComments, setLoadingComments] = useState({});
   const [newComments, setNewComments] = useState({});
   const [expandedComments, setExpandedComments] = useState({});
+  const [commentCounts, setCommentCounts] = useState({});
 
   // State for creating/editing posts
   const [newPostContent, setNewPostContent] = useState("");
@@ -93,6 +94,19 @@ function Forum() {
     }
   };
 
+  // Fetch comment count for a post
+  const fetchCommentCount = async (postId) => {
+    try {
+      const response = await ForumService.getCommentsByPostId(postId);
+      setCommentCounts(prev => ({ 
+        ...prev, 
+        [postId]: response.data.content.length 
+      }));
+    } catch (err) {
+      console.error(`Error fetching comment count for post ${postId}:`, err);
+    }
+  };
+
   // Fetch comments for a post
   const fetchComments = async (postId) => {
     if (loadingComments[postId]) return;
@@ -102,6 +116,12 @@ function Forum() {
       const response = await ForumService.getCommentsByPostId(postId);
       setComments(prev => ({ ...prev, [postId]: response.data.content }));
       setExpandedComments(prev => ({ ...prev, [postId]: true }));
+
+      // Update comment count as well
+      setCommentCounts(prev => ({ 
+        ...prev, 
+        [postId]: response.data.content.length 
+      }));
     } catch (err) {
       console.error(`Error fetching comments for post ${postId}:`, err);
       setNotification({
@@ -171,9 +191,10 @@ function Forum() {
       setTotalPages(response.data.totalPages);
       setLoading(false);
 
-      // Fetch like information for each post
+      // Fetch like information and comment counts for each post
       response.data.content.forEach(post => {
         fetchLikeInfo(post.id);
+        fetchCommentCount(post.id);
       });
     } catch (err) {
       console.error("Error fetching posts:", err);
@@ -613,11 +634,9 @@ function Forum() {
                           >
                             <IoChatbubbleOutline />
                           </IconButton>
-                          {comments[post.id] && (
-                            <VuiTypography variant="caption" color="text">
-                              {comments[post.id].length}
-                            </VuiTypography>
-                          )}
+                          <VuiTypography variant="caption" color="text">
+                            {commentCounts[post.id] || 0}
+                          </VuiTypography>
                         </VuiBox>
                       </VuiBox>
 
