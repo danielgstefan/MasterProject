@@ -120,7 +120,11 @@ class AuthService {
    * @param {string} token - The access token
    */
   setToken(token) {
-    localStorage.setItem(TOKEN_KEY, token);
+    if (token && typeof token === "string" && token.includes(".")) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      console.warn("‼️ Token invalid, nu a fost salvat:", token);
+    }
   }
 
   /**
@@ -129,6 +133,9 @@ class AuthService {
    */
   getToken() {
     return localStorage.getItem(TOKEN_KEY);
+  }
+  getRefreshToken() {
+    return localStorage.getItem("refresh_token");
   }
 
   /**
