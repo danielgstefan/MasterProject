@@ -241,6 +241,32 @@ public class ForumService {
     }
 
     /**
+     * Get the count of likes for a post.
+     *
+     * @param postId the post ID
+     * @return the count of likes
+     */
+    public Long getLikesCount(Long postId) {
+        ForumPost post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
+
+        return likeRepository.countByPostAndIsLike(post, true);
+    }
+
+    /**
+     * Get the count of dislikes for a post.
+     *
+     * @param postId the post ID
+     * @return the count of dislikes
+     */
+    public Long getDislikesCount(Long postId) {
+        ForumPost post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
+
+        return likeRepository.countByPostAndIsLike(post, false);
+    }
+
+    /**
      * Check if a user has liked or disliked a post.
      *
      * @param user the user

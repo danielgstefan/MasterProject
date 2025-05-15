@@ -49,6 +49,12 @@ function Forum() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [postLikes, setPostLikes] = useState({});
 
+  // State for comments
+  const [comments, setComments] = useState({});
+  const [loadingComments, setLoadingComments] = useState({});
+  const [newComments, setNewComments] = useState({});
+  const [expandedComments, setExpandedComments] = useState({});
+
   // State for creating/editing posts
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostTitle, setNewPostTitle] = useState("");
@@ -77,11 +83,77 @@ function Forum() {
         ...prev,
         [postId]: {
           likeCount: response.data.likeCount,
+          likesCount: response.data.likesCount,
+          dislikesCount: response.data.dislikesCount,
           userLikeStatus: response.data.userLikeStatus
         }
       }));
     } catch (err) {
       console.error(`Error fetching like info for post ${postId}:`, err);
+    }
+  };
+
+  // Fetch comments for a post
+  const fetchComments = async (postId) => {
+    if (loadingComments[postId]) return;
+
+    setLoadingComments(prev => ({ ...prev, [postId]: true }));
+    try {
+      const response = await ForumService.getCommentsByPostId(postId);
+      setComments(prev => ({ ...prev, [postId]: response.data.content }));
+      setExpandedComments(prev => ({ ...prev, [postId]: true }));
+    } catch (err) {
+      console.error(`Error fetching comments for post ${postId}:`, err);
+      setNotification({
+        open: true,
+        message: "Failed to load comments. Please try again.",
+        severity: "error"
+      });
+    } finally {
+      setLoadingComments(prev => ({ ...prev, [postId]: false }));
+    }
+  };
+
+  // Create a new comment
+  const handleCreateComment = async (postId) => {
+    const commentText = newComments[postId] || "";
+
+    if (!commentText.trim()) {
+      setNotification({
+        open: true,
+        message: "Comment cannot be empty",
+        severity: "error"
+      });
+      return;
+    }
+
+    try {
+      await ForumService.createComment(postId, commentText);
+      setNewComments(prev => ({ ...prev, [postId]: "" }));
+      setNotification({
+        open: true,
+        message: "Comment added successfully",
+        severity: "success"
+      });
+      fetchComments(postId);
+    } catch (err) {
+      console.error(`Error creating comment for post ${postId}:`, err);
+      setNotification({
+        open: true,
+        message: "Failed to add comment. Please try again.",
+        severity: "error"
+      });
+    }
+  };
+
+  // Toggle comments visibility
+  const toggleComments = (postId) => {
+    if (expandedComments[postId]) {
+      // If comments are already expanded, collapse them
+      setExpandedComments(prev => ({ ...prev, [postId]: false }));
+    } else {
+      // If comments are collapsed, fetch and expand them
+      fetchComments(postId);
     }
   };
 
@@ -512,8 +584,8 @@ function Forum() {
                           >
                             {postLikes[post.id]?.userLikeStatus === true ? <IoThumbsUp /> : <IoThumbsUpOutline />}
                           </IconButton>
-                          <VuiTypography variant="caption" color="text">
-                            {postLikes[post.id]?.likeCount || 0}
+                          <VuiTypography variant="caption" color="info.main">
+                            {postLikes[post.id]?.likesCount || 0}
                           </VuiTypography>
                         </VuiBox>
 
@@ -527,13 +599,113 @@ function Forum() {
                           >
                             {postLikes[post.id]?.userLikeStatus === false ? <IoThumbsDown /> : <IoThumbsDownOutline />}
                           </IconButton>
+                          <VuiTypography variant="caption" color="error.main">
+                            {postLikes[post.id]?.dislikesCount || 0}
+                          </VuiTypography>
                         </VuiBox>
 
                         {/* Comment button */}
-                        <IconButton size="small" sx={{ color: "white" }}>
-                          <IoChatbubbleOutline />
-                        </IconButton>
+                        <VuiBox display="flex" alignItems="center">
+                          <IconButton 
+                            size="small" 
+                            sx={{ color: expandedComments[post.id] ? "info.main" : "white" }}
+                            onClick={() => toggleComments(post.id)}
+                          >
+                            <IoChatbubbleOutline />
+                          </IconButton>
+                          {comments[post.id] && (
+                            <VuiTypography variant="caption" color="text">
+                              {comments[post.id].length}
+                            </VuiTypography>
+                          )}
+                        </VuiBox>
                       </VuiBox>
+
+                      {/* Comments section */}
+                      {expandedComments[post.id] && (
+                        <VuiBox mt={3} pl={2} pr={2} pb={2}>
+                          <VuiTypography variant="subtitle2" color="white" mb={2}>
+                            Comments
+                          </VuiTypography>
+
+                          {/* Loading indicator for comments */}
+                          {loadingComments[post.id] && (
+                            <VuiBox display="flex" justifyContent="center" p={2}>
+                              <CircularProgress color="info" size={20} />
+                            </VuiBox>
+                          )}
+
+                          {/* Comments list */}
+                          {!loadingComments[post.id] && comments[post.id] && comments[post.id].length > 0 ? (
+                            <VuiBox>
+                              {comments[post.id].map((comment) => (
+                                <Card key={comment.id} sx={{ mb: 2, backgroundColor: "rgba(255, 255, 255, 0.05)" }}>
+                                  <VuiBox p={2}>
+                                    <VuiBox display="flex" justifyContent="space-between" mb={1}>
+                                      <VuiTypography variant="caption" color="info.main">
+                                        {comment.author.username}
+                                      </VuiTypography>
+                                      <VuiTypography variant="caption" color="text">
+                                        {formatDate(comment.createdAt)}
+                                      </VuiTypography>
+                                    </VuiBox>
+                                    <VuiTypography variant="body2" color="white">
+                                      {comment.content}
+                                    </VuiTypography>
+                                  </VuiBox>
+                                </Card>
+                              ))}
+                            </VuiBox>
+                          ) : (
+                            !loadingComments[post.id] && (
+                              <VuiBox p={2} textAlign="center">
+                                <VuiTypography variant="body2" color="text">
+                                  No comments yet. Be the first to comment!
+                                </VuiTypography>
+                              </VuiBox>
+                            )
+                          )}
+
+                          {/* Comment form */}
+                          {isAuthenticated && (
+                            <VuiBox mt={2}>
+                              <TextField
+                                fullWidth
+                                multiline
+                                rows={2}
+                                placeholder="Write a comment..."
+                                value={newComments[post.id] || ""}
+                                onChange={(e) => setNewComments(prev => ({ ...prev, [post.id]: e.target.value }))}
+                                sx={{
+                                  "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                                    borderRadius: "8px",
+                                    "& fieldset": {
+                                      borderColor: "rgba(255, 255, 255, 0.2)",
+                                    },
+                                    "&:hover fieldset": {
+                                      borderColor: "rgba(255, 255, 255, 0.4)",
+                                    },
+                                  },
+                                  "& .MuiInputBase-input": {
+                                    color: "white",
+                                  },
+                                }}
+                              />
+                              <VuiBox display="flex" justifyContent="flex-end" mt={1}>
+                                <VuiButton 
+                                  variant="contained" 
+                                  color="info" 
+                                  size="small"
+                                  onClick={() => handleCreateComment(post.id)}
+                                >
+                                  Post Comment
+                                </VuiButton>
+                              </VuiBox>
+                            </VuiBox>
+                          )}
+                        </VuiBox>
+                      )}
                     </VuiBox>
                   </Card>
                 </Grid>

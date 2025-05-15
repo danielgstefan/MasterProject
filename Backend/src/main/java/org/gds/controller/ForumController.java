@@ -64,11 +64,11 @@ public class ForumController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sort,
             @RequestParam(defaultValue = "desc") String direction) {
-        
+
         Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") ? 
                 Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-        
+
         Page<ForumPost> posts = forumService.getAllPosts(pageable);
         return ResponseEntity.ok(posts);
     }
@@ -86,7 +86,7 @@ public class ForumController {
             @PathVariable String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ForumPost> posts = forumService.getPostsByCategory(category, pageable);
         return ResponseEntity.ok(posts);
@@ -115,14 +115,14 @@ public class ForumController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ForumPost> createPost(@Valid @RequestBody PostRequest postRequest) {
         User currentUser = getCurrentUser();
-        
+
         ForumPost post = new ForumPost(
                 postRequest.getTitle(),
                 postRequest.getContent(),
                 currentUser,
                 postRequest.getCategory()
         );
-        
+
         ForumPost createdPost = forumService.createPost(post);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
@@ -139,9 +139,9 @@ public class ForumController {
     public ResponseEntity<?> updatePost(
             @PathVariable Long id,
             @Valid @RequestBody PostRequest postRequest) {
-        
+
         User currentUser = getCurrentUser();
-        
+
         return forumService.getPostById(id)
                 .map(post -> {
                     // Check if the user is the author or an admin
@@ -151,12 +151,12 @@ public class ForumController {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                                 .body(new MessageResponse("You can only edit your own posts"));
                     }
-                    
+
                     ForumPost updatedPost = new ForumPost();
                     updatedPost.setTitle(postRequest.getTitle());
                     updatedPost.setContent(postRequest.getContent());
                     updatedPost.setCategory(postRequest.getCategory());
-                    
+
                     return forumService.updatePost(id, updatedPost)
                             .map(ResponseEntity::ok)
                             .orElse(ResponseEntity.notFound().build());
@@ -174,7 +174,7 @@ public class ForumController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
         User currentUser = getCurrentUser();
-        
+
         return forumService.getPostById(id)
                 .map(post -> {
                     // Check if the user is the author or an admin
@@ -184,7 +184,7 @@ public class ForumController {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                                 .body(new MessageResponse("You can only delete your own posts"));
                     }
-                    
+
                     forumService.deletePost(id);
                     return ResponseEntity.ok(new MessageResponse("Post deleted successfully"));
                 })
@@ -204,7 +204,7 @@ public class ForumController {
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ForumPost> posts = forumService.searchPosts(query, pageable);
         return ResponseEntity.ok(posts);
@@ -225,9 +225,9 @@ public class ForumController {
             @PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt"));
-        
+
         try {
             Page<ForumComment> comments = forumService.getCommentsByPostId(postId, pageable);
             return ResponseEntity.ok(comments);
@@ -248,9 +248,9 @@ public class ForumController {
     public ResponseEntity<?> createComment(
             @PathVariable Long postId,
             @Valid @RequestBody CommentRequest commentRequest) {
-        
+
         User currentUser = getCurrentUser();
-        
+
         return forumService.getPostById(postId)
                 .map(post -> {
                     ForumComment comment = new ForumComment(
@@ -258,7 +258,7 @@ public class ForumController {
                             currentUser,
                             post
                     );
-                    
+
                     ForumComment createdComment = forumService.createComment(comment);
                     return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
                 })
@@ -277,9 +277,9 @@ public class ForumController {
     public ResponseEntity<?> updateComment(
             @PathVariable Long commentId,
             @Valid @RequestBody CommentRequest commentRequest) {
-        
+
         User currentUser = getCurrentUser();
-        
+
         return forumService.getCommentById(commentId)
                 .map(comment -> {
                     // Check if the user is the author or an admin
@@ -289,10 +289,10 @@ public class ForumController {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                                 .body(new MessageResponse("You can only edit your own comments"));
                     }
-                    
+
                     ForumComment updatedComment = new ForumComment();
                     updatedComment.setContent(commentRequest.getContent());
-                    
+
                     return forumService.updateComment(commentId, updatedComment)
                             .map(ResponseEntity::ok)
                             .orElse(ResponseEntity.notFound().build());
@@ -310,7 +310,7 @@ public class ForumController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
         User currentUser = getCurrentUser();
-        
+
         return forumService.getCommentById(commentId)
                 .map(comment -> {
                     // Check if the user is the author or an admin
@@ -320,7 +320,7 @@ public class ForumController {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                                 .body(new MessageResponse("You can only delete your own comments"));
                     }
-                    
+
                     forumService.deleteComment(commentId);
                     return ResponseEntity.ok(new MessageResponse("Comment deleted successfully"));
                 })
@@ -339,7 +339,7 @@ public class ForumController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> likePost(@PathVariable Long postId) {
         User currentUser = getCurrentUser();
-        
+
         try {
             forumService.likePost(currentUser, postId, true);
             return ResponseEntity.ok(new MessageResponse("Post liked successfully"));
@@ -358,7 +358,7 @@ public class ForumController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> dislikePost(@PathVariable Long postId) {
         User currentUser = getCurrentUser();
-        
+
         try {
             forumService.likePost(currentUser, postId, false);
             return ResponseEntity.ok(new MessageResponse("Post disliked successfully"));
@@ -377,7 +377,7 @@ public class ForumController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> removeLike(@PathVariable Long postId) {
         User currentUser = getCurrentUser();
-        
+
         try {
             forumService.removeLike(currentUser, postId);
             return ResponseEntity.ok(new MessageResponse("Like/dislike removed successfully"));
@@ -395,11 +395,15 @@ public class ForumController {
     @GetMapping("/posts/{postId}/likes")
     public ResponseEntity<?> getLikeInfo(@PathVariable Long postId) {
         try {
-            Long likeCount = forumService.getLikeCount(postId);
-            
+            Long likesCount = forumService.getLikesCount(postId);
+            Long dislikesCount = forumService.getDislikesCount(postId);
+            Long totalLikeCount = forumService.getLikeCount(postId);
+
             Map<String, Object> response = new HashMap<>();
-            response.put("likeCount", likeCount);
-            
+            response.put("likeCount", totalLikeCount);
+            response.put("likesCount", likesCount);
+            response.put("dislikesCount", dislikesCount);
+
             // Add user's like status if authenticated
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.isAuthenticated() && 
@@ -408,7 +412,7 @@ public class ForumController {
                 Boolean userLikeStatus = forumService.getUserLikeStatus(currentUser, postId);
                 response.put("userLikeStatus", userLikeStatus);
             }
-            
+
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
