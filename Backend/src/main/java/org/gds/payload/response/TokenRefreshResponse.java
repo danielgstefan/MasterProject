@@ -1,6 +1,7 @@
 package org.gds.payload.response;
 
 public class TokenRefreshResponse {
+    @com.fasterxml.jackson.annotation.JsonProperty("token")
     private String accessToken;
     private String refreshToken;
     private String tokenType = "Bearer";
