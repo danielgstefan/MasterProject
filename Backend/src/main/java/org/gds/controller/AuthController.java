@@ -8,6 +8,7 @@ import org.gds.model.RefreshToken;
 import org.gds.payload.request.LoginRequest;
 import org.gds.payload.request.SignupRequest;
 import org.gds.payload.request.TokenRefreshRequest;
+import org.gds.payload.request.UpdateProfileRequest;
 import org.gds.payload.response.JwtResponse;
 import org.gds.payload.response.MessageResponse;
 import org.gds.payload.response.TokenRefreshResponse;
@@ -43,22 +44,22 @@ public class AuthController {
 
     @Autowired
     AuthenticationManager authenticationManager;
-    
+
     @Autowired
     UserRepository userRepository;
-    
+
     @Autowired
     RoleRepository roleRepository;
-    
+
     @Autowired
     PasswordEncoder encoder;
-    
+
     @Autowired
     JwtUtils jwtUtils;
-    
+
     @Autowired
     RefreshTokenService refreshTokenService;
-    
+
     /**
      * Authenticate a user.
      * @param loginRequest the login request
@@ -68,17 +69,17 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        
+
         String jwt = jwtUtils.generateJwtToken(authentication);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-        
+
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(new JwtResponse(jwt,
                 refreshToken.getToken(),
                 userDetails.getId(),
@@ -86,7 +87,7 @@ public class AuthController {
                 userDetails.getEmail(),
                 roles));
     }
-    
+
     /**
      * Register a new user.
      * @param signUpRequest the signup request
@@ -99,21 +100,21 @@ public class AuthController {
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
-        
+
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
-        
+
         // Create new user's account
         User user = new User(signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
-        
+
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
-        
+
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -133,10 +134,10 @@ public class AuthController {
                 }
             });
         }
-        
+
         user.setRoles(roles);
         userRepository.save(user);
-        
+
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
@@ -171,5 +172,70 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(new MessageResponse("Log out successful!"));
+    }
+
+    /**
+     * Update user profile information.
+     * @param updateProfileRequest the update profile request
+     * @return a JWT response with new token if username changed, or a message response
+     */
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        // Check if username is already taken by another user
+        if (!userDetails.getUsername().equals(updateProfileRequest.getUsername()) && 
+            userRepository.existsByUsername(updateProfileRequest.getUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is already taken!"));
+        }
+
+        // Check if email is already in use by another user
+        if (!userDetails.getEmail().equals(updateProfileRequest.getEmail()) && 
+            userRepository.existsByEmail(updateProfileRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        // Update user information
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Error: User not found."));
+
+        boolean usernameChanged = !user.getUsername().equals(updateProfileRequest.getUsername());
+
+        user.setUsername(updateProfileRequest.getUsername());
+        user.setEmail(updateProfileRequest.getEmail());
+
+        userRepository.save(user);
+
+        // If username changed, generate new token and return it
+        if (usernameChanged) {
+            // Generate new JWT token with the updated username
+            String newToken = jwtUtils.generateTokenFromUsername(user.getUsername());
+
+            // Get or create a new refresh token
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userId);
+
+            // Get user roles
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(item -> item.getAuthority())
+                    .collect(Collectors.toList());
+
+            // Return new JWT response with updated tokens and user info
+            return ResponseEntity.ok(new JwtResponse(
+                    newToken,
+                    refreshToken.getToken(),
+                    userId,
+                    user.getUsername(),
+                    user.getEmail(),
+                    roles));
+        }
+
+        // If only email changed, return success message
+        return ResponseEntity.ok(new MessageResponse("Profile updated successfully!"));
     }
 }

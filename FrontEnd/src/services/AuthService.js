@@ -69,18 +69,18 @@ class AuthService {
           }
         }
       );
-      
+
       if (response.data && response.data.token) {
         this.setToken(response.data.token);
         this.setRefreshToken(response.data.refreshToken);
-        
+
         const userData = {
           id: response.data.id,
           username: response.data.username,
           email: response.data.email,
           roles: response.data.roles
         };
-        
+
         this.setUserData(userData);
         return response.data;
       } else {
@@ -135,7 +135,7 @@ class AuthService {
     return localStorage.getItem(TOKEN_KEY);
   }
   getRefreshToken() {
-    return localStorage.getItem("refresh_token");
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
   /**
@@ -231,6 +231,70 @@ class AuthService {
     const token = this.getToken();
     const user = this.getCurrentUser();
     return !!(token && user);
+  }
+
+  /**
+   * Update user profile information.
+   * @param {string} username - The new username
+   * @param {string} email - The new email
+   * @returns {Promise} - A promise that resolves to the response data
+   */
+  updateProfile(username, email) {
+    return axios
+      .put(
+        API_URL + "profile",
+        {
+          username,
+          email
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      .then(response => {
+        // Check if the response contains a new token (username was changed)
+        if (response.data && response.data.token) {
+          // Update tokens in storage
+          this.setToken(response.data.token);
+          if (response.data.refreshToken) {
+            this.setRefreshToken(response.data.refreshToken);
+          }
+
+          // Update user data in storage
+          const userData = {
+            id: response.data.id,
+            username: response.data.username,
+            email: response.data.email,
+            roles: response.data.roles
+          };
+          this.setUserData(userData);
+        } else {
+          // If no token in response, just update the stored user data
+          const userData = this.getCurrentUser();
+          if (userData) {
+            userData.username = username;
+            userData.email = email;
+            this.setUserData(userData);
+          }
+        }
+        return response.data;
+      })
+      .catch(error => {
+        if (error.response) {
+          // Server responded with error
+          console.error("Server error:", error.response.data);
+          console.error("Status:", error.response.status);
+        } else if (error.request) {
+          // Request was made but no response
+          console.error("No response received:", error.request);
+        } else {
+          // Error in request setup
+          console.error("Request setup error:", error.message);
+        }
+        throw error;
+      });
   }
 }
 
