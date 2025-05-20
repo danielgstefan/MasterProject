@@ -41,29 +41,52 @@ function Chat() {
   // State for notifications
   const [notification, setNotification] = useState({ open: false, message: "", severity: "success" });
 
-  // Check if user is authenticated
-  const isAuthenticated = AuthService.isAuthenticated();
-  const currentUser = AuthService.getCurrentUser();
+  // Check if user is authenticated (using state to ensure reactivity)
+  const [isAuthenticated, setIsAuthenticated] = useState(AuthService.isAuthenticated());
+  const [currentUser, setCurrentUser] = useState(AuthService.getCurrentUser());
   const isAdmin = currentUser?.roles?.includes("ROLE_ADMIN");
+
+  // Listen for authentication changes
+  useEffect(() => {
+    const checkAuth = () => {
+      setIsAuthenticated(AuthService.isAuthenticated());
+      setCurrentUser(AuthService.getCurrentUser());
+    };
+
+    // Check auth status initially and set up interval to check periodically
+    checkAuth();
+    const authCheckInterval = setInterval(checkAuth, 2000);
+
+    return () => {
+      clearInterval(authCheckInterval);
+    };
+  }, []);
 
   // Fetch messages on component mount and set up refresh interval
   useEffect(() => {
-    fetchMessages();
-    
-    // Set up interval to refresh messages every 5 seconds
-    const interval = setInterval(() => {
-      fetchMessages(false); // Don't show loading indicator for refreshes
-    }, 5000);
-    
-    setRefreshInterval(interval);
-    
+    // Only fetch messages and set up polling if user is authenticated
+    if (isAuthenticated) {
+      fetchMessages();
+
+      // Set up interval to refresh messages every 5 seconds
+      const interval = setInterval(() => {
+        fetchMessages(false); // Don't show loading indicator for refreshes
+      }, 5000);
+
+      setRefreshInterval(interval);
+    } else {
+      // If not authenticated, clear any existing messages and set loading to false
+      setMessages([]);
+      setLoading(false);
+    }
+
     // Clean up interval on component unmount
     return () => {
       if (refreshInterval) {
         clearInterval(refreshInterval);
       }
     };
-  }, [currentPage]);
+  }, [currentPage, isAuthenticated]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -77,10 +100,17 @@ function Chat() {
 
   // Fetch messages from the backend
   const fetchMessages = async (showLoading = true) => {
+    // Don't fetch if user is not authenticated
+    if (!isAuthenticated) {
+      setMessages([]);
+      setLoading(false);
+      return;
+    }
+
     if (showLoading) {
       setLoading(true);
     }
-    
+
     try {
       const response = await ChatService.getChatHistory(currentPage, 50);
       setMessages(response.data.content);
