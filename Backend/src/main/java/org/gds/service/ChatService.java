@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ public class ChatService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     /**
      * Get recent chat messages.
@@ -57,7 +61,7 @@ public class ChatService {
     public Chat sendMessage(String message, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-        
+
         Chat chat = new Chat(message, user);
         return chatRepository.save(chat);
     }
@@ -69,5 +73,38 @@ public class ChatService {
      */
     public void deleteMessage(Long id) {
         chatRepository.deleteById(id);
+
+        // Notify clients about the deleted message
+        Chat systemMessage = createSystemMessage("A message has been deleted by an administrator");
+        messagingTemplate.convertAndSend("/topic/public", 
+            new org.gds.dto.ChatDTO(systemMessage.getId(), systemMessage.getMessage(), 
+                                    systemMessage.getSender().getUsername(), systemMessage.getTimestamp()));
+    }
+
+    /**
+     * Create a system message.
+     * 
+     * @param message The system message content
+     * @return A chat message with system as the sender
+     */
+    public Chat createSystemMessage(String message) {
+        User systemUser = userRepository.findByUsername("system")
+                .orElseGet(() -> {
+                    User system = new User();
+                    system.setUsername("system");
+                    system.setEmail("system@example.com");
+                    system.setPassword("not-applicable");
+
+                    // Completăm toate câmpurile marcate cu @NotBlank
+                    system.setFirstName("System");
+                    system.setLastName("User");
+                    system.setPhoneNumber("-");
+                    system.setLocation("N/A");
+
+                    return userRepository.save(system);
+                });
+
+        Chat chat = new Chat(message, systemUser);
+        return chatRepository.save(chat);
     }
 }

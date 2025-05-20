@@ -1,10 +1,12 @@
 package org.gds.controller;
 
+import org.gds.dto.ChatDTO;
 import org.gds.model.Chat;
 import org.gds.payload.request.ChatRequest;
 import org.gds.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -12,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for chat operations.
@@ -29,14 +32,24 @@ public class ChatController {
      *
      * @param page Page number
      * @param size Page size
-     * @return Page of chat messages
+     * @return Page of chat message DTOs
      */
     @GetMapping("/recent")
-    public ResponseEntity<Page<Chat>> getRecentMessages(
+    public ResponseEntity<Page<ChatDTO>> getRecentMessages(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Page<Chat> messages = chatService.getRecentMessages(page, size);
-        return ResponseEntity.ok(messages);
+
+        // Convert Chat entities to ChatDTOs
+        Page<ChatDTO> messageDTOs = new PageImpl<>(
+            messages.getContent().stream()
+                .map(chat -> new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp()))
+                .collect(Collectors.toList()),
+            messages.getPageable(),
+            messages.getTotalElements()
+        );
+
+        return ResponseEntity.ok(messageDTOs);
     }
 
     /**
@@ -44,30 +57,41 @@ public class ChatController {
      *
      * @param page Page number
      * @param size Page size
-     * @return Page of chat messages
+     * @return Page of chat message DTOs
      */
     @GetMapping("/history")
-    public ResponseEntity<Page<Chat>> getChatHistory(
+    public ResponseEntity<Page<ChatDTO>> getChatHistory(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Page<Chat> messages = chatService.getChatHistory(page, size);
-        return ResponseEntity.ok(messages);
+
+        // Convert Chat entities to ChatDTOs
+        Page<ChatDTO> messageDTOs = new PageImpl<>(
+            messages.getContent().stream()
+                .map(chat -> new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp()))
+                .collect(Collectors.toList()),
+            messages.getPageable(),
+            messages.getTotalElements()
+        );
+
+        return ResponseEntity.ok(messageDTOs);
     }
 
     /**
      * Send a new chat message.
      *
      * @param chatRequest Chat message request
-     * @return The created chat message
+     * @return The created chat message DTO
      */
     @PostMapping("/send")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<Chat> sendMessage(@Valid @RequestBody ChatRequest chatRequest) {
+    public ResponseEntity<ChatDTO> sendMessage(@Valid @RequestBody ChatRequest chatRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
         Chat message = chatService.sendMessage(chatRequest.getMessage(), username);
-        return ResponseEntity.ok(message);
+        ChatDTO messageDTO = new ChatDTO(message.getId(), message.getMessage(), message.getSender().getUsername(), message.getTimestamp());
+        return ResponseEntity.ok(messageDTO);
     }
 
     /**
