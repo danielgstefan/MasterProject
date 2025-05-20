@@ -78,6 +78,10 @@ class AuthService {
           id: response.data.id,
           username: response.data.username,
           email: response.data.email,
+          firstName: response.data.firstName,
+          lastName: response.data.lastName,
+          phoneNumber: response.data.phoneNumber,
+          location: response.data.location,
           roles: response.data.roles
         };
 
@@ -173,16 +177,24 @@ class AuthService {
    * @param {string} username - The username
    * @param {string} email - The email
    * @param {string} password - The password
+   * @param {string} firstName - The first name
+   * @param {string} lastName - The last name
+   * @param {string} phoneNumber - The phone number
+   * @param {string} location - The location
    * @returns {Promise} - A promise that resolves to the response data
    */
-  register(username, email, password) {
+  register(username, email, password, firstName, lastName, phoneNumber, location) {
     return axios
       .post(
         API_URL + "signup",
         {
           username,
           email,
-          password
+          password,
+          firstName,
+          lastName,
+          phoneNumber,
+          location
         },
         {
           timeout: 10000,
@@ -237,15 +249,23 @@ class AuthService {
    * Update user profile information.
    * @param {string} username - The new username
    * @param {string} email - The new email
+   * @param {string} firstName - The new first name
+   * @param {string} lastName - The new last name
+   * @param {string} phoneNumber - The new phone number
+   * @param {string} location - The new location
    * @returns {Promise} - A promise that resolves to the response data
    */
-  updateProfile(username, email) {
+  updateProfile(username, email, firstName, lastName, phoneNumber, location) {
     return axios
       .put(
         API_URL + "profile",
         {
           username,
-          email
+          email,
+          firstName,
+          lastName,
+          phoneNumber,
+          location
         },
         {
           headers: {
@@ -267,6 +287,10 @@ class AuthService {
             id: response.data.id,
             username: response.data.username,
             email: response.data.email,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+            phoneNumber: response.data.phoneNumber,
+            location: response.data.location,
             roles: response.data.roles
           };
           this.setUserData(userData);
@@ -276,6 +300,10 @@ class AuthService {
           if (userData) {
             userData.username = username;
             userData.email = email;
+            userData.firstName = firstName;
+            userData.lastName = lastName;
+            userData.phoneNumber = phoneNumber;
+            userData.location = location;
             this.setUserData(userData);
           }
         }

@@ -85,6 +85,10 @@ public class AuthController {
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
+                userDetails.getFirstName(),
+                userDetails.getLastName(),
+                userDetails.getPhoneNumber(),
+                userDetails.getLocation(),
                 roles));
     }
 
@@ -108,9 +112,15 @@ public class AuthController {
         }
 
         // Create new user's account
-        User user = new User(signUpRequest.getUsername(),
+        User user = new User(
+                signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
+                encoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getFirstName(),
+                signUpRequest.getLastName(),
+                signUpRequest.getPhoneNumber(),
+                signUpRequest.getLocation()
+        );
 
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
@@ -209,6 +219,10 @@ public class AuthController {
 
         user.setUsername(updateProfileRequest.getUsername());
         user.setEmail(updateProfileRequest.getEmail());
+        user.setFirstName(updateProfileRequest.getFirstName());
+        user.setLastName(updateProfileRequest.getLastName());
+        user.setPhoneNumber(updateProfileRequest.getPhoneNumber());
+        user.setLocation(updateProfileRequest.getLocation());
 
         userRepository.save(user);
 
@@ -232,10 +246,14 @@ public class AuthController {
                     userId,
                     user.getUsername(),
                     user.getEmail(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getPhoneNumber(),
+                    user.getLocation(),
                     roles));
         }
 
-        // If only email changed, return success message
+        // If only other fields changed, return success message
         return ResponseEntity.ok(new MessageResponse("Profile updated successfully!"));
     }
 }

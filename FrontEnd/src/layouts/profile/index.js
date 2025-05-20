@@ -53,8 +53,9 @@ function Overview() {
   const [userData, setUserData] = useState({
     username: "",
     email: "",
-    fullName: "",
-    mobile: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
     location: ""
   });
 
@@ -65,9 +66,10 @@ function Overview() {
       setUserData({
         username: user.username || "",
         email: user.email || "",
-        fullName: user.username || "", // Using username as fullName since we don't have fullName in the User model
-        mobile: "(Not set)",
-        location: "(Not set)"
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        phoneNumber: user.phoneNumber || "",
+        location: user.location || ""
       });
     }
   }, []);
@@ -77,7 +79,10 @@ function Overview() {
       ...userData,
       username: updatedInfo.username,
       email: updatedInfo.email,
-      fullName: updatedInfo.username // Update fullName when username changes
+      firstName: updatedInfo.firstName,
+      lastName: updatedInfo.lastName,
+      phoneNumber: updatedInfo.phoneNumber,
+      location: updatedInfo.location
     });
   };
 
@@ -134,12 +139,13 @@ function Overview() {
           >
             <EditableProfileInfoCard
               title="profile information"
-              description="Update your profile information below. You can change your username and email address."
+              description="Update your profile information below.."
               info={{
                 username: userData.username,
                 email: userData.email,
-                fullName: userData.fullName,
-                mobile: userData.mobile,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                phoneNumber: userData.phoneNumber,
                 location: userData.location,
               }}
               social={[

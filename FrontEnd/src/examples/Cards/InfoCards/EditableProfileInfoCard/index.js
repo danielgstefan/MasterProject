@@ -45,7 +45,11 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     username: info.username || "",
-    email: info.email || ""
+    email: info.email || "",
+    firstName: info.firstName || "",
+    lastName: info.lastName || "",
+    phoneNumber: info.phoneNumber || "",
+    location: info.location || ""
   });
   const { size } = typography;
 
@@ -54,7 +58,11 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
     if (!isEditing) {
       setFormData({
         username: info.username || "",
-        email: info.email || ""
+        email: info.email || "",
+        firstName: info.firstName || "",
+        lastName: info.lastName || "",
+        phoneNumber: info.phoneNumber || "",
+        location: info.location || ""
       });
     }
   }, [info, isEditing]);
@@ -84,7 +92,14 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
     setError("");
 
     try {
-      await AuthService.updateProfile(formData.username, formData.email);
+      await AuthService.updateProfile(
+        formData.username, 
+        formData.email, 
+        formData.firstName, 
+        formData.lastName, 
+        formData.phoneNumber, 
+        formData.location
+      );
       setIsEditing(false);
       setIsLoading(false);
 
@@ -93,7 +108,11 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
         onProfileUpdate({
           ...info,
           username: formData.username,
-          email: formData.email
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phoneNumber: formData.phoneNumber,
+          location: formData.location
         });
       }
     } catch (error) {
@@ -165,6 +184,114 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
               }}
             />
           </VuiBox>
+          <VuiBox mb={2}>
+            <VuiTypography variant="button" color="text" fontWeight="regular">
+              First Name
+            </VuiTypography>
+            <TextField
+              fullWidth
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              margin="dense"
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.info.main,
+                  },
+                },
+              }}
+            />
+          </VuiBox>
+          <VuiBox mb={2}>
+            <VuiTypography variant="button" color="text" fontWeight="regular">
+              Last Name
+            </VuiTypography>
+            <TextField
+              fullWidth
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              margin="dense"
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.info.main,
+                  },
+                },
+              }}
+            />
+          </VuiBox>
+          <VuiBox mb={2}>
+            <VuiTypography variant="button" color="text" fontWeight="regular">
+              Phone Number
+            </VuiTypography>
+            <TextField
+              fullWidth
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              margin="dense"
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.info.main,
+                  },
+                },
+              }}
+            />
+          </VuiBox>
+          <VuiBox mb={2}>
+            <VuiTypography variant="button" color="text" fontWeight="regular">
+              Location
+            </VuiTypography>
+            <TextField
+              fullWidth
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              margin="dense"
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.info.main,
+                  },
+                },
+              }}
+            />
+          </VuiBox>
           {error && (
             <VuiBox mb={2}>
               <VuiTypography variant="button" color="error" fontWeight="regular">
@@ -197,8 +324,8 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
     }
 
     return Object.keys(info).map((key) => {
-      // Skip username and email in display mode as they're handled separately
-      if (key === "username" || key === "email") return null;
+      // Skip username, email, firstName, lastName, phoneNumber, and location in display mode as they're handled separately
+      if (key === "username" || key === "email" || key === "firstName" || key === "lastName" || key === "phoneNumber" || key === "location") return null;
 
       // Format the label
       let label = key;
@@ -240,6 +367,38 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
           </VuiTypography>
           <VuiTypography variant="button" fontWeight="regular" color="white">
             &nbsp;{info.email || ""}
+          </VuiTypography>
+        </VuiBox>
+        <VuiBox display="flex" py={1} pr={2}>
+          <VuiTypography variant="button" color="text" fontWeight="regular" textTransform="capitalize">
+            first name: &nbsp;
+          </VuiTypography>
+          <VuiTypography variant="button" fontWeight="regular" color="white">
+            &nbsp;{info.firstName || ""}
+          </VuiTypography>
+        </VuiBox>
+        <VuiBox display="flex" py={1} pr={2}>
+          <VuiTypography variant="button" color="text" fontWeight="regular" textTransform="capitalize">
+            last name: &nbsp;
+          </VuiTypography>
+          <VuiTypography variant="button" fontWeight="regular" color="white">
+            &nbsp;{info.lastName || ""}
+          </VuiTypography>
+        </VuiBox>
+        <VuiBox display="flex" py={1} pr={2}>
+          <VuiTypography variant="button" color="text" fontWeight="regular" textTransform="capitalize">
+            phone number: &nbsp;
+          </VuiTypography>
+          <VuiTypography variant="button" fontWeight="regular" color="white">
+            &nbsp;{info.phoneNumber || ""}
+          </VuiTypography>
+        </VuiBox>
+        <VuiBox display="flex" py={1} pr={2}>
+          <VuiTypography variant="button" color="text" fontWeight="regular" textTransform="capitalize">
+            location: &nbsp;
+          </VuiTypography>
+          <VuiTypography variant="button" fontWeight="regular" color="white">
+            &nbsp;{info.location || ""}
           </VuiTypography>
         </VuiBox>
       </>
