@@ -19,11 +19,15 @@ public class JwtResponse {
     private Long id;
     private String username;
     private String email;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private String location;
     private List<String> roles;
 
     public JwtResponse() {
     }
-    
+
     public JwtResponse(String accessToken, String refreshToken, Long id, String username, String email) {
         this.token = accessToken;
         this.refreshToken = refreshToken;
@@ -38,6 +42,20 @@ public class JwtResponse {
         this.id = id;
         this.username = username;
         this.email = email;
+        this.roles = roles;
+    }
+
+    public JwtResponse(String accessToken, String refreshToken, Long id, String username, String email, 
+                      String firstName, String lastName, String phoneNumber, String location, List<String> roles) {
+        this.token = accessToken;
+        this.refreshToken = refreshToken;
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.location = location;
         this.roles = roles;
     }
 
@@ -95,5 +113,37 @@ public class JwtResponse {
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

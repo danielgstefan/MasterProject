@@ -16,13 +16,30 @@
 
 */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Icon } from "@mui/material";
 import welcome from "assets/images/welcome-profile.png";
 import VuiTypography from "components/VuiTypography/index";
 import VuiBox from "components/VuiBox/index";
+import AuthService from "services/AuthService";
 
 const Welcome = () => {
+  const [userData, setUserData] = useState({
+    firstName: "",
+    lastName: ""
+  });
+
+  useEffect(() => {
+    // Get user data from AuthService
+    const user = AuthService.getCurrentUser();
+    if (user) {
+      setUserData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || ""
+      });
+    }
+  }, []);
+
   return (
     <Card
       sx={({ breakpoints }) => ({
@@ -41,7 +58,7 @@ const Welcome = () => {
             Welcome back!
           </VuiTypography>
           <VuiTypography color="white" variant="button" fontWeight="regular">
-            Nice to see you, Mark Johnson!
+            Nice to see you, {userData.firstName} {userData.lastName}!
           </VuiTypography>
         </VuiBox>
         <VuiBox justifySelf="flex-end">

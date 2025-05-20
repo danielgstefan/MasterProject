@@ -56,6 +56,10 @@ function SignUp() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [location, setLocation] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -72,18 +76,18 @@ function SignUp() {
     setSuccessful(false);
     setLoading(true);
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !firstName || !lastName || !phoneNumber || !location) {
       setMessage("Please fill in all fields");
       setLoading(false);
       return;
     }
 
-    console.log("Sending registration request with:", { username, email, password });
+    console.log("Sending registration request with:", { username, email, password, firstName, lastName, phoneNumber, location });
 
     try {
       // Add a timeout to ensure the UI updates before making the API call
       setTimeout(() => {
-        AuthService.register(username, email, password)
+        AuthService.register(username, email, password, firstName, lastName, phoneNumber, location)
           .then(response => {
             console.log("Registration successful:", response);
             setMessage(response.data.message);
@@ -250,7 +254,7 @@ function SignUp() {
           <VuiBox mb={2}>
             <VuiBox mb={1} ml={0.5}>
               <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                Name
+                Username
               </VuiTypography>
             </VuiBox>
             <GradientBorder
@@ -264,7 +268,7 @@ function SignUp() {
               )}
             >
               <VuiInput
-                placeholder="Your full name..."
+                placeholder="Your username..."
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 sx={({ typography: { size } }) => ({
@@ -294,6 +298,110 @@ function SignUp() {
                 placeholder="Your email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                sx={({ typography: { size } }) => ({
+                  fontSize: size.sm,
+                })}
+              />
+            </GradientBorder>
+          </VuiBox>
+          <VuiBox mb={2}>
+            <VuiBox mb={1} ml={0.5}>
+              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                First Name
+              </VuiTypography>
+            </VuiBox>
+            <GradientBorder
+              minWidth="100%"
+              borderRadius={borders.borderRadius.lg}
+              padding="1px"
+              backgroundImage={radialGradient(
+                palette.gradients.borderLight.main,
+                palette.gradients.borderLight.state,
+                palette.gradients.borderLight.angle
+              )}
+            >
+              <VuiInput
+                placeholder="Your first name..."
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                sx={({ typography: { size } }) => ({
+                  fontSize: size.sm,
+                })}
+              />
+            </GradientBorder>
+          </VuiBox>
+          <VuiBox mb={2}>
+            <VuiBox mb={1} ml={0.5}>
+              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                Last Name
+              </VuiTypography>
+            </VuiBox>
+            <GradientBorder
+              minWidth="100%"
+              borderRadius={borders.borderRadius.lg}
+              padding="1px"
+              backgroundImage={radialGradient(
+                palette.gradients.borderLight.main,
+                palette.gradients.borderLight.state,
+                palette.gradients.borderLight.angle
+              )}
+            >
+              <VuiInput
+                placeholder="Your last name..."
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                sx={({ typography: { size } }) => ({
+                  fontSize: size.sm,
+                })}
+              />
+            </GradientBorder>
+          </VuiBox>
+          <VuiBox mb={2}>
+            <VuiBox mb={1} ml={0.5}>
+              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                Phone Number
+              </VuiTypography>
+            </VuiBox>
+            <GradientBorder
+              minWidth="100%"
+              borderRadius={borders.borderRadius.lg}
+              padding="1px"
+              backgroundImage={radialGradient(
+                palette.gradients.borderLight.main,
+                palette.gradients.borderLight.state,
+                palette.gradients.borderLight.angle
+              )}
+            >
+              <VuiInput
+                placeholder="Your phone number..."
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                sx={({ typography: { size } }) => ({
+                  fontSize: size.sm,
+                })}
+              />
+            </GradientBorder>
+          </VuiBox>
+          <VuiBox mb={2}>
+            <VuiBox mb={1} ml={0.5}>
+              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                Location
+              </VuiTypography>
+            </VuiBox>
+            <GradientBorder
+              minWidth="100%"
+              borderRadius={borders.borderRadius.lg}
+              padding="1px"
+              backgroundImage={radialGradient(
+                palette.gradients.borderLight.main,
+                palette.gradients.borderLight.state,
+                palette.gradients.borderLight.angle
+              )}
+            >
+              <VuiInput
+                placeholder="Your location..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 sx={({ typography: { size } }) => ({
                   fontSize: size.sm,
                 })}

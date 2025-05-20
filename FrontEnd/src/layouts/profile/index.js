@@ -16,6 +16,8 @@
 
 */
 
+// React imports
+import { useState, useEffect } from "react";
 // @mui material components
 // @mui icons
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -34,7 +36,7 @@ import profile3 from "assets/images/profile-3.png";
 // Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
-import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
+import EditableProfileInfoCard from "examples/Cards/InfoCards/EditableProfileInfoCard";
 import DefaultProjectCard from "examples/Cards/ProjectCards/DefaultProjectCard";
 import Footer from "examples/Footer";
 // Vision UI Dashboard React example components
@@ -44,8 +46,46 @@ import Header from "layouts/profile/components/Header";
 import PlatformSettings from "layouts/profile/components/PlatformSettings";
 import Welcome from "../profile/components/Welcome/index";
 import CarInformations from "./components/CarInformations";
+// Auth service
+import AuthService from "services/AuthService";
 
 function Overview() {
+  const [userData, setUserData] = useState({
+    username: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    location: ""
+  });
+
+  useEffect(() => {
+    // Get user data from AuthService
+    const user = AuthService.getCurrentUser();
+    if (user) {
+      setUserData({
+        username: user.username || "",
+        email: user.email || "",
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        phoneNumber: user.phoneNumber || "",
+        location: user.location || ""
+      });
+    }
+  }, []);
+
+  const handleProfileUpdate = (updatedInfo) => {
+    setUserData({
+      ...userData,
+      username: updatedInfo.username,
+      email: updatedInfo.email,
+      firstName: updatedInfo.firstName,
+      lastName: updatedInfo.lastName,
+      phoneNumber: updatedInfo.phoneNumber,
+      location: updatedInfo.location
+    });
+  };
+
   return (
     <DashboardLayout>
       <Header />
@@ -97,14 +137,16 @@ function Overview() {
               },
             })}
           >
-            <ProfileInfoCard
+            <EditableProfileInfoCard
               title="profile information"
-              description="Hi, I’m Mark Johnson, Decisions: If you can’t decide, the answer is no. If two equally difficult paths, choose the one more painful in the short term (pain avoidance is creating an illusion of equality)."
+              description="Update your profile information below.."
               info={{
-                fullName: "Mark Johnson",
-                mobile: "(44) 123 1234 123",
-                email: "mark@simmmple.com",
-                location: "United States",
+                username: userData.username,
+                email: userData.email,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                phoneNumber: userData.phoneNumber,
+                location: userData.location,
               }}
               social={[
                 {
@@ -123,6 +165,7 @@ function Overview() {
                   color: "instagram",
                 },
               ]}
+              onProfileUpdate={handleProfileUpdate}
             />
           </Grid>
         </Grid>
