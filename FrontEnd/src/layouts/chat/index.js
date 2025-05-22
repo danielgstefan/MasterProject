@@ -62,26 +62,56 @@ function Chat() {
     };
   }, []);
 
-  // Fetch messages on component mount and set up refresh interval
+  // Connect to WebSocket and fetch initial messages on component mount
   useEffect(() => {
-    // Only fetch messages and set up polling if user is authenticated
+    // Only connect to WebSocket and fetch messages if user is authenticated
     if (isAuthenticated) {
+      // Fetch initial messages
       fetchMessages();
 
-      // Set up interval to refresh messages every 5 seconds
-      const interval = setInterval(() => {
-        fetchMessages(false); // Don't show loading indicator for refreshes
-      }, 5000);
+      // Connect to WebSocket
+      const handleNewMessage = (message) => {
+        // Add the new message to the messages array if it's not already there
+        setMessages(prevMessages => {
+          // Check if the message is already in the array
+          const messageExists = prevMessages.some(m => m.id === message.id);
+          if (messageExists) {
+            return prevMessages;
+          }
 
-      setRefreshInterval(interval);
+          // Add the new message and sort by timestamp
+          const updatedMessages = [...prevMessages, message].sort((a, b) => 
+            new Date(a.timestamp) - new Date(b.timestamp)
+          );
+
+          return updatedMessages;
+        });
+      };
+
+      // Connect to WebSocket
+      ChatService.connect(handleNewMessage)
+        .catch(err => {
+          console.error("Error connecting to WebSocket:", err);
+
+          // Fall back to polling if WebSocket connection fails
+          const interval = setInterval(() => {
+            fetchMessages(false); // Don't show loading indicator for refreshes
+          }, 5000);
+
+          setRefreshInterval(interval);
+        });
     } else {
       // If not authenticated, clear any existing messages and set loading to false
       setMessages([]);
       setLoading(false);
     }
 
-    // Clean up interval on component unmount
+    // Clean up on component unmount
     return () => {
+      // Disconnect from WebSocket
+      ChatService.disconnect();
+
+      // Clear any polling interval
       if (refreshInterval) {
         clearInterval(refreshInterval);
       }
@@ -138,9 +168,13 @@ function Chat() {
     }
 
     try {
-      await ChatService.sendMessage(newMessage);
+      // Trimiți mesajul (fără să îl adaugi în state direct)
+      await ChatService.sendMessageWs(newMessage);
       setNewMessage("");
-      fetchMessages(false);
+
+      // Nu mai adaugi manual în `setMessages`!
+      // Vei primi mesajul în `handleNewMessage()` prin WebSocket
+
       setNotification({
         open: true,
         message: "Message sent successfully",
@@ -161,7 +195,13 @@ function Chat() {
     if (window.confirm("Are you sure you want to delete this message?")) {
       try {
         await ChatService.deleteMessage(id);
-        fetchMessages(false);
+
+        // No need to fetch messages as the deletion notification will come through the WebSocket
+        // But we'll keep this as a fallback in case the WebSocket is not working
+        if (!ChatService.connected) {
+          fetchMessages(false);
+        }
+
         setNotification({
           open: true,
           message: "Message deleted successfully",
@@ -226,7 +266,7 @@ function Chat() {
                 {/* Loading indicator */}
                 {loading && (
                   <VuiBox display="flex" justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
-                    <CircularProgress color="info" />
+                    <CircularProgress color="primary" />
                   </VuiBox>
                 )}
 
@@ -271,28 +311,28 @@ function Chat() {
                         display="flex"
                         flexDirection="column"
                         sx={{
-                          alignSelf: message.sender.username === currentUser?.username ? "flex-end" : "flex-start",
+                          alignSelf: message.senderUsername === currentUser?.username ? "flex-end" : "flex-start",
                           maxWidth: "80%",
                         }}
                       >
                         <Card 
-                          sx={{ 
-                            backgroundColor: message.sender.username === currentUser?.username 
-                              ? "info.main" 
+                          sx={{
+                            backgroundColor: message.senderUsername === currentUser?.username
+                                ? "#1A73E8"
                               : "rgba(255, 255, 255, 0.05)",
                             p: 2,
                             borderRadius: "15px",
-                            borderTopRightRadius: message.sender.username === currentUser?.username ? "0" : "15px",
-                            borderTopLeftRadius: message.sender.username === currentUser?.username ? "15px" : "0",
+                            borderTopRightRadius: message.senderUsername === currentUser?.username ? "0" : "15px",
+                            borderTopLeftRadius: message.senderUsername === currentUser?.username ? "15px" : "0",
                           }}
                         >
                           <VuiBox display="flex" justifyContent="space-between" mb={1}>
-                            <VuiTypography 
-                              variant="caption" 
-                              color={message.sender.username === currentUser?.username ? "white" : "info.main"}
-                              fontWeight="bold"
+                            <VuiTypography
+                                variant="caption"
+                                color={message.senderUsername === currentUser?.username ? "white" : "info"}
+                                fontWeight="bold"
                             >
-                              {message.sender.username}
+                              {message.senderUsername}
                             </VuiTypography>
                             {isAdmin && (
                               <IconButton 
@@ -312,7 +352,7 @@ function Chat() {
                           variant="caption" 
                           color="text"
                           sx={{ 
-                            alignSelf: message.sender.username === currentUser?.username ? "flex-end" : "flex-start",
+                            alignSelf: message.senderUsername === currentUser?.username ? "flex-end" : "flex-start",
                             mt: 0.5
                           }}
                         >
