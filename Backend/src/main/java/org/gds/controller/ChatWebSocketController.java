@@ -34,8 +34,8 @@ public class ChatWebSocketController {
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     public ChatDTO sendMessage(@Payload ChatRequest chatRequest, Principal principal) {
-        Chat chat = chatService.sendMessage(chatRequest.getMessage(), principal.getName());
-        return new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp());
+        // Use the new method that creates a ChatDTO directly to avoid lazy loading issues
+        return chatService.sendMessageDTO(chatRequest.getMessage(), principal.getName());
     }
 
     /**
@@ -51,7 +51,7 @@ public class ChatWebSocketController {
     public ChatDTO addUser(SimpMessageHeaderAccessor headerAccessor, Principal principal) {
         String username = principal.getName();
         headerAccessor.getSessionAttributes().put("username", username);
-        Chat chat = chatService.createSystemMessage(username + " joined the chat");
-        return new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp());
+        // Use the new method that creates a ChatDTO directly to avoid lazy loading issues
+        return chatService.createSystemMessageDTO(username + " joined the chat");
     }
 }

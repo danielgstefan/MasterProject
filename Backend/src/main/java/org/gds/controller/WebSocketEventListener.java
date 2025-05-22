@@ -1,5 +1,6 @@
 package org.gds.controller;
 
+import org.gds.model.Chat;
 import org.gds.service.ChatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +51,9 @@ public class WebSocketEventListener {
             logger.info("User disconnected: " + username);
 
             // Notify other users about the disconnection
-            messagingTemplate.convertAndSend("/topic/public", 
-                chatService.createSystemMessage(username + " left the chat"));
+            // Use the new method that creates a ChatDTO directly to avoid lazy loading issues
+            org.gds.dto.ChatDTO chatDTO = chatService.createSystemMessageDTO(username + " left the chat");
+            messagingTemplate.convertAndSend("/topic/public", chatDTO);
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.gds.service;
 
+import org.gds.dto.ChatDTO;
 import org.gds.model.Chat;
 import org.gds.model.User;
 import org.gds.repository.ChatRepository;
@@ -40,6 +41,19 @@ public class ChatService {
     }
 
     /**
+     * Get recent chat messages as DTOs.
+     * This method avoids the need to access the User's roles collection after the Hibernate session is closed.
+     *
+     * @param page Page number
+     * @param size Page size
+     * @return Page of chat message DTOs
+     */
+    public Page<ChatDTO> getRecentMessagesDTO(int page, int size) {
+        Page<Chat> messages = getRecentMessages(page, size);
+        return messages.map(chat -> new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp()));
+    }
+
+    /**
      * Get chat history in chronological order.
      *
      * @param page Page number
@@ -49,6 +63,19 @@ public class ChatService {
     public Page<Chat> getChatHistory(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return chatRepository.findAllByOrderByTimestampAsc(pageable);
+    }
+
+    /**
+     * Get chat history in chronological order as DTOs.
+     * This method avoids the need to access the User's roles collection after the Hibernate session is closed.
+     *
+     * @param page Page number
+     * @param size Page size
+     * @return Page of chat message DTOs
+     */
+    public Page<ChatDTO> getChatHistoryDTO(int page, int size) {
+        Page<Chat> messages = getChatHistory(page, size);
+        return messages.map(chat -> new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp()));
     }
 
     /**
@@ -67,6 +94,19 @@ public class ChatService {
     }
 
     /**
+     * Send a new chat message and return it as a DTO.
+     * This method avoids the need to access the User's roles collection after the Hibernate session is closed.
+     *
+     * @param message Message content
+     * @param username Username of the sender
+     * @return The created chat message as a DTO
+     */
+    public ChatDTO sendMessageDTO(String message, String username) {
+        Chat chat = sendMessage(message, username);
+        return new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp());
+    }
+
+    /**
      * Delete a chat message.
      *
      * @param id Message ID
@@ -75,10 +115,9 @@ public class ChatService {
         chatRepository.deleteById(id);
 
         // Notify clients about the deleted message
-        Chat systemMessage = createSystemMessage("A message has been deleted by an administrator");
-        messagingTemplate.convertAndSend("/topic/public", 
-            new org.gds.dto.ChatDTO(systemMessage.getId(), systemMessage.getMessage(), 
-                                    systemMessage.getSender().getUsername(), systemMessage.getTimestamp()));
+        // Use the new method that creates a ChatDTO directly to avoid lazy loading issues
+        ChatDTO chatDTO = createSystemMessageDTO("A message has been deleted by an administrator");
+        messagingTemplate.convertAndSend("/topic/public", chatDTO);
     }
 
     /**
@@ -106,5 +145,17 @@ public class ChatService {
 
         Chat chat = new Chat(message, systemUser);
         return chatRepository.save(chat);
+    }
+
+    /**
+     * Create a system message DTO directly.
+     * This method avoids the need to access the User's roles collection after the Hibernate session is closed.
+     * 
+     * @param message The system message content
+     * @return A chat message DTO with system as the sender
+     */
+    public ChatDTO createSystemMessageDTO(String message) {
+        Chat chat = createSystemMessage(message);
+        return new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp());
     }
 }

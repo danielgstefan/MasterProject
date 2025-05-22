@@ -168,31 +168,12 @@ function Chat() {
     }
 
     try {
-      // Try to send via WebSocket first, fall back to REST API
-      const response = await ChatService.sendMessageWs(newMessage);
+      // Trimiți mesajul (fără să îl adaugi în state direct)
+      await ChatService.sendMessageWs(newMessage);
       setNewMessage("");
 
-      // If we got a response (from REST API fallback), add it to messages
-      if (response && response.data) {
-        setMessages(prevMessages => {
-          // Check if the message is already in the array
-          const messageExists = prevMessages.some(m => m.id === response.data.id);
-          if (messageExists) {
-            return prevMessages;
-          }
-
-          // Add the new message and sort by timestamp
-          const updatedMessages = [...prevMessages, response.data].sort((a, b) => 
-            new Date(a.timestamp) - new Date(b.timestamp)
-          );
-
-          return updatedMessages;
-        });
-      } 
-      // If WebSocket is not connected, fetch messages
-      else if (!ChatService.connected) {
-        fetchMessages(false);
-      }
+      // Nu mai adaugi manual în `setMessages`!
+      // Vei primi mesajul în `handleNewMessage()` prin WebSocket
 
       setNotification({
         open: true,
