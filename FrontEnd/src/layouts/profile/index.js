@@ -44,7 +44,6 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 // Overview page components
 import Header from "layouts/profile/components/Header";
 import PlatformSettings from "layouts/profile/components/PlatformSettings";
-import Welcome from "../profile/components/Welcome/index";
 import CarInformations from "./components/CarInformations";
 // Auth service
 import AuthService from "services/AuthService";
@@ -111,32 +110,6 @@ function Overview() {
               },
             })}
           >
-            <Welcome />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            xl={5}
-            xxl={6}
-            sx={({ breakpoints }) => ({
-              [breakpoints.only("xl")]: {
-                gridArea: "2 / 1 / 3 / 3",
-              },
-            })}
-          >
-            <CarInformations />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            xl={3}
-            xxl={3}
-            sx={({ breakpoints }) => ({
-              [breakpoints.only("xl")]: {
-                gridArea: "1 / 2 / 2 / 3",
-              },
-            })}
-          >
             <EditableProfileInfoCard
               title="profile information"
               description="Update your profile information below.."
@@ -167,6 +140,19 @@ function Overview() {
               ]}
               onProfileUpdate={handleProfileUpdate}
             />
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            xl={5}
+            xxl={6}
+            sx={({ breakpoints }) => ({
+              [breakpoints.only("xl")]: {
+                gridArea: "2 / 1 / 3 / 3",
+              },
+            })}
+          >
+            <CarInformations />
           </Grid>
         </Grid>
       </VuiBox>

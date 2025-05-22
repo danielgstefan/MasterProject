@@ -183,7 +183,7 @@ function Sidenav({ color, brandName, routes, ...rest }) {
                 })
               }
             >
-              <SimmmpleLogo size="24px" />
+              <SimmmpleLogo size="40px" />
             </VuiBox>
             <VuiTypography
               variant="button"
