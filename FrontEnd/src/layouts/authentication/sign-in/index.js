@@ -1,20 +1,3 @@
-/*!
-
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 
 import { useState } from "react";
 
@@ -41,7 +24,7 @@ import borders from "assets/theme/base/borders";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images
-import bgSignIn from "assets/images/signInImage.png";
+import bgSignIn from "assets/images/login.jpg";
 
 // Auth context
 import { useAuth } from "../../../context/AuthContext";
@@ -105,11 +88,9 @@ function SignIn() {
 
   return (
     <CoverLayout
-      title="Nice to see you!"
       color="white"
-      description="Enter your email and password to sign in"
-      premotto="INSPIRED BY THE FUTURE:"
-      motto="THE VISION UI DASHBOARD"
+      premotto="ARE YOU READY FOR A RIDE?"
+      motto="Turn your engine on and let&apos;s go!"
       image={bgSignIn}
     >
       <VuiBox component="form" role="form" onSubmit={handleLogin}>

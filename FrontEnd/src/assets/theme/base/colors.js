@@ -57,8 +57,8 @@ export default {
   },
 
   primary: {
-    main: "#4318ff",
-    focus: "#9f7aea",
+    main: "#009688",
+    focus: "#4db6ac",
   },
 
   secondary: {
@@ -89,7 +89,7 @@ export default {
   },
 
   borderCol: {
-    main: "#56577a",
+    main: "#0b51ac",
     red: "#e31a1a",
     navbar: "rgba(226, 232, 240, 0.3)",
   },
@@ -129,8 +129,8 @@ export default {
   },
 
   dark: {
-    main: "#344767",
-    focus: "#121241",
+    main: "#0b51ac",
+    focus: "#3a3a3a",
     body: "#030c1d",
   },
 
@@ -211,8 +211,8 @@ export default {
 
     primary: {
       deg: "97.89",
-      main: "#4318ff",
-      state: "#9f7aea",
+      main: "#009688",
+      state: "#4db6ac",
     },
 
     secondary: {
@@ -321,9 +321,9 @@ export default {
 
   alertColors: {
     primary: {
-      main: "#7928ca",
+      main: "#676767",
       state: "#d6006c",
-      border: "#efb6e2",
+      border: "#656565",
     },
 
     secondary: {
@@ -371,8 +371,8 @@ export default {
 
   badgeColors: {
     primary: {
-      basic: "#805ad5",
-      background: "#f883dd",
+      basic: "#009688",
+      background: "#4db6ac",
       text: "#a3017e",
     },
 

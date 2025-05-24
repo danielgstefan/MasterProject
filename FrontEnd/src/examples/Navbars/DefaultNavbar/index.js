@@ -42,6 +42,9 @@ import breakpoints from "assets/theme/base/breakpoints";
 import colors from "assets/theme/base/colors";
 import borders from "assets/theme/base/borders";
 
+// Authentication service
+import AuthService from "services/AuthService";
+
 function DefaultNavbar({ 
   transparent = false, 
   light = false, 
@@ -51,6 +54,7 @@ function DefaultNavbar({
   const { borderWidth } = borders;
   const [mobileNavbar, setMobileNavbar] = useState(false);
   const [mobileView, setMobileView] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const openMobileNavbar = ({ currentTarget }) => setMobileNavbar(currentTarget.parentNode);
   const closeMobileNavbar = () => setMobileNavbar(false);
@@ -75,6 +79,9 @@ function DefaultNavbar({
 
     // Call the displayMobileNavbar function to set the state with the initial value.
     displayMobileNavbar();
+
+    // Check if user is authenticated
+    setIsAuthenticated(AuthService.isAuthenticated());
 
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", displayMobileNavbar);
@@ -120,14 +127,18 @@ function DefaultNavbar({
               margin: "0 auto",
             }}
           >
-            VISION UI FREE
+            BMW ENTHUSIAST
           </VuiTypography>
         </VuiBox>
         <VuiBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
           <DefaultNavbarLink icon="donut_large" name="dashboard" route="/dashboard" />
           <DefaultNavbarLink icon="person" name="profile" route="/profile" />
-          <DefaultNavbarLink icon="account_circle" name="sign up" route="/authentication/sign-up" />
-          <DefaultNavbarLink icon="key" name="sign in" route="/authentication/sign-in" />
+          {!isAuthenticated && (
+            <>
+              <DefaultNavbarLink icon="account_circle" name="sign up" route="/authentication/sign-up" />
+              <DefaultNavbarLink icon="key" name="sign in" route="/authentication/sign-in" />
+            </>
+          )}
         </VuiBox>
         {action &&
           (action.type === "internal" ? (
@@ -177,7 +188,7 @@ function DefaultNavbar({
           </Icon>
         </VuiBox>
       </VuiBox>
-      {mobileView && <DefaultNavbarMobile open={mobileNavbar} close={closeMobileNavbar} />}
+      {mobileView && <DefaultNavbarMobile open={mobileNavbar} close={closeMobileNavbar} isAuthenticated={isAuthenticated} />}
     </Container>
   );
 }
