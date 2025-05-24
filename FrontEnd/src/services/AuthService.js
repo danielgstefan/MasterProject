@@ -13,15 +13,17 @@ class AuthService {
     // Add request interceptor to add token to all requests
     axios.interceptors.request.use(
       (config) => {
-        const token = this.getToken();
-        if (token) {
-          config.headers["Authorization"] = `Bearer ${token}`;
+        // Only add token to requests to our API
+        if (config.url && config.url.startsWith(API_URL)) {
+          const token = this.getToken();
+          if (token) {
+            config.headers = config.headers || {};
+            config.headers["Authorization"] = `Bearer ${token}`;
+          }
         }
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
     // Add response interceptor to handle token refresh
@@ -29,21 +31,33 @@ class AuthService {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry) {
+
+        // If the error is 401 and we haven't retried yet
+        if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url.startsWith(API_URL)) {
           originalRequest._retry = true;
+
           try {
             const refreshToken = this.getRefreshToken();
+
             if (refreshToken) {
               const response = await this.refreshToken(refreshToken);
-              if (response.data.token) {
-                this.setToken(response.data.token);
+              const newToken = response?.data?.token;
+
+              if (newToken) {
+                this.setToken(newToken);
+
+                // Update the original request with the new token
+                originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
                 return axios(originalRequest);
               }
             }
-          } catch (err) {
+          } catch (refreshError) {
+            console.error("Token refresh error:", refreshError);
             this.logout();
+            return Promise.reject(refreshError);
           }
         }
+
         return Promise.reject(error);
       }
     );
@@ -163,7 +177,12 @@ class AuthService {
    */
   async logout() {
     try {
-      await axios.post(API_URL + "signout");
+      const token = this.getToken();
+      await axios.post(API_URL + "signout", {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -256,6 +275,7 @@ class AuthService {
    * @returns {Promise} - A promise that resolves to the response data
    */
   updateProfile(username, email, firstName, lastName, phoneNumber, location) {
+    const token = this.getToken();
     return axios
       .put(
         API_URL + "profile",
@@ -269,7 +289,8 @@ class AuthService {
         },
         {
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           }
         }
       )

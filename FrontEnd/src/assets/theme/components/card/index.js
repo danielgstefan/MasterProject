@@ -35,8 +35,8 @@ export default {
     root: {
       display: "flex",
       flexDirection: "column",
-      background: linearGradient(card.main, card.state, card.deg),
-      backdropFilter: "blur(120px)",
+      background: "transparent",
+      backdropFilter: "blur(10px)",
       position: "relative",
       minWidth: 0,
       padding: "22px",

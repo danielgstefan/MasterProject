@@ -16,7 +16,7 @@
 
 */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // react-router-dom components
 import { useLocation, NavLink } from "react-router-dom";
@@ -48,6 +48,9 @@ import { useVisionUIController, setMiniSidenav, setTransparentSidenav } from "co
 // Vision UI Dashboard React icons
 import SimmmpleLogo from "examples/Icons/SimmmpleLogo";
 
+// Authentication service
+import AuthService from "services/AuthService";
+
 // function Sidenav({ color, brand, brandName, routes, ...rest }) {
 function Sidenav({ color, brandName, routes, ...rest }) {
   const [controller, dispatch] = useVisionUIController();
@@ -55,6 +58,7 @@ function Sidenav({ color, brandName, routes, ...rest }) {
   const location = useLocation();
   const { pathname } = location;
   const collapseName = pathname.split("/").slice(1)[0];
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
@@ -82,9 +86,19 @@ function Sidenav({ color, brandName, routes, ...rest }) {
     }
   }, []);
 
+  // Check if user is authenticated
+  useEffect(() => {
+    setIsAuthenticated(AuthService.isAuthenticated());
+  }, []);
+
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
   const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, route, href }) => {
     let returnValue;
+
+    // Skip sign in and sign up routes if user is authenticated
+    if (isAuthenticated && (key === "sign-in" || key === "sign-up")) {
+      return null;
+    }
 
     if (type === "collapse") {
       returnValue = href ? (
@@ -116,22 +130,27 @@ function Sidenav({ color, brandName, routes, ...rest }) {
         </NavLink>
       );
     } else if (type === "title") {
-      returnValue = (
-        <VuiTypography
-          key={key}
-          color="white"
-          display="block"
-          variant="caption"
-          fontWeight="bold"
-          textTransform="uppercase"
-          pl={3}
-          mt={2}
-          mb={1}
-          ml={1}
-        >
-          {title}
-        </VuiTypography>
-      );
+      // Skip "Account" title if user is authenticated (since sign-in and sign-up will be hidden)
+      if (isAuthenticated && title === "Account" && key === "account-pages") {
+        returnValue = null;
+      } else {
+        returnValue = (
+          <VuiTypography
+            key={key}
+            color="white"
+            display="block"
+            variant="caption"
+            fontWeight="bold"
+            textTransform="uppercase"
+            pl={3}
+            mt={2}
+            mb={1}
+            ml={1}
+          >
+            {title}
+          </VuiTypography>
+        );
+      }
     } else if (type === "divider") {
       returnValue = <Divider light key={key} />;
     }
@@ -183,7 +202,7 @@ function Sidenav({ color, brandName, routes, ...rest }) {
                 })
               }
             >
-              <SimmmpleLogo size="24px" />
+              <SimmmpleLogo size="40px" />
             </VuiBox>
             <VuiTypography
               variant="button"
