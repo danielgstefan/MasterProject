@@ -6,7 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -56,6 +58,10 @@ public class User {
     @JsonIgnore
     private Set<Role> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Car> cars = new ArrayList<>();
+
     public User() {}
 
     public User(String username, String email, String password, String firstName, String lastName, String phoneNumber, String location) {
@@ -86,4 +92,7 @@ public class User {
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     public void setLocation(String location) { this.location = location; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
+
+    public List<Car> getCars() { return cars; }
+    public void setCars(List<Car> cars) { this.cars = cars; }
 }

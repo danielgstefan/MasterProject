@@ -11,42 +11,9 @@ const REFRESH_TOKEN_KEY = "refresh_token";
 class AuthService {
   constructor() {
     // Add request interceptor to add token to all requests
-    axios.interceptors.request.use(
-      (config) => {
-        const token = this.getToken();
-        if (token) {
-          config.headers["Authorization"] = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
 
     // Add response interceptor to handle token refresh
-    axios.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
-          try {
-            const refreshToken = this.getRefreshToken();
-            if (refreshToken) {
-              const response = await this.refreshToken(refreshToken);
-              if (response.data.token) {
-                this.setToken(response.data.token);
-                return axios(originalRequest);
-              }
-            }
-          } catch (err) {
-            this.logout();
-          }
-        }
-        return Promise.reject(error);
-      }
-    );
+
   }
 
   /**

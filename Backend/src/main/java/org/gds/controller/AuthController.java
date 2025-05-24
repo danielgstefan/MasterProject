@@ -192,7 +192,16 @@ public class AuthController {
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        // Check if principal is an instance of UserDetailsImpl
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof UserDetailsImpl)) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: User authentication failed. Please login again."));
+        }
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) principal;
         Long userId = userDetails.getId();
 
         // Check if username is already taken by another user
