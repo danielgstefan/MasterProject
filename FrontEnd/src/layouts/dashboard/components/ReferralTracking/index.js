@@ -15,7 +15,9 @@ function ReferralTracking() {
 		<Card
 			sx={{
 				height: '100%',
-				background: linearGradient(gradients.cardDark.main, gradients.cardDark.state, gradients.cardDark.deg)
+				background: 'transparent',
+				backdropFilter: 'blur(10px)',
+				border: '1px solid rgba(255, 255, 255, 0.125)'
 			}}>
 			<VuiBox sx={{ width: '100%' }}>
 				<VuiBox
@@ -72,8 +74,10 @@ function ReferralTracking() {
 							p='20px 22px'
 							flexDirection='column'
 							sx={({ breakpoints }) => ({
-								background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
+								background: 'transparent',
+								backdropFilter: 'blur(10px)',
 								borderRadius: '20px',
+								border: '1px solid rgba(255, 255, 255, 0.125)',
 								[breakpoints.up('xl')]: {
 									maxWidth: '110px !important'
 								},
@@ -95,8 +99,10 @@ function ReferralTracking() {
 							p='20px 22px'
 							flexDirection='column'
 							sx={({ breakpoints }) => ({
-								background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
+								background: 'transparent',
+								backdropFilter: 'blur(10px)',
 								borderRadius: '20px',
+								border: '1px solid rgba(255, 255, 255, 0.125)',
 								[breakpoints.up('xl')]: {
 									maxWidth: '110px !important'
 								},
