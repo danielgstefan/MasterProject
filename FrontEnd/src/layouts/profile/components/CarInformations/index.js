@@ -230,7 +230,7 @@ const CarInformations = () => {
 							{[
 								{ label: "Alias", name: "alias" },
 								{ label: "Brand", name: "brand" },
-								{ label: "Model", name: "model" },
+								{ label: "Model and Year", name: "model" },
 								{ label: "Horsepower", name: "horsePower", type: "number" },
 								{ label: "Torque", name: "torque", type: "number" },
 								{ label: "Bio", name: "bio", multiline: true, rows: 3 }
