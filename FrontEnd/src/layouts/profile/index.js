@@ -44,7 +44,6 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 // Overview page components
 import Header from "layouts/profile/components/Header";
 import PlatformSettings from "layouts/profile/components/PlatformSettings";
-import Welcome from "../profile/components/Welcome/index";
 import CarInformations from "./components/CarInformations";
 // Auth service
 import AuthService from "services/AuthService";
@@ -53,8 +52,9 @@ function Overview() {
   const [userData, setUserData] = useState({
     username: "",
     email: "",
-    fullName: "",
-    mobile: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
     location: ""
   });
 
@@ -65,9 +65,10 @@ function Overview() {
       setUserData({
         username: user.username || "",
         email: user.email || "",
-        fullName: user.username || "", // Using username as fullName since we don't have fullName in the User model
-        mobile: "(Not set)",
-        location: "(Not set)"
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        phoneNumber: user.phoneNumber || "",
+        location: user.location || ""
       });
     }
   }, []);
@@ -77,7 +78,10 @@ function Overview() {
       ...userData,
       username: updatedInfo.username,
       email: updatedInfo.email,
-      fullName: updatedInfo.username // Update fullName when username changes
+      firstName: updatedInfo.firstName,
+      lastName: updatedInfo.lastName,
+      phoneNumber: updatedInfo.phoneNumber,
+      location: updatedInfo.location
     });
   };
 
@@ -106,40 +110,15 @@ function Overview() {
               },
             })}
           >
-            <Welcome />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            xl={5}
-            xxl={6}
-            sx={({ breakpoints }) => ({
-              [breakpoints.only("xl")]: {
-                gridArea: "2 / 1 / 3 / 3",
-              },
-            })}
-          >
-            <CarInformations />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            xl={3}
-            xxl={3}
-            sx={({ breakpoints }) => ({
-              [breakpoints.only("xl")]: {
-                gridArea: "1 / 2 / 2 / 3",
-              },
-            })}
-          >
             <EditableProfileInfoCard
               title="profile information"
-              description="Update your profile information below. You can change your username and email address."
+              description="Update your profile information below.."
               info={{
                 username: userData.username,
                 email: userData.email,
-                fullName: userData.fullName,
-                mobile: userData.mobile,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                phoneNumber: userData.phoneNumber,
                 location: userData.location,
               }}
               social={[
@@ -161,6 +140,19 @@ function Overview() {
               ]}
               onProfileUpdate={handleProfileUpdate}
             />
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            xl={5}
+            xxl={6}
+            sx={({ breakpoints }) => ({
+              [breakpoints.only("xl")]: {
+                gridArea: "2 / 1 / 3 / 3",
+              },
+            })}
+          >
+            <CarInformations />
           </Grid>
         </Grid>
       </VuiBox>

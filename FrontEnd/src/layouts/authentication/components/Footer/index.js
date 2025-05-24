@@ -49,7 +49,7 @@ function Footer() {
             sx={{ textAlign: "center", fontWeight: "400 !important" }}
             color="text"
           >
-            @ 2021, Made with ❤️&nbsp;&nbsp;&nbsp; by{" "}
+            @ 2025, Made with ❤️&nbsp;&nbsp;&nbsp; by{" "}
             <VuiTypography
               component="a"
               variant="button"

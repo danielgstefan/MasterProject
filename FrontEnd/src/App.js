@@ -144,7 +144,7 @@ export default function App() {
                 <Sidenav
                   color={sidenavColor}
                   brand=""
-                  brandName="VISION UI FREE"
+                  brandName="BMW ENTHUSIAST"
                   routes={routes}
                   onMouseEnter={handleOnMouseEnter}
                   onMouseLeave={handleOnMouseLeave}
@@ -168,7 +168,7 @@ export default function App() {
               <Sidenav
                 color={sidenavColor}
                 brand=""
-                brandName="VISION UI FREE"
+                brandName="BMW ENTHUSIAST"
                 routes={routes}
                 onMouseEnter={handleOnMouseEnter}
                 onMouseLeave={handleOnMouseLeave}

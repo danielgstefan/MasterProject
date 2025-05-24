@@ -1,17 +1,16 @@
 import axios from "axios";
 import AuthService from "./AuthService";
 
-// Creează o instanță separată de axios
 const axiosInstance = axios.create({
     baseURL: "http://localhost:8081/api",
     timeout: 10000,
 });
 
-// Adaugă automat tokenul în toate requesturile
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = AuthService.getToken();
         if (token) {
+            config.headers = config.headers || {};
             config.headers["Authorization"] = `Bearer ${token}`;
         }
         return config;
@@ -19,7 +18,6 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Reîncearcă requestul dacă tokenul a expirat și poate fi reîmprospătat
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -33,7 +31,7 @@ axiosInstance.interceptors.response.use(
 
                 if (refreshToken) {
                     const response = await AuthService.refreshToken(refreshToken);
-                    const newAccessToken = response?.data?.accessToken; // <-- corect
+                    const newAccessToken = response?.data?.token;
 
                     if (
                         newAccessToken &&
@@ -41,15 +39,16 @@ axiosInstance.interceptors.response.use(
                         newAccessToken.includes(".")
                     ) {
                         AuthService.setToken(newAccessToken);
+                        originalRequest.headers = originalRequest.headers || {};
                         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
                         return axiosInstance(originalRequest);
                     } else {
-                        console.warn("⚠️ Răspuns invalid de la refresh-token:", response?.data);
+                        console.warn("⚠️ Token reîmprospătat invalid:", response?.data);
                         AuthService.logout();
                     }
                 }
             } catch (refreshError) {
-                console.error("⚠️ Eroare la refresh-token:", refreshError);
+                console.error("⚠️ Eroare refresh-token:", refreshError);
                 AuthService.logout();
                 return Promise.reject(refreshError);
             }

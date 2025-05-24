@@ -43,6 +43,7 @@ import Dashboard from "layouts/dashboard";
 import Shop from "layouts/shop";
 import Tuning from "layouts/tuning";
 import Forum from "layouts/forum";
+import Chat from "layouts/chat";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
@@ -92,6 +93,15 @@ const routes = [
     route: "/forum",
     icon: <IoChatbubbles size="15px" color="inherit" />,
     component: Forum,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Live Chat",
+    key: "chat",
+    route: "/chat",
+    icon: <IoChatbubbles size="15px" color="inherit" />,
+    component: Chat,
     noCollapse: true,
   },
   { type: "title", title: "Account", key: "account-pages" },

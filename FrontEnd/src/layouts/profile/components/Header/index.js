@@ -37,10 +37,17 @@ import { IoBuild } from "react-icons/io5";
 // Vision UI Dashboard React example components
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useEffect, useState } from "react";
+// Auth service
+import AuthService from "services/AuthService";
 
 function Header() {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
+  const [userData, setUserData] = useState({
+    firstName: "",
+    lastName: "",
+    email: ""
+  });
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.
@@ -61,6 +68,18 @@ function Header() {
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleTabsOrientation);
   }, [tabsOrientation]);
+
+  useEffect(() => {
+    // Get user data from AuthService
+    const user = AuthService.getCurrentUser();
+    if (user) {
+      setUserData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || ""
+      });
+    }
+  }, []);
 
   const handleSetTabValue = (event, newValue) => setTabValue(newValue);
 
@@ -127,10 +146,10 @@ function Header() {
               })}
             >
               <VuiTypography variant="lg" color="white" fontWeight="bold">
-                Mark Johnson
+                {userData.firstName} {userData.lastName}
               </VuiTypography>
               <VuiTypography variant="button" color="text" fontWeight="regular">
-                mark@simmmple.com
+                {userData.email}
               </VuiTypography>
             </VuiBox>
           </Grid>

@@ -76,9 +76,13 @@ function SignIn() {
           id: response.id,
           username: response.username,
           email: response.email,
+          firstName: response.firstName,
+          lastName: response.lastName,
+          phoneNumber: response.phoneNumber,
+          location: response.location,
           roles: response.roles
         };
-        
+
         await login(userData);
         history.push("/dashboard");
       } else {
