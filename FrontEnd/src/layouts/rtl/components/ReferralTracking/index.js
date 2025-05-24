@@ -68,8 +68,10 @@ function ReferralTracking() {
 							p='20px 22px'
 							flexDirection='column'
 							sx={({ breakpoints }) => ({
-								background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
+								background: 'transparent',
+								backdropFilter: 'blur(10px)',
 								borderRadius: '20px',
+								border: '1px solid rgba(255, 255, 255, 0.125)',
 								[breakpoints.up('xl')]: {
 									maxWidth: '110px !important'
 								},
@@ -92,8 +94,10 @@ function ReferralTracking() {
 							mb='20px'
 							flexDirection='column'
 							sx={({ breakpoints }) => ({
-								background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
+								background: 'transparent',
+								backdropFilter: 'blur(10px)',
 								borderRadius: '20px',
+								border: '1px solid rgba(255, 255, 255, 0.125)',
 								[breakpoints.up('xl')]: {
 									maxWidth: '110px !important'
 								},

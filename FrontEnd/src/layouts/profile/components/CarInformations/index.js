@@ -1,4 +1,3 @@
-// CarInformations.jsx (varianta completă cu carusel, add/edit/delete funcțional)
 import React, { useState, useEffect } from "react";
 import {
 	Card,
@@ -22,13 +21,11 @@ import VuiTypography from "components/VuiTypography";
 import VuiInput from "components/VuiInput";
 import VuiButton from "components/VuiButton";
 import colors from "assets/theme/base/colors";
-import linearGradient from "assets/theme/functions/linearGradient";
 import CarService from "services/CarService";
 import AuthService from "services/AuthService";
 
 const CarInformations = () => {
-	const { gradients, info } = colors;
-	const { cardContent } = gradients;
+	const { info } = colors;
 
 	const [cars, setCars] = useState([]);
 	const [activeIndex, setActiveIndex] = useState(0);
@@ -142,15 +139,22 @@ const CarInformations = () => {
 	const handleDeleteCar = async (id) => {
 		if (window.confirm("Are you sure you want to delete this car?")) {
 			await CarService.deleteCar(id);
-			await fetchCars();
+			const updatedCars = cars.filter((car) => car.id !== id);
+			setCars(updatedCars);
+
+			// Ajustează indexul activ dacă e cazul
+			if (activeIndex >= updatedCars.length) {
+				setActiveIndex(Math.max(0, updatedCars.length - 1));
+			}
 		}
 	};
 
 	const user = AuthService.getCurrentUser();
-	const currentCar = cars[activeIndex];
+	const currentCar = cars[activeIndex] || null;
+
 
 	return (
-		<Card sx={{ height: "100%" }}>
+		<Card sx={{ width: "100%" }}>
 			<VuiBox p={3}>
 				<VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
 					<VuiTypography variant="lg" color="white" fontWeight="bold">
@@ -171,50 +175,117 @@ const CarInformations = () => {
 				) : cars.length === 0 ? (
 					<VuiTypography>You don't have any cars yet.</VuiTypography>
 				) : (
-					<VuiBox position="relative">
-						<VuiBox
+					<VuiBox
+						position="relative"
+						width="100%"
+						sx={{ display: "flex", justifyContent: "center" }}
+					>
+						{/* Săgeată stânga */}
+						<IconButton
+							onClick={() => setActiveIndex((prev) => (prev > 0 ? prev - 1 : cars.length - 1))}
 							sx={{
-								background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
-								borderRadius: "20px",
-								padding: "20px"
+								position: "absolute",
+								top: "50%",
+								left: 0,
+								transform: "translateY(-50%)",
+								zIndex: 10,
+								backgroundColor: "rgba(0, 123, 255, 0.35)", // un albastru deschis, transparent
+								"&:hover": { backgroundColor: "rgba(0, 123, 255, 0.3)" }
 							}}
 						>
-							<IconButton
-								onClick={() => setActiveIndex((prev) => (prev > 0 ? prev - 1 : cars.length - 1))}
-								sx={{ position: "absolute", top: "50%", left: 0, zIndex: 1 }}
-							>
-								<ArrowBackIosNew />
-							</IconButton>
-							<IconButton
-								onClick={() => setActiveIndex((prev) => (prev + 1) % cars.length)}
-								sx={{ position: "absolute", top: "50%", right: 0, zIndex: 1 }}
-							>
-								<ArrowForwardIos />
-							</IconButton>
+							<ArrowBackIosNew sx={{ color: "white" }} />
+						</IconButton>
 
-							<VuiBox>
-								{currentCar.photoUrl && (
-									<VuiBox
-										component="img"
-										src={currentCar.photoUrl}
-										alt={currentCar.alias}
-										sx={{ width: "100%", borderRadius: "10px", objectFit: "cover", mb: 2 }}
-									/>
-								)}
+						{/* Conținutul cardului */}
+						<VuiBox
+							sx={{
+								display: "flex",
+								flexDirection: { xs: "column", sm: "row" },
+								alignItems: "flex-start",
+								gap: 3,
+								width: "100%",
+								maxWidth: "100%",
+								background: "transparent",
+								backdropFilter: "blur(10px)",
+								borderRadius: "20px",
+								padding: "20px",
+								border: "1px solid rgba(255, 255, 255, 0.125)",
+								flexWrap: "nowrap",
+								justifyContent: "space-between"
+							}}
+						>
+							{/* Poză */}
+							{currentCar?.photoUrl && (
+								<VuiBox
+									component="img"
+									src={currentCar.photoUrl}
+									alt={currentCar.alias}
+									sx={{
+										width: { xs: "100%", sm: "400px", md: "480px" },
+										height: { xs: "240px", sm: "280px", md: "320px" },
+										maxWidth: { xs: "100%", sm: "50%", md: "40%" },
+										borderRadius: "10px",
+										objectFit: "cover",
+										flexShrink: 0
+									}}
+								/>
+							)}
 
-								<VuiTypography variant="lg" color="white" fontWeight="bold">
-									{currentCar.alias}
+							{/* Detalii */}
+							<VuiBox sx={{ 
+								flex: 1, 
+								width: "100%", 
+								maxWidth: { xs: "100%", sm: "calc(100% - 200px)", md: "calc(100% - 300px)", lg: "calc(100% - 520px)" },
+								ml: { xs: 0, sm: 2 },
+								mt: { xs: 2, sm: 0 }
+							}}>
+								<VuiTypography variant="lg" color="white" fontWeight="bold" mb={1}>
+									{currentCar?.alias}
 								</VuiTypography>
-								<VuiTypography color="text">{currentCar.brand} {currentCar.model}</VuiTypography>
-								{currentCar.horsePower && <VuiTypography color="white">Horsepower: {currentCar.horsePower} HP</VuiTypography>}
-								{currentCar.torque && <VuiTypography color="white">Torque: {currentCar.torque} Nm</VuiTypography>}
-								{currentCar.bio && <VuiTypography color="white">Bio: {currentCar.bio}</VuiTypography>}
-								<VuiBox mt={1}>
-									<IconButton onClick={() => handleOpenDialog(currentCar)}><EditIcon sx={{ color: info.main }} /></IconButton>
-									<IconButton onClick={() => handleDeleteCar(currentCar.id)}><DeleteIcon sx={{ color: info.main }} /></IconButton>
+								<VuiTypography color="text" mb={1}>
+									{currentCar?.brand} {currentCar?.model}
+								</VuiTypography>
+								{currentCar?.horsePower && (
+									<VuiTypography color="white" mb={0.5}>
+										Horsepower: {currentCar.horsePower} HP
+									</VuiTypography>
+								)}
+								{currentCar?.torque && (
+									<VuiTypography color="white" mb={0.5}>
+										Torque: {currentCar.torque} Nm
+									</VuiTypography>
+								)}
+								{currentCar?.bio && (
+									<VuiTypography color="white" mb={1}>
+										Bio: {currentCar.bio}
+									</VuiTypography>
+								)}
+								<VuiBox mt={2}>
+									<IconButton onClick={() => handleOpenDialog(currentCar)}>
+										<EditIcon sx={{ color: info.main }} />
+									</IconButton>
+									<IconButton onClick={() => handleDeleteCar(currentCar.id)}>
+										<DeleteIcon sx={{ color: info.main }} />
+									</IconButton>
 								</VuiBox>
 							</VuiBox>
 						</VuiBox>
+
+						{/* Săgeată dreapta */}
+						<IconButton
+							onClick={() => setActiveIndex((prev) => (prev + 1) % cars.length)}
+							sx={{
+								position: "absolute",
+								top: "50%",
+								right: 0,
+								transform: "translateY(-50%)",
+								zIndex: 10,
+								backgroundColor: "rgba(0, 123, 255, 0.35)", // un albastru deschis, transparent
+								"&:hover": { backgroundColor: "rgba(0, 123, 255, 0.3)" }
+							}}
+						>
+							<ArrowForwardIos sx={{ color: "white" }} />
+						</IconButton>
 					</VuiBox>
 				)}
 

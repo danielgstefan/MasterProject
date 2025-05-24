@@ -61,7 +61,9 @@ const SatisfactionRate = () => {
 						height: '82px',
 						mx: 'auto',
 						borderRadius: '20px',
-						background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
+						background: 'transparent',
+						backdropFilter: 'blur(10px)',
+						border: '1px solid rgba(255, 255, 255, 0.125)',
 						transform: 'translateY(-90%)',
 						zIndex: '1000'
 					})}>
