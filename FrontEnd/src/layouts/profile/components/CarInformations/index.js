@@ -1,56 +1,53 @@
-/*!
-
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-import React, { useState, useEffect } from 'react';
-import { Card, Stack, Grid, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import VuiBox from 'components/VuiBox';
-import VuiTypography from 'components/VuiTypography';
-import VuiInput from 'components/VuiInput';
-import VuiButton from 'components/VuiButton';
-import colors from 'assets/theme/base/colors';
-import linearGradient from 'assets/theme/functions/linearGradient';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
-import CircularProgress from '@mui/material/CircularProgress';
-import CarService from 'services/CarService';
-import AuthService from 'services/AuthService';
+// CarInformations.jsx (varianta completă cu carusel, add/edit/delete funcțional)
+import React, { useState, useEffect } from "react";
+import {
+	Card,
+	IconButton,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Grid
+} from "@mui/material";
+import {
+	Add as AddIcon,
+	Edit as EditIcon,
+	Delete as DeleteIcon,
+	ArrowBackIosNew,
+	ArrowForwardIos,
+	Close as CloseIcon
+} from "@mui/icons-material";
+import VuiBox from "components/VuiBox";
+import VuiTypography from "components/VuiTypography";
+import VuiInput from "components/VuiInput";
+import VuiButton from "components/VuiButton";
+import colors from "assets/theme/base/colors";
+import linearGradient from "assets/theme/functions/linearGradient";
+import CarService from "services/CarService";
+import AuthService from "services/AuthService";
 
 const CarInformations = () => {
-	const { gradients, info, dark } = colors;
+	const { gradients, info } = colors;
 	const { cardContent } = gradients;
 
 	const [cars, setCars] = useState([]);
+	const [activeIndex, setActiveIndex] = useState(0);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [openDialog, setOpenDialog] = useState(false);
 	const [editingCar, setEditingCar] = useState(null);
 	const [formData, setFormData] = useState({
-		alias: '',
-		brand: '',
-		model: '',
-		horsePower: '',
-		torque: '',
-		bio: '',
-		photoUrl: ''
+		alias: "",
+		brand: "",
+		model: "",
+		horsePower: "",
+		torque: "",
+		bio: "",
+		photoUrl: ""
 	});
 	const [selectedFile, setSelectedFile] = useState(null);
 	const [imagePreview, setImagePreview] = useState(null);
 
-	// Fetch cars on component mount
 	useEffect(() => {
 		fetchCars();
 	}, []);
@@ -62,13 +59,11 @@ const CarInformations = () => {
 			setCars(response.data);
 			setError(null);
 		} catch (err) {
-			console.error('Error fetching cars:', err);
-			// If it's a 401 error, just set cars to empty array without showing error
-			if (err.response && err.response.status === 401) {
+			if (err.response?.status === 401) {
 				setCars([]);
 				setError(null);
 			} else {
-				setError('Failed to load cars. Please try again later.');
+				setError("Failed to load cars.");
 			}
 		} finally {
 			setLoading(false);
@@ -77,30 +72,20 @@ const CarInformations = () => {
 
 	const handleOpenDialog = (car = null) => {
 		if (car) {
-			// Edit mode
 			setEditingCar(car);
 			setFormData({
-				alias: car.alias || '',
-				brand: car.brand || '',
-				model: car.model || '',
-				horsePower: car.horsePower || '',
-				torque: car.torque || '',
-				bio: car.bio || '',
-				photoUrl: car.photoUrl || ''
+				alias: car.alias || "",
+				brand: car.brand || "",
+				model: car.model || "",
+				horsePower: car.horsePower || "",
+				torque: car.torque || "",
+				bio: car.bio || "",
+				photoUrl: car.photoUrl || ""
 			});
 			setImagePreview(car.photoUrl || null);
 		} else {
-			// Add mode
 			setEditingCar(null);
-			setFormData({
-				alias: '',
-				brand: '',
-				model: '',
-				horsePower: '',
-				torque: '',
-				bio: '',
-				photoUrl: ''
-			});
+			setFormData({ alias: "", brand: "", model: "", horsePower: "", torque: "", bio: "", photoUrl: "" });
 			setImagePreview(null);
 		}
 		setOpenDialog(true);
@@ -116,7 +101,7 @@ const CarInformations = () => {
 		const { name, value } = e.target;
 		setFormData({
 			...formData,
-			[name]: name === 'horsePower' || name === 'torque' ? (value ? parseInt(value) : '') : value
+			[name]: ["horsePower", "torque"].includes(name) ? (value ? parseInt(value) : "") : value
 		});
 	};
 
@@ -124,362 +109,168 @@ const CarInformations = () => {
 		const file = e.target.files[0];
 		if (file) {
 			setSelectedFile(file);
-			// Create a preview for the UI
 			const reader = new FileReader();
-			reader.onloadend = () => {
-				setImagePreview(reader.result);
-			};
+			reader.onloadend = () => setImagePreview(reader.result);
 			reader.readAsDataURL(file);
 		}
 	};
 
 	const handleSubmit = async () => {
 		try {
-			// Validate required fields
 			if (!formData.alias) {
-				setError('Car alias is required');
+				setError("Alias is required");
 				return;
 			}
-
-			// Upload file if selected
 			let photoUrl = formData.photoUrl;
 			if (selectedFile) {
-				try {
-					const uploadResponse = await CarService.uploadCarImage(selectedFile);
-					if (uploadResponse.data && uploadResponse.data.message) {
-						// The server returns the file URL in the message field
-						photoUrl = `http://localhost:8081${uploadResponse.data.message}`;
-					}
-				} catch (uploadErr) {
-					console.error('Error uploading image:', uploadErr);
-					// Handle 401 error specifically
-					if (uploadErr.response && uploadErr.response.status === 401) {
-						setError('Please log in to upload images.');
-					} else {
-						setError('Failed to upload image. Please try again.');
-					}
-					return;
-				}
+				const uploadResponse = await CarService.uploadCarImage(selectedFile);
+				photoUrl = `http://localhost:8081${uploadResponse.data.message}`;
 			}
-
-			// Convert empty strings to null for numeric fields
-			const carData = {
-				...formData,
-				photoUrl: photoUrl,
-				horsePower: formData.horsePower === '' ? null : parseInt(formData.horsePower),
-				torque: formData.torque === '' ? null : parseInt(formData.torque)
-			};
-
+			const carData = { ...formData, photoUrl };
 			if (editingCar) {
-				// Update existing car
 				await CarService.updateCar(editingCar.id, carData);
 			} else {
-				// Create new car
-				console.log("🔐 User:", AuthService.getCurrentUser());
-				console.log("🔐 Token:", AuthService.getToken());
 				await CarService.createCar(carData);
 			}
-
-			// Refresh car list
-			fetchCars();
+			await fetchCars();
 			handleCloseDialog();
 		} catch (err) {
-			console.error('Error saving car:', err);
-			// Handle 401 error specifically
-			if (err.response && err.response.status === 401) {
-				setError('Please log in to save your car information.');
-			} else {
-				setError('Failed to save car. Please try again.');
-			}
+			setError("Save failed. Try again.");
 		}
 	};
 
 	const handleDeleteCar = async (id) => {
-		if (window.confirm('Are you sure you want to delete this car?')) {
-			try {
-				await CarService.deleteCar(id);
-				fetchCars();
-			} catch (err) {
-				console.error('Error deleting car:', err);
-				// Handle 401 error specifically
-				if (err.response && err.response.status === 401) {
-					setError('Please log in to delete your car.');
-				} else {
-					setError('Failed to delete car. Please try again.');
-				}
-			}
+		if (window.confirm("Are you sure you want to delete this car?")) {
+			await CarService.deleteCar(id);
+			await fetchCars();
 		}
 	};
 
 	const user = AuthService.getCurrentUser();
+	const currentCar = cars[activeIndex];
 
 	return (
-		<Card sx={{ height: '100%' }}>
-			<VuiBox display='flex' flexDirection='column' height='100%'>
-				<VuiBox display='flex' justifyContent='space-between' alignItems='center' mb='10px'>
-					<VuiTypography variant='lg' color='white' fontWeight='bold'>
+		<Card sx={{ height: "100%" }}>
+			<VuiBox p={3}>
+				<VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+					<VuiTypography variant="lg" color="white" fontWeight="bold">
 						Car Information
 					</VuiTypography>
-					<VuiButton 
-						variant='contained' 
-						color='info' 
-						onClick={() => handleOpenDialog()}
-						startIcon={<AddIcon />}
-					>
+					<VuiButton variant="contained" color="info" onClick={() => handleOpenDialog()} startIcon={<AddIcon />}>
 						Add Car
 					</VuiButton>
 				</VuiBox>
-
-				<VuiTypography variant='button' color='text' fontWeight='regular' mb='20px'>
-					{user ? `Hello, ${user.firstName} ${user.lastName}! Manage your cars here.` : 'Please log in to manage your cars.'}
+				<VuiTypography color="text" mb={2}>
+					{user ? `Hello, ${user.firstName} ${user.lastName}! Manage your cars here.` : "Please log in."}
 				</VuiTypography>
 
 				{loading ? (
-					<VuiBox display='flex' justifyContent='center' alignItems='center' height='200px'>
-						<CircularProgress color='info' />
-					</VuiBox>
+					<VuiTypography>Loading...</VuiTypography>
 				) : error ? (
-					<VuiBox display='flex' justifyContent='center' alignItems='center' height='200px'>
-						<VuiTypography color='error' variant='button'>
-							{error}
-						</VuiTypography>
-					</VuiBox>
+					<VuiTypography color="error">{error}</VuiTypography>
 				) : cars.length === 0 ? (
-					<VuiBox display='flex' justifyContent='center' alignItems='center' height='200px'>
-						<VuiTypography color='text' variant='button'>
-							You don't have any cars yet. Click "Add Car" to get started.
-						</VuiTypography>
-					</VuiBox>
+					<VuiTypography>You don't have any cars yet.</VuiTypography>
 				) : (
-					<Grid container spacing={3}>
-						{cars.map((car) => (
-							<Grid item xs={12} md={6} key={car.id}>
-								<VuiBox
-									sx={{
-										background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
-										borderRadius: '20px',
-										padding: '20px',
-										height: '100%',
-										position: 'relative'
-									}}
-								>
-									<VuiBox display='flex' justifyContent='flex-end' position='absolute' right='10px' top='10px'>
-										<IconButton size='small' onClick={() => handleOpenDialog(car)}>
-											<EditIcon sx={{ color: info.main }} />
-										</IconButton>
-										<IconButton size='small' onClick={() => handleDeleteCar(car.id)}>
-											<DeleteIcon sx={{ color: info.main }} />
-										</IconButton>
-									</VuiBox>
+					<VuiBox position="relative">
+						<VuiBox
+							sx={{
+								background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
+								borderRadius: "20px",
+								padding: "20px"
+							}}
+						>
+							<IconButton
+								onClick={() => setActiveIndex((prev) => (prev > 0 ? prev - 1 : cars.length - 1))}
+								sx={{ position: "absolute", top: "50%", left: 0, zIndex: 1 }}
+							>
+								<ArrowBackIosNew />
+							</IconButton>
+							<IconButton
+								onClick={() => setActiveIndex((prev) => (prev + 1) % cars.length)}
+								sx={{ position: "absolute", top: "50%", right: 0, zIndex: 1 }}
+							>
+								<ArrowForwardIos />
+							</IconButton>
 
-									<Grid container spacing={2}>
-										<Grid item xs={12} md={car.photoUrl ? 6 : 12}>
-											<VuiTypography variant='lg' color='white' fontWeight='bold'>
-												{car.alias}
-											</VuiTypography>
-											<VuiTypography variant='button' color='text' fontWeight='regular'>
-												{car.brand} {car.model}
-											</VuiTypography>
+							<VuiBox>
+								{currentCar.photoUrl && (
+									<VuiBox
+										component="img"
+										src={currentCar.photoUrl}
+										alt={currentCar.alias}
+										sx={{ width: "100%", borderRadius: "10px", objectFit: "cover", mb: 2 }}
+									/>
+								)}
 
-											<VuiBox mt={2}>
-												{car.horsePower && (
-													<VuiBox mb={1}>
-														<VuiTypography variant='button' color='text' fontWeight='medium'>
-															Horsepower
-														</VuiTypography>
-														<VuiTypography variant='button' color='white' fontWeight='bold'>
-															{car.horsePower} HP
-														</VuiTypography>
-													</VuiBox>
-												)}
-
-												{car.torque && (
-													<VuiBox mb={1}>
-														<VuiTypography variant='button' color='text' fontWeight='medium'>
-															Torque
-														</VuiTypography>
-														<VuiTypography variant='button' color='white' fontWeight='bold'>
-															{car.torque} Nm
-														</VuiTypography>
-													</VuiBox>
-												)}
-
-												{car.bio && (
-													<VuiBox mt={2}>
-														<VuiTypography variant='button' color='text' fontWeight='medium'>
-															Bio
-														</VuiTypography>
-														<VuiTypography variant='button' color='white'>
-															{car.bio}
-														</VuiTypography>
-													</VuiBox>
-												)}
-											</VuiBox>
-										</Grid>
-
-										{car.photoUrl && (
-											<Grid item xs={12} md={6}>
-												<VuiBox
-													component='img'
-													src={car.photoUrl}
-													alt={car.alias}
-													sx={{
-														width: '100%',
-														height: '100%',
-														objectFit: 'cover',
-														borderRadius: '10px',
-														maxHeight: '200px'
-													}}
-												/>
-											</Grid>
-										)}
-									</Grid>
+								<VuiTypography variant="lg" color="white" fontWeight="bold">
+									{currentCar.alias}
+								</VuiTypography>
+								<VuiTypography color="text">{currentCar.brand} {currentCar.model}</VuiTypography>
+								{currentCar.horsePower && <VuiTypography color="white">Horsepower: {currentCar.horsePower} HP</VuiTypography>}
+								{currentCar.torque && <VuiTypography color="white">Torque: {currentCar.torque} Nm</VuiTypography>}
+								{currentCar.bio && <VuiTypography color="white">Bio: {currentCar.bio}</VuiTypography>}
+								<VuiBox mt={1}>
+									<IconButton onClick={() => handleOpenDialog(currentCar)}><EditIcon sx={{ color: info.main }} /></IconButton>
+									<IconButton onClick={() => handleDeleteCar(currentCar.id)}><DeleteIcon sx={{ color: info.main }} /></IconButton>
 								</VuiBox>
-							</Grid>
-						))}
-					</Grid>
+							</VuiBox>
+						</VuiBox>
+					</VuiBox>
 				)}
 
-				{/* Add/Edit Car Dialog */}
-				<Dialog open={openDialog} onClose={handleCloseDialog} maxWidth='md' fullWidth>
+				<Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
 					<DialogTitle>
-						<VuiBox display='flex' justifyContent='space-between' alignItems='center'>
-							<VuiTypography variant='h6'>{editingCar ? 'Edit Car' : 'Add New Car'}</VuiTypography>
-							<IconButton onClick={handleCloseDialog}>
-								<CloseIcon />
-							</IconButton>
+						<VuiBox display="flex" justifyContent="space-between">
+							<VuiTypography>{editingCar ? "Edit Car" : "Add New Car"}</VuiTypography>
+							<IconButton onClick={handleCloseDialog}><CloseIcon /></IconButton>
 						</VuiBox>
 					</DialogTitle>
 					<DialogContent>
-						<VuiBox component='form' role='form' mt={2}>
-							<Grid container spacing={2}>
-								<Grid item xs={12}>
-									<VuiTypography variant='button' color='text' fontWeight='medium'>
-										Car Alias (required)
-									</VuiTypography>
+						<Grid container spacing={2}>
+							{[
+								{ label: "Alias", name: "alias" },
+								{ label: "Brand", name: "brand" },
+								{ label: "Model", name: "model" },
+								{ label: "Horsepower", name: "horsePower", type: "number" },
+								{ label: "Torque", name: "torque", type: "number" },
+								{ label: "Bio", name: "bio", multiline: true, rows: 3 }
+							].map((field) => (
+								<Grid item xs={12} md={6} key={field.name}>
+									<VuiTypography>{field.label}</VuiTypography>
 									<VuiInput
-										placeholder='My Awesome Car'
-										name='alias'
-										value={formData.alias}
+										name={field.name}
+										value={formData[field.name]}
 										onChange={handleInputChange}
 										fullWidth
+										type={field.type || "text"}
+										multiline={field.multiline || false}
+										rows={field.rows || undefined}
 									/>
 								</Grid>
-								<Grid item xs={12} md={6}>
-									<VuiTypography variant='button' color='text' fontWeight='medium'>
-										Brand
-									</VuiTypography>
-									<VuiInput
-										placeholder='BMW'
-										name='brand'
-										value={formData.brand}
-										onChange={handleInputChange}
-										fullWidth
+							))}
+
+							<Grid item xs={12}>
+								<VuiTypography>Photo</VuiTypography>
+								<VuiBox onClick={() => document.getElementById("car-photo-input").click()} sx={{ border: "1px dashed", p: 2, cursor: "pointer" }}>
+									<input
+										id="car-photo-input"
+										type="file"
+										accept="image/*"
+										hidden
+										onChange={handleFileChange}
 									/>
-								</Grid>
-								<Grid item xs={12} md={6}>
-									<VuiTypography variant='button' color='text' fontWeight='medium'>
-										Model
-									</VuiTypography>
-									<VuiInput
-										placeholder='M3'
-										name='model'
-										value={formData.model}
-										onChange={handleInputChange}
-										fullWidth
-									/>
-								</Grid>
-								<Grid item xs={12} md={6}>
-									<VuiTypography variant='button' color='text' fontWeight='medium'>
-										Horsepower
-									</VuiTypography>
-									<VuiInput
-										placeholder='450'
-										name='horsePower'
-										value={formData.horsePower}
-										onChange={handleInputChange}
-										type='number'
-										fullWidth
-									/>
-								</Grid>
-								<Grid item xs={12} md={6}>
-									<VuiTypography variant='button' color='text' fontWeight='medium'>
-										Torque (Nm)
-									</VuiTypography>
-									<VuiInput
-										placeholder='550'
-										name='torque'
-										value={formData.torque}
-										onChange={handleInputChange}
-										type='number'
-										fullWidth
-									/>
-								</Grid>
-								<Grid item xs={12}>
-									<VuiTypography variant='button' color='text' fontWeight='medium'>
-										Bio
-									</VuiTypography>
-									<VuiInput
-										placeholder='Tell us about your car...'
-										name='bio'
-										value={formData.bio}
-										onChange={handleInputChange}
-										multiline
-										rows={4}
-										fullWidth
-									/>
-								</Grid>
-								<Grid item xs={12}>
-									<VuiTypography variant='button' color='text' fontWeight='medium'>
-										Car Photo
-									</VuiTypography>
-									<VuiBox
-										sx={{
-											border: '1px dashed',
-											borderColor: 'rgba(255, 255, 255, 0.2)',
-											borderRadius: '10px',
-											p: 2,
-											textAlign: 'center',
-											cursor: 'pointer',
-											mt: 1
-										}}
-										onClick={() => document.getElementById('car-photo-input').click()}
-									>
-										<input
-											id='car-photo-input'
-											type='file'
-											accept='image/*'
-											style={{ display: 'none' }}
-											onChange={handleFileChange}
-										/>
-										{imagePreview ? (
-											<VuiBox
-												component='img'
-												src={imagePreview}
-												alt='Car Preview'
-												sx={{
-													maxWidth: '100%',
-													maxHeight: '200px',
-													borderRadius: '10px'
-												}}
-											/>
-										) : (
-											<VuiTypography variant='button' color='text'>
-												Click to upload a photo
-											</VuiTypography>
-										)}
-									</VuiBox>
-								</Grid>
+									{imagePreview ? (
+										<VuiBox component="img" src={imagePreview} alt="Preview" sx={{ width: "100%", maxHeight: "200px" }} />
+									) : (
+										<VuiTypography>Click to upload</VuiTypography>
+									)}
+								</VuiBox>
 							</Grid>
-						</VuiBox>
+						</Grid>
 					</DialogContent>
 					<DialogActions>
-						<VuiButton color='error' onClick={handleCloseDialog}>
-							Cancel
-						</VuiButton>
-						<VuiButton color='info' onClick={handleSubmit}>
-							{editingCar ? 'Update' : 'Add'} Car
-						</VuiButton>
+						<VuiButton onClick={handleCloseDialog} color="error">Cancel</VuiButton>
+						<VuiButton onClick={handleSubmit} color="info">{editingCar ? "Update" : "Add"} Car</VuiButton>
 					</DialogActions>
 				</Dialog>
 			</VuiBox>
