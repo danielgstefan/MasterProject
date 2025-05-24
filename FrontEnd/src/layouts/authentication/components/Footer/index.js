@@ -51,16 +51,15 @@ function Footer() {
           >
             @ 2025, Made with ❤️&nbsp;&nbsp;&nbsp; by{" "}
             <VuiTypography
-              component="a"
-              variant="button"
-              href="#"
-              sx={{ textAlign: "center", fontWeight: "500 !important" }}
-              color="text"
-              mr="2px"
+                component="a"
+                variant="button"
+                href="https://www.linkedin.com/in/daniel-stefan-grosu-744b4b20b/"
+                sx={{ textAlign: "center", fontWeight: "500 !important" }}
+                color="white"
+                mr="2px"
             >
-              Simmmple
+              Grosu Daniel Stefan
             </VuiTypography>
-            &
             <VuiTypography
               ml="2px"
               mr="2px"
@@ -70,30 +69,10 @@ function Footer() {
               sx={{ textAlign: "center", fontWeight: "500 !important" }}
               color="text"
             >
-              Creative Tim
             </VuiTypography>
-            for a better web
           </VuiTypography>
         </Grid>
-        <Grid item xs={10}>
-          <VuiBox display="flex" justifyContent="center" flexWrap="wrap" mb={3}>
-            <VuiBox mr={{ xs: "20px", lg: "46px" }}>
-              <VuiTypography component="a" href="#" variant="body2" color="text">
-                Marketplace
-              </VuiTypography>
-            </VuiBox>
-            <VuiBox mr={{ xs: "20px", lg: "46px" }}>
-              <VuiTypography component="a" href="#" variant="body2" color="text">
-                Blog
-              </VuiTypography>
-            </VuiBox>
-            <VuiBox>
-              <VuiTypography component="a" href="#" variant="body2" color="text">
-                License
-              </VuiTypography>
-            </VuiBox>
-          </VuiBox>
-        </Grid>
+
       </Grid>
     </VuiBox>
   );
