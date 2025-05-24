@@ -1,12 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import { Card, Icon } from "@mui/material";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
+import AuthService from "services/AuthService";
 
 import gif from "assets/images/8series.jpg";
 
 const WelcomeMark = () => {
+  const [userData, setUserData] = useState({
+    firstName: "",
+    lastName: ""
+  });
+
+  useEffect(() => {
+    // Get user data from AuthService
+    const user = AuthService.getCurrentUser();
+    if (user) {
+      setUserData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || ""
+      });
+    }
+  }, []);
   return (
     <Card sx={() => ({
       height: "340px",
@@ -21,16 +37,16 @@ const WelcomeMark = () => {
             Welcome back,
           </VuiTypography>
           <VuiTypography color="white" variant="h3" fontWeight="bold" mb="18px">
-            Mark Johnson
+            {userData.lastName} {userData.firstName}
           </VuiTypography>
           <VuiTypography color="white" variant="h6" fontWeight="regular" mb="auto">
             Glad to see you again!
-            <br /> Ask me anything.
+            <br />
           </VuiTypography>
         </VuiBox>
         <VuiTypography
           component="a"
-          href="#"
+          href="/chat"
           variant="button"
           color="white"
           fontWeight="regular"
@@ -51,7 +67,7 @@ const WelcomeMark = () => {
             },
           }}
         >
-          Tap to record
+            Let's hear what the other enthuziasts has to say.
           <Icon sx={{ fontWeight: "bold", ml: "5px" }}>arrow_forward</Icon>
         </VuiTypography>
       </VuiBox>

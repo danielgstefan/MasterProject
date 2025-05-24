@@ -179,7 +179,7 @@ function CoverLayout({
             mx="auto"
             ml="auto !important"
             sx={({ breakpoints }) => ({
-              mt: cardContent ? "60px" : { top },
+              mt: cardContent ? "10px" : { top },
               maxWidth: cardContent ? "450px" : "350px",
               [breakpoints.down("xl")]: {
                 mr: cardContent ? "0px" : "100px",
@@ -214,7 +214,7 @@ CoverLayout.defaultProps = {
   title: "",
   description: "",
   color: "info",
-  top: 20,
+  top: 5,
 };
 
 // Typechecking props for the CoverLayout
