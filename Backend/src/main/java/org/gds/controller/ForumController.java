@@ -3,6 +3,7 @@ package org.gds.controller;
 import org.gds.model.ForumComment;
 import org.gds.model.ForumLike;
 import org.gds.model.ForumPost;
+import org.gds.model.ForumPostPhoto;
 import org.gds.model.User;
 import org.gds.payload.request.CommentRequest;
 import org.gds.payload.request.PostRequest;
@@ -10,6 +11,7 @@ import org.gds.payload.response.MessageResponse;
 import org.gds.service.ForumService;
 import org.gds.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +21,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -36,6 +46,9 @@ public class ForumController {
 
     @Autowired
     private UserService userService;
+
+    @Value("${forum.photo.upload.dir:uploads/forum}")
+    private String uploadDir;
 
     // Helper method to get the current authenticated user
     private User getCurrentUser() {
@@ -328,5 +341,97 @@ public class ForumController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // Photo endpoints
+
+    @PostMapping("/posts/{postId}/photos")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> uploadPostPhoto(
+            @PathVariable Long postId,
+            @RequestParam("file") MultipartFile file) {
+
+        User currentUser = getCurrentUser();
+
+        return forumService.getPostById(postId)
+                .map(post -> {
+                    // Check if the user is the author or an admin
+                    if (!post.getAuthor().getId().equals(currentUser.getId()) && 
+                            !currentUser.getRoles().stream().anyMatch(role -> 
+                                    role.getName().name().equals("ROLE_ADMIN"))) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(new MessageResponse("You can only add photos to your own posts"));
+                    }
+
+                    if (file.isEmpty()) {
+                        return ResponseEntity.badRequest()
+                                .body(new MessageResponse("Please select a file to upload"));
+                    }
+
+                    try {
+                        String originalName = StringUtils.cleanPath(file.getOriginalFilename());
+                        String extension = "";
+                        int i = originalName.lastIndexOf('.');
+                        if (i > 0) extension = originalName.substring(i);
+                        String filename = UUID.randomUUID() + extension;
+
+                        Path uploadPath = Paths.get(uploadDir);
+                        if (!Files.exists(uploadPath)) {
+                            Files.createDirectories(uploadPath);
+                        }
+
+                        Path filePath = uploadPath.resolve(filename);
+                        file.transferTo(filePath);
+
+                        String url = "/forum/" + filename;
+
+                        ForumPostPhoto photo = new ForumPostPhoto(filename, url, originalName, post);
+                        ForumPostPhoto savedPhoto = forumService.savePhoto(photo);
+
+                        return ResponseEntity.ok(savedPhoto);
+                    } catch (IOException e) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(new MessageResponse("Failed to upload photo: " + e.getMessage()));
+                    }
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/posts/{postId}/photos")
+    public ResponseEntity<List<ForumPostPhoto>> getPostPhotos(@PathVariable Long postId) {
+        return forumService.getPostById(postId)
+                .map(post -> ResponseEntity.ok(forumService.getPhotosByPost(post)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/photos/{photoId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> deletePhoto(@PathVariable Long photoId) {
+        User currentUser = getCurrentUser();
+
+        return forumService.getPhotoById(photoId)
+                .map(photo -> {
+                    ForumPost post = photo.getPost();
+
+                    // Check if the user is the author or an admin
+                    if (!post.getAuthor().getId().equals(currentUser.getId()) && 
+                            !currentUser.getRoles().stream().anyMatch(role -> 
+                                    role.getName().name().equals("ROLE_ADMIN"))) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(new MessageResponse("You can only delete photos from your own posts"));
+                    }
+
+                    try {
+                        Path filePath = Paths.get(uploadDir).resolve(photo.getFilename());
+                        Files.deleteIfExists(filePath);
+                    } catch (IOException e) {
+                        // Log the error but continue with database deletion
+                        System.err.println("Error deleting file: " + e.getMessage());
+                    }
+
+                    forumService.deletePhoto(photo);
+                    return ResponseEntity.ok(new MessageResponse("Photo deleted successfully"));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
