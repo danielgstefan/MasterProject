@@ -33,7 +33,7 @@ function ProductCard({ product }) {
         transform: isHovered ? "translateY(-5px)" : "none",
       }}
     >
-      {/* Product Image */}
+      {}
       <VuiBox
         sx={{
           position: "relative",
@@ -55,7 +55,7 @@ function ProductCard({ product }) {
         />
       </VuiBox>
 
-      {/* Product Info */}
+      {}
       <VuiBox p={3}>
         <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <VuiTypography variant="h5" fontWeight="bold" color="white">
@@ -88,7 +88,7 @@ function ProductCard({ product }) {
         </VuiBox>
       </VuiBox>
 
-      {/* Dropdown Menu */}
+      {}
       <Menu
         anchorEl={menu}
         open={Boolean(menu)}

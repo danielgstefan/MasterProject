@@ -4,9 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Request payload for updating user profile information.
- */
+
 public class UpdateProfileRequest {
 
     @NotBlank

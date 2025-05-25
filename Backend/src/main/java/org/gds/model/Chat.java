@@ -3,9 +3,7 @@ package org.gds.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * Entity representing a chat message in the system.
- */
+
 @Entity
 @Table(name = "chats")
 public class Chat {

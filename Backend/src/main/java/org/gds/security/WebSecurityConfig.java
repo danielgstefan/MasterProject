@@ -18,10 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * Web Security Configuration.
- * This class configures Spring Security for the application.
- */
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -36,9 +33,7 @@ public class WebSecurityConfig {
     @Autowired
     private AuthTokenFilter authTokenFilter; // ✅ injectat corect ca bean
 
-    /**
-     * Create a DaoAuthenticationProvider bean.
-     */
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -47,25 +42,19 @@ public class WebSecurityConfig {
         return authProvider;
     }
 
-    /**
-     * Create an AuthenticationManager bean.
-     */
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    /**
-     * Create a PasswordEncoder bean.
-     */
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Configure the SecurityFilterChain.
-     */
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

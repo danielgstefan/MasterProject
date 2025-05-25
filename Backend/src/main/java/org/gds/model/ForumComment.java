@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
-/**
- * Entity representing a comment on a forum post.
- */
+
 @Entity
 @Table(name = "forum_comments")
 public class ForumComment {

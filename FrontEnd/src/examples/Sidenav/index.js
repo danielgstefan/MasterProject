@@ -1,20 +1,4 @@
-/*!
 
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 
 import { useEffect, useState } from "react";
 
@@ -68,9 +52,7 @@ function Sidenav({ color, brandName, routes, ...rest }) {
       setMiniSidenav(dispatch, window.innerWidth < 1200);
     }
 
-    /** 
-     The event listener that's calling the handleMiniSidenav function when resizing the window.
-    */
+    
     window.addEventListener("resize", handleMiniSidenav);
 
     // Call the handleMiniSidenav function to set the state with the initial value.

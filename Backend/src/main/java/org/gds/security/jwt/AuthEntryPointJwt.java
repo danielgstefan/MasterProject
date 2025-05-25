@@ -15,10 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * JWT Authentication Entry Point.
- * This class is used to handle unauthorized requests.
- */
+
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     

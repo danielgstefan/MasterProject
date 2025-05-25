@@ -17,10 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Filter for JWT token authentication.
- * This filter extracts the JWT token from the Authorization header and validates it.
- */
+
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
 
@@ -67,11 +64,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * Extract the JWT token from the Authorization header.
-     * @param request the HTTP request
-     * @return the JWT token, or null if not found
-     */
+
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
 

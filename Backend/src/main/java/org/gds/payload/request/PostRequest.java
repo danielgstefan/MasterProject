@@ -3,9 +3,7 @@ package org.gds.payload.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Request DTO for creating or updating a forum post.
- */
+
 public class PostRequest {
 
     @NotBlank(message = "Title is required")

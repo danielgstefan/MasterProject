@@ -180,7 +180,7 @@ const CarInformations = () => {
 						width="100%"
 						sx={{ display: "flex", justifyContent: "center" }}
 					>
-						{/* Săgeată stânga */}
+						{}
 						<IconButton
 							onClick={() => setActiveIndex((prev) => (prev > 0 ? prev - 1 : cars.length - 1))}
 							sx={{
@@ -196,7 +196,7 @@ const CarInformations = () => {
 							<ArrowBackIosNew sx={{ color: "white" }} />
 						</IconButton>
 
-						{/* Conținutul cardului */}
+						{}
 						<VuiBox
 							sx={{
 								display: "flex",
@@ -214,7 +214,7 @@ const CarInformations = () => {
 								justifyContent: "space-between"
 							}}
 						>
-							{/* Poză */}
+							{}
 							{currentCar?.photoUrl && (
 								<VuiBox
 									component="img"
@@ -231,7 +231,7 @@ const CarInformations = () => {
 								/>
 							)}
 
-							{/* Detalii */}
+							{}
 							<VuiBox sx={{ 
 								flex: 1, 
 								width: "100%", 
@@ -271,7 +271,7 @@ const CarInformations = () => {
 							</VuiBox>
 						</VuiBox>
 
-						{/* Săgeată dreapta */}
+						{}
 						<IconButton
 							onClick={() => setActiveIndex((prev) => (prev + 1) % cars.length)}
 							sx={{

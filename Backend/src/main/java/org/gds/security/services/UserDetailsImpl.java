@@ -11,10 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * UserDetailsImpl class for Spring Security.
- * This class implements the UserDetails interface for authentication.
- */
+
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
@@ -45,11 +42,7 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    /**
-     * Build a UserDetailsImpl from a User entity.
-     * @param user the User entity
-     * @return a UserDetailsImpl
-     */
+
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))

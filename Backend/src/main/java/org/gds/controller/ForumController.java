@@ -25,9 +25,7 @@ import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * REST controller for forum operations.
- */
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/forum")
@@ -49,15 +47,7 @@ public class ForumController {
 
     // Post endpoints
 
-    /**
-     * Get all posts with pagination.
-     *
-     * @param page page number
-     * @param size page size
-     * @param sort sort field
-     * @param direction sort direction
-     * @return page of posts
-     */
+
     @GetMapping("/posts")
     public ResponseEntity<Page<ForumPost>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
@@ -73,14 +63,7 @@ public class ForumController {
         return ResponseEntity.ok(posts);
     }
 
-    /**
-     * Get posts by category with pagination.
-     *
-     * @param category category name
-     * @param page page number
-     * @param size page size
-     * @return page of posts in the category
-     */
+
     @GetMapping("/posts/category/{category}")
     public ResponseEntity<Page<ForumPost>> getPostsByCategory(
             @PathVariable String category,
@@ -92,12 +75,7 @@ public class ForumController {
         return ResponseEntity.ok(posts);
     }
 
-    /**
-     * Get a post by ID.
-     *
-     * @param id post ID
-     * @return the post if found
-     */
+
     @GetMapping("/posts/{id}")
     public ResponseEntity<ForumPost> getPostById(@PathVariable Long id) {
         return forumService.getPostById(id)
@@ -105,12 +83,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Create a new post.
-     *
-     * @param postRequest post request data
-     * @return the created post
-     */
+
     @PostMapping("/posts")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ForumPost> createPost(@Valid @RequestBody PostRequest postRequest) {
@@ -127,13 +100,7 @@ public class ForumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
-    /**
-     * Update a post.
-     *
-     * @param id post ID
-     * @param postRequest updated post data
-     * @return the updated post if found
-     */
+
     @PutMapping("/posts/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> updatePost(
@@ -164,12 +131,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Delete a post.
-     *
-     * @param id post ID
-     * @return success message
-     */
+
     @DeleteMapping("/posts/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
@@ -191,14 +153,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Search posts by title or content.
-     *
-     * @param query search query
-     * @param page page number
-     * @param size page size
-     * @return page of matching posts
-     */
+
     @GetMapping("/posts/search")
     public ResponseEntity<Page<ForumPost>> searchPosts(
             @RequestParam String query,
@@ -212,14 +167,7 @@ public class ForumController {
 
     // Comment endpoints
 
-    /**
-     * Get comments for a post with pagination.
-     *
-     * @param postId post ID
-     * @param page page number
-     * @param size page size
-     * @return page of comments for the post
-     */
+
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<Page<ForumComment>> getCommentsByPostId(
             @PathVariable Long postId,
@@ -236,13 +184,7 @@ public class ForumController {
         }
     }
 
-    /**
-     * Create a new comment.
-     *
-     * @param postId post ID
-     * @param commentRequest comment request data
-     * @return the created comment
-     */
+
     @PostMapping("/posts/{postId}/comments")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> createComment(
@@ -265,13 +207,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Update a comment.
-     *
-     * @param commentId comment ID
-     * @param commentRequest updated comment data
-     * @return the updated comment if found
-     */
+
     @PutMapping("/comments/{commentId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> updateComment(
@@ -300,12 +236,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Delete a comment.
-     *
-     * @param commentId comment ID
-     * @return success message
-     */
+
     @DeleteMapping("/comments/{commentId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
@@ -329,12 +260,7 @@ public class ForumController {
 
     // Like endpoints
 
-    /**
-     * Like a post.
-     *
-     * @param postId post ID
-     * @return success message
-     */
+
     @PostMapping("/posts/{postId}/like")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> likePost(@PathVariable Long postId) {
@@ -348,12 +274,7 @@ public class ForumController {
         }
     }
 
-    /**
-     * Dislike a post.
-     *
-     * @param postId post ID
-     * @return success message
-     */
+
     @PostMapping("/posts/{postId}/dislike")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> dislikePost(@PathVariable Long postId) {
@@ -367,12 +288,7 @@ public class ForumController {
         }
     }
 
-    /**
-     * Remove a like or dislike from a post.
-     *
-     * @param postId post ID
-     * @return success message
-     */
+
     @DeleteMapping("/posts/{postId}/like")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> removeLike(@PathVariable Long postId) {
@@ -386,12 +302,7 @@ public class ForumController {
         }
     }
 
-    /**
-     * Get the like status and count for a post.
-     *
-     * @param postId post ID
-     * @return like status and count
-     */
+
     @GetMapping("/posts/{postId}/likes")
     public ResponseEntity<?> getLikeInfo(@PathVariable Long postId) {
         try {

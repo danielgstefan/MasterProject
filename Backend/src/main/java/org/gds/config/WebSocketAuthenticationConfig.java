@@ -24,10 +24,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 import java.util.List;
 
-/**
- * WebSocket Authentication Configuration.
- * This class configures authentication for WebSocket connections using JWT.
- */
+
 @Configuration
 @EnableWebSocketMessageBroker
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
@@ -41,9 +38,7 @@ public class WebSocketAuthenticationConfig implements WebSocketMessageBrokerConf
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    /**
-     * Configure the client inbound channel to authenticate WebSocket connections.
-     */
+
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(new ChannelInterceptor() {
