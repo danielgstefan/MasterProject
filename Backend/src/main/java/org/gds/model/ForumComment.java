@@ -1,5 +1,6 @@
 package org.gds.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -21,12 +22,13 @@ public class ForumComment {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     private ForumPost post;
 
     private LocalDateTime createdAt;
-    
+
     private LocalDateTime updatedAt;
 
     @PrePersist

@@ -3,9 +3,11 @@ package org.gds.service;
 import org.gds.model.ForumComment;
 import org.gds.model.ForumLike;
 import org.gds.model.ForumPost;
+import org.gds.model.ForumPostPhoto;
 import org.gds.model.User;
 import org.gds.repository.ForumCommentRepository;
 import org.gds.repository.ForumLikeRepository;
+import org.gds.repository.ForumPostPhotoRepository;
 import org.gds.repository.ForumPostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,9 @@ public class ForumService {
 
     @Autowired
     private ForumLikeRepository likeRepository;
+
+    @Autowired
+    private ForumPostPhotoRepository photoRepository;
 
     // Post operations
 
@@ -74,6 +79,11 @@ public class ForumService {
             likeRepository.findAll().stream()
                 .filter(like -> like.getPost().getId().equals(id))
                 .forEach(like -> likeRepository.delete(like));
+
+            // Delete all photos for the post
+            photoRepository.findByPost(post).forEach(photo -> {
+                photoRepository.delete(photo);
+            });
 
             // Delete the post
             postRepository.delete(post);
@@ -182,5 +192,28 @@ public class ForumService {
         return likeRepository.findByUserAndPost(user, post)
                 .map(ForumLike::isLike)
                 .orElse(null);
+    }
+
+    // Photo operations
+
+    public ForumPostPhoto savePhoto(ForumPostPhoto photo) {
+        return photoRepository.save(photo);
+    }
+
+    public List<ForumPostPhoto> getPhotosByPost(ForumPost post) {
+        return photoRepository.findByPost(post);
+    }
+
+    public Optional<ForumPostPhoto> getPhotoById(Long id) {
+        return photoRepository.findById(id);
+    }
+
+    public void deletePhoto(ForumPostPhoto photo) {
+        photoRepository.delete(photo);
+    }
+
+    @Transactional
+    public void deletePhotosByPost(ForumPost post) {
+        photoRepository.deleteByPost(post);
     }
 }

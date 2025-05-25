@@ -74,6 +74,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/audio/**").permitAll() // Allow access to audio files
                         .requestMatchers("/cars/**").permitAll() // Allow access to car photo files
+                        .requestMatchers("/forum/**").permitAll() // Allow access to forum photo files
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))

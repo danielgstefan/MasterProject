@@ -26,6 +26,26 @@ class ForumService {
     return axios.delete(`${API_URL}posts/${id}`);
   }
 
+  // Photo methods
+  uploadPhoto(postId, file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return axios.post(`${API_URL}posts/${postId}/photos`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  }
+
+  getPostPhotos(postId) {
+    return axios.get(`${API_URL}posts/${postId}/photos`);
+  }
+
+  deletePhoto(photoId) {
+    return axios.delete(`${API_URL}photos/${photoId}`);
+  }
+
   searchPosts(query, page = 0, size = 10) {
     return axios.get(`${API_URL}posts/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`);
   }
