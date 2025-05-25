@@ -142,7 +142,7 @@ function Chat() {
     }
 
     try {
-      const response = await ChatService.getChatHistory(currentPage, 50);
+      const response = await ChatService.getChatHistory(currentPage, 200);
       setMessages(response.data.content);
       setTotalPages(response.data.totalPages);
       setError(null);

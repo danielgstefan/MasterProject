@@ -26,46 +26,67 @@ public class ChatService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-    
+
     public Page<Chat> getRecentMessages(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return chatRepository.findAllByOrderByTimestampDesc(pageable);
     }
 
-    
+
     public Page<ChatDTO> getRecentMessagesDTO(int page, int size) {
         Page<Chat> messages = getRecentMessages(page, size);
         return messages.map(chat -> new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp()));
     }
 
-    
+
     public Page<Chat> getChatHistory(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return chatRepository.findAllByOrderByTimestampAsc(pageable);
     }
 
-    
+
     public Page<ChatDTO> getChatHistoryDTO(int page, int size) {
         Page<Chat> messages = getChatHistory(page, size);
         return messages.map(chat -> new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp()));
     }
 
-    
+
     public Chat sendMessage(String message, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
         Chat chat = new Chat(message, user);
-        return chatRepository.save(chat);
+        chat = chatRepository.save(chat);
+
+        // Clean up old messages if necessary
+        cleanupOldMessages();
+
+        return chat;
     }
 
-    
+    /**
+     * Private helper method to clean up old messages when the count exceeds 200
+     */
+    private void cleanupOldMessages() {
+        // Check if we have more than 200 messages and delete the oldest ones
+        long count = chatRepository.count();
+        if (count > 200) {
+            // Get the oldest messages that exceed the 200 limit
+            Pageable pageable = PageRequest.of(0, (int)(count - 200));
+            Page<Chat> oldestMessages = chatRepository.findAllByOrderByTimestampAsc(pageable);
+
+            // Delete the oldest messages
+            oldestMessages.forEach(oldMessage -> chatRepository.deleteById(oldMessage.getId()));
+        }
+    }
+
+
     public ChatDTO sendMessageDTO(String message, String username) {
         Chat chat = sendMessage(message, username);
         return new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp());
     }
 
-    
+
     public void deleteMessage(Long id) {
         chatRepository.deleteById(id);
 
@@ -75,7 +96,7 @@ public class ChatService {
         messagingTemplate.convertAndSend("/topic/public", chatDTO);
     }
 
-    
+
     public Chat createSystemMessage(String message) {
         User systemUser = userRepository.findByUsername("system")
                 .orElseGet(() -> {
@@ -94,10 +115,15 @@ public class ChatService {
                 });
 
         Chat chat = new Chat(message, systemUser);
-        return chatRepository.save(chat);
+        chat = chatRepository.save(chat);
+
+        // Clean up old messages if necessary
+        cleanupOldMessages();
+
+        return chat;
     }
 
-    
+
     public ChatDTO createSystemMessageDTO(String message) {
         Chat chat = createSystemMessage(message);
         return new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp());
