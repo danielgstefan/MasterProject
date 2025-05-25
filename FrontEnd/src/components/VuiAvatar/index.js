@@ -30,7 +30,7 @@ const VuiAvatar = forwardRef(({ bgColor, size, shadow, ...rest }, ref) => (
 
 // Setting default values for the props of VuiAvatar
 VuiAvatar.defaultProps = {
-  bgColor: "transparent",
+  bgColor: "rgba(0, 0, 0, 0)",
   size: "md",
   shadow: "none",
 };
@@ -38,7 +38,7 @@ VuiAvatar.defaultProps = {
 // Typechecking props for the VuiAvatar
 VuiAvatar.propTypes = {
   bgColor: PropTypes.oneOf([
-    "transparent",
+    "rgba(0, 0, 0, 0)",
     "primary",
     "secondary",
     "info",

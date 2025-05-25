@@ -205,7 +205,7 @@ const CarInformations = () => {
 								gap: 3,
 								width: "100%",
 								maxWidth: "100%",
-								background: "transparent",
+    				background: "rgba(0, 0, 0, 0)",
 								backdropFilter: "blur(10px)",
 								borderRadius: "20px",
 								padding: "20px",

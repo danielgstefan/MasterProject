@@ -40,6 +40,22 @@ import typography from "assets/theme/base/typography";
 import AuthService from "services/AuthService";
 
 function EditableProfileInfoCard({ title, description, info, social, onProfileUpdate }) {
+  const { info: infoColor, text, white } = colors;
+  const labels = {
+    mt: 3,
+    mb: 2,
+    '& .MuiInputLabel-root': {
+      color: text?.main || '#a0aec0'
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: white?.main || '#ffffff',
+      },
+      '&:hover fieldset': {
+        borderColor: infoColor?.main || '#0075ff',
+      },
+    },
+  };
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -151,7 +167,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
                     borderColor: "white",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: colors.info.main,
+                    borderColor: colors?.info?.main || '#0075ff',
                   },
                 },
               }}
@@ -178,7 +194,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
                     borderColor: "white",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: colors.info.main,
+                    borderColor: colors?.info?.main || '#0075ff',
                   },
                 },
               }}
@@ -205,7 +221,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
                     borderColor: "white",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: colors.info.main,
+                    borderColor: colors?.info?.main || '#0075ff',
                   },
                 },
               }}
@@ -232,7 +248,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
                     borderColor: "white",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: colors.info.main,
+                    borderColor: colors?.info?.main || '#0075ff',
                   },
                 },
               }}
@@ -259,7 +275,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
                     borderColor: "white",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: colors.info.main,
+                    borderColor: colors?.info?.main || '#0075ff',
                   },
                 },
               }}
@@ -286,7 +302,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
                     borderColor: "white",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: colors.info.main,
+                    borderColor: colors?.info?.main || '#0075ff',
                   },
                 },
               }}
@@ -406,7 +422,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
   };
 
   // Render the card social media icons
-  const renderSocial = social.map(({ link, icon, color }) => (
+  const renderSocial = Array.isArray(social) ? social.map(({ link, icon, color }) => (
     <VuiBox
       key={color}
       component="a"
@@ -421,7 +437,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
     >
       {icon}
     </VuiBox>
-  ));
+  )) : [];
 
   return (
     <Card
@@ -456,7 +472,7 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
         <VuiBox>
           {renderUsernameEmail()}
           {renderItems()}
-          {!isEditing && (
+          {!isEditing && renderSocial.length > 0 && (
             <VuiBox display="flex" py={1} pr={2} color="white">
               <VuiTypography
                 variant="button"

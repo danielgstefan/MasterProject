@@ -39,8 +39,10 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useEffect, useState } from "react";
 // Auth service
 import AuthService from "services/AuthService";
+import colors from "assets/theme/base/colors";
 
 function Header() {
+  const { info, transparent } = colors;
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
   const [userData, setUserData] = useState({
@@ -99,13 +101,9 @@ function Header() {
           sx={({ breakpoints }) => ({
             [breakpoints.up("xs")]: {
               gap: "16px",
-            },
-            [breakpoints.up("xs")]: {
-              gap: "0px",
-            },
-            [breakpoints.up("xl")]: {
-              gap: "0px",
-            },
+              backgroundColor: transparent?.main || "rgba(0,0,0,0)",
+              color: info?.main || "#0075ff"
+            }
           })}
         >
           <Grid
@@ -159,7 +157,7 @@ function Header() {
                 orientation={tabsOrientation}
                 value={tabValue}
                 onChange={handleSetTabValue}
-                sx={{ background: "transparent", display: "flex", justifyContent: "flex-end" }}
+                sx={{ background: "rgba(0, 0, 0, 0)", display: "flex", justifyContent: "flex-end" }}
               >
                 <Tab label="OVERVIEW" icon={<IoCube color="white" size="16px" />} />
                 <Tab label="TEAMS" icon={<IoDocument color="white" size="16px" />} />

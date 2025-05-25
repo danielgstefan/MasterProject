@@ -39,7 +39,7 @@ export default styled(Switch)(({ theme, ownerState }) => {
         },
         "& .MuiSwitch-track": {
           backgroundColor: `${secondary.main} !important`,
-          borderColor: "transparent",
+          borderColor: "rgba(0, 0, 0, 0)",
         },
         "& .Mui-checked+.MuiSwitch-track": {
           backgroundColor: `${backgroundValue} !important`,

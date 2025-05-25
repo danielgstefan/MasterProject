@@ -37,7 +37,7 @@ const VuiBox = forwardRef(
 // Setting default values for the props of VuiBox
 VuiBox.defaultProps = {
   variant: "contained",
-  bgColor: "transparent",
+  bgColor: "rgba(0, 0, 0, 0)",
   color: "dark",
   opacity: 1,
   borderRadius: "none",

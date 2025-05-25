@@ -35,7 +35,7 @@ export default {
     root: {
       display: "flex",
       flexDirection: "column",
-      background: "transparent",
+      background: "rgba(0, 0, 0, 0)",
       backdropFilter: "blur(10px)",
       position: "relative",
       minWidth: 0,
