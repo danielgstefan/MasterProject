@@ -23,8 +23,8 @@ import colors from "assets/theme/base/colors";
 
 // Dashboard layout components
 import WelcomeMark from "layouts/dashboard/components/WelcomeMark";
-import SatisfactionRate from "layouts/dashboard/components/SatisfactionRate";
 import AudioCard from "layouts/dashboard/components/AudioCard";
+import CarPhotoGallery from "layouts/dashboard/components/CarPhotoGallery";
 
 // React icons
 import { IoIosRocket } from "react-icons/io";
@@ -82,13 +82,16 @@ function Dashboard() {
         </VuiBox>
         <VuiBox mb={3}>
           <Grid container spacing="18px">
-            <Grid item xs={12} lg={12} xl={5}>
-              <WelcomeMark />
+            {/* Left column: Welcome + Car Gallery */}
+            <Grid item xs={12} lg={8}>
+              <VuiBox mb={3}>
+                <WelcomeMark />
+              </VuiBox>
+              <CarPhotoGallery />
             </Grid>
-            <Grid item xs={12} lg={6} xl={3}>
-              <SatisfactionRate />
-            </Grid>
-            <Grid item xs={12} lg={6} xl={4}>
+
+            {/* Right column: Audio Card only */}
+            <Grid item xs={12} lg={4}>
               <AudioCard />
             </Grid>
           </Grid>

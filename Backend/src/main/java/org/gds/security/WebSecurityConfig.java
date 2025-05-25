@@ -67,11 +67,13 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/refresh-token").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/api/audio/**").permitAll() // Allow access to audio endpoints
+                        .requestMatchers("/api/car-photos/**").permitAll() // Allow access to car photos endpoints
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/audio/**").permitAll() // Allow access to audio files
+                        .requestMatchers("/cars/**").permitAll() // Allow access to car photo files
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))

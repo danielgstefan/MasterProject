@@ -213,53 +213,6 @@ function AudioCard() {
 				</VuiBox>
 
 				<VuiBox mb={3}>
-					<VuiBox display='flex' flexDirection='column' mb={2}>
-						<TextField
-							label="Audio Title"
-							variant="outlined"
-							value={newTitle}
-							onChange={(e) => setNewTitle(e.target.value)}
-							sx={{
-								mb: 2,
-								'& .MuiOutlinedInput-root': {
-									color: 'white',
-									'& fieldset': {
-										borderColor: 'rgba(255, 255, 255, 0.3)',
-									},
-									'&:hover fieldset': {
-										borderColor: 'rgba(255, 255, 255, 0.5)',
-									},
-									'&.Mui-focused fieldset': {
- 									borderColor: info?.main || "#0075ff",
-									},
-								},
-								'& .MuiInputLabel-root': {
-									color: 'rgba(255, 255, 255, 0.7)',
-								},
-							}}
-						/>
-						<Button
-							variant="contained"
-							component="label"
-							startIcon={<FaUpload />}
-							sx={{
-								bgcolor: info?.main || "#0075ff",
-								'&:hover': {
-									bgcolor: info?.dark || "#0062d6",
-								},
-							}}
-							disabled={uploading}
-						>
-							Upload Audio
-							<input
-								type="file"
-								accept="audio/*"
-								hidden
-								onChange={handleFileUpload}
-							/>
-						</Button>
-					</VuiBox>
-
 					<VuiBox>
 						{audioFiles.length === 0 ? (
 							<VuiTypography color='text' variant='button' fontWeight='regular' textAlign='center' display='block'>
@@ -415,6 +368,52 @@ function AudioCard() {
 							</Stack>
 						)}
 					</VuiBox>
+				</VuiBox>
+				<VuiBox display='flex' flexDirection='column' mt={4} mb={2}>
+					<TextField
+						label="Audio Title"
+						variant="outlined"
+						value={newTitle}
+						onChange={(e) => setNewTitle(e.target.value)}
+						sx={{
+							mb: 2,
+							'& .MuiOutlinedInput-root': {
+								color: 'white',
+								'& fieldset': {
+									borderColor: 'rgba(255, 255, 255, 0.3)',
+								},
+								'&:hover fieldset': {
+									borderColor: 'rgba(255, 255, 255, 0.5)',
+								},
+								'&.Mui-focused fieldset': {
+									borderColor: info?.main || "#0075ff",
+								},
+							},
+							'& .MuiInputLabel-root': {
+								color: 'rgba(255, 255, 255, 0.7)',
+							},
+						}}
+					/>
+					<Button
+						variant="contained"
+						component="label"
+						startIcon={<FaUpload />}
+						sx={{
+							bgcolor: info?.main || "#0075ff",
+							'&:hover': {
+								bgcolor: info?.dark || "#0062d6",
+							},
+						}}
+						disabled={uploading}
+					>
+						Upload Audio
+						<input
+							type="file"
+							accept="audio/*"
+							hidden
+							onChange={handleFileUpload}
+						/>
+					</Button>
 				</VuiBox>
 			</VuiBox>
 		</Card>
