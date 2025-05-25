@@ -13,9 +13,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 
-/**
- * Utility class for JWT token generation and validation.
- */
+
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
@@ -30,11 +28,7 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    /**
-     * Generate a JWT token for the authenticated user.
-     * @param authentication the authentication object
-     * @return the JWT token
-     */
+    
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()
@@ -45,11 +39,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    /**
-     * Generate a JWT token from a username.
-     * @param username the username
-     * @return the JWT token
-     */
+    
     public String generateTokenFromUsername(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -59,11 +49,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    /**
-     * Get the username from the JWT token.
-     * @param token the JWT token
-     * @return the username
-     */
+    
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key())
@@ -73,11 +59,7 @@ public class JwtUtils {
                 .getSubject();
     }
 
-    /**
-     * Validate the JWT token.
-     * @param authToken the JWT token
-     * @return true if the token is valid, false otherwise
-     */
+    
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder()

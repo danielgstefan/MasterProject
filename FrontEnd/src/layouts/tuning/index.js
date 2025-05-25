@@ -75,7 +75,7 @@ function Tuning() {
             </VuiBox>
           </Grid>
 
-          {/* Services Grid */}
+          {}
           <Grid item xs={12}>
             <Grid container spacing={3}>
               {tuningServices.map((service) => (

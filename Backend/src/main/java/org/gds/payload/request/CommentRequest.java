@@ -3,9 +3,7 @@ package org.gds.payload.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Request DTO for creating or updating a comment.
- */
+
 public class CommentRequest {
 
     @NotBlank(message = "Content is required")

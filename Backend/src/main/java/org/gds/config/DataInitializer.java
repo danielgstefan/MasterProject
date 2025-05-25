@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-/**
- * Data Initializer.
- * This class initializes the database with default roles.
- */
+
 @Component
 public class DataInitializer implements CommandLineRunner {
     

@@ -32,10 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.http.MediaType;
 
-/**
- * Authentication Controller.
- * This class handles authentication requests.
- */
+
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
@@ -60,11 +57,7 @@ public class AuthController {
     @Autowired
     RefreshTokenService refreshTokenService;
 
-    /**
-     * Authenticate a user.
-     * @param loginRequest the login request
-     * @return a JWT response
-     */
+    
     @PostMapping(value = "/signin", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -92,11 +85,7 @@ public class AuthController {
                 roles));
     }
 
-    /**
-     * Register a new user.
-     * @param signUpRequest the signup request
-     * @return a message response
-     */
+    
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -184,11 +173,7 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("Log out successful!"));
     }
 
-    /**
-     * Update user profile information.
-     * @param updateProfileRequest the update profile request
-     * @return a JWT response with new token if username changed, or a message response
-     */
+    
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

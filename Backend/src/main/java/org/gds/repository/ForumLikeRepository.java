@@ -10,21 +10,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Repository for ForumLike entity.
- */
+
 @Repository
 public interface ForumLikeRepository extends JpaRepository<ForumLike, Long> {
 
     Optional<ForumLike> findByUserAndPost(User user, ForumPost post);
 
-    /**
-     * Count the number of likes or dislikes for a post using a custom query.
-     *
-     * @param post the forum post
-     * @param isLike true for likes, false for dislikes
-     * @return the number of likes or dislikes
-     */
+
     @Query("SELECT COUNT(f) FROM ForumLike f WHERE f.post = :post AND f.isLike = :isLike")
     long countByPostAndIsLike(@Param("post") ForumPost post, @Param("isLike") boolean isLike);
 

@@ -484,7 +484,7 @@ function Forum() {
       <DashboardNavbar />
       <VuiBox py={3}>
         <Grid container spacing={3}>
-          {/* Header */}
+          {}
           <Grid item xs={12}>
             <VuiBox mb={3} display="flex" justifyContent="space-between" alignItems="center">
               <VuiBox>
@@ -496,7 +496,7 @@ function Forum() {
                 </VuiTypography>
               </VuiBox>
 
-              {/* Category Filter */}
+              {}
               <VuiBox>
                 <FormControl sx={{ minWidth: 200 }}>
                   <InputLabel id="category-select-label" sx={{ color: "white" }}>
@@ -531,7 +531,7 @@ function Forum() {
             </VuiBox>
           </Grid>
 
-          {/* Create New Post Button (only for authenticated users) */}
+          {}
           {isAuthenticated && (
             <Grid item xs={12}>
               <Card>
@@ -550,7 +550,7 @@ function Forum() {
             </Grid>
           )}
 
-          {/* Categories */}
+          {}
           <Grid item xs={12}>
             <VuiTypography variant="h5" fontWeight="bold" color="white" mb={2}>
               Categories
@@ -582,20 +582,20 @@ function Forum() {
             </Grid>
           </Grid>
 
-          {/* Posts */}
+          {}
           <Grid item xs={12}>
             <VuiTypography variant="h5" fontWeight="bold" color="white" mb={2}>
               {selectedCategory ? `Posts in ${selectedCategory}` : "All Posts"}
             </VuiTypography>
 
-            {/* Loading indicator */}
+            {}
             {loading && (
               <VuiBox display="flex" justifyContent="center" p={5}>
                 <CircularProgress color="info" />
               </VuiBox>
             )}
 
-            {/* Error message */}
+            {}
             {error && (
               <Card>
                 <VuiBox p={3} textAlign="center">
@@ -614,7 +614,7 @@ function Forum() {
               </Card>
             )}
 
-            {/* No posts message */}
+            {}
             {!loading && !error && posts.length === 0 && (
               <Card>
                 <VuiBox p={3} textAlign="center">
@@ -625,7 +625,7 @@ function Forum() {
               </Card>
             )}
 
-            {/* Posts list */}
+            {}
             <Grid container spacing={3}>
               {!loading && !error && posts.map((post) => (
                 <Grid item xs={12} key={post.id}>
@@ -636,7 +636,7 @@ function Forum() {
                           {post.title}
                         </VuiTypography>
 
-                        {/* Edit/Delete buttons for post owner */}
+                        {}
                         {canEditPost(post) && (
                           <VuiBox>
                             <IconButton 
@@ -674,7 +674,7 @@ function Forum() {
                       </VuiTypography>
 
                       <VuiBox display="flex" gap={2} alignItems="center">
-                        {/* Like button */}
+                        {}
                         <VuiBox display="flex" alignItems="center">
                           <IconButton 
                             size="small" 
@@ -689,7 +689,7 @@ function Forum() {
                           </VuiTypography>
                         </VuiBox>
 
-                        {/* Dislike button */}
+                        {}
                         <VuiBox display="flex" alignItems="center">
                           <IconButton 
                             size="small" 
@@ -704,7 +704,7 @@ function Forum() {
                           </VuiTypography>
                         </VuiBox>
 
-                        {/* Comment button */}
+                        {}
                         <VuiBox display="flex" alignItems="center">
                           <IconButton 
                             size="small" 
@@ -719,21 +719,21 @@ function Forum() {
                         </VuiBox>
                       </VuiBox>
 
-                      {/* Comments section */}
+                      {}
                       {expandedComments[post.id] && (
                         <VuiBox mt={3} pl={2} pr={2} pb={2}>
                           <VuiTypography variant="subtitle2" color="white" mb={2}>
                             Comments
                           </VuiTypography>
 
-                          {/* Loading indicator for comments */}
+                          {}
                           {loadingComments[post.id] && (
                             <VuiBox display="flex" justifyContent="center" p={2}>
                               <CircularProgress color="info" size={20} />
                             </VuiBox>
                           )}
 
-                          {/* Comments list */}
+                          {}
                           {!loadingComments[post.id] && comments[post.id] && comments[post.id].length > 0 ? (
                             <VuiBox>
                               {comments[post.id].map((comment) => (
@@ -747,7 +747,7 @@ function Forum() {
                                         <VuiTypography variant="caption" color="text" mr={2}>
                                           {formatDate(comment.createdAt)}
                                         </VuiTypography>
-                                        {/* Edit/Delete buttons for comment owner */}
+                                        {}
                                         {canEditComment(comment) && (
                                           <VuiBox>
                                             <IconButton 
@@ -833,7 +833,7 @@ function Forum() {
                             )
                           )}
 
-                          {/* Comment form */}
+                          {}
                           {isAuthenticated && (
                             <VuiBox mt={2}>
                               <TextField
@@ -879,7 +879,7 @@ function Forum() {
               ))}
             </Grid>
 
-            {/* Pagination */}
+            {}
             {totalPages > 1 && (
               <VuiBox display="flex" justifyContent="center" mt={3}>
                 <VuiButton
@@ -909,7 +909,7 @@ function Forum() {
         </Grid>
       </VuiBox>
 
-      {/* Create/Edit Post Dialog */}
+      {}
       <Dialog 
         open={openPostDialog} 
         onClose={handleClosePostDialog}
@@ -1022,7 +1022,7 @@ function Forum() {
         </DialogActions>
       </Dialog>
 
-      {/* Notification Snackbar */}
+      {}
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}

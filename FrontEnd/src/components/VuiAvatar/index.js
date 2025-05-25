@@ -1,20 +1,4 @@
-/*!
 
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 
 import { forwardRef } from "react";
 
@@ -30,7 +14,7 @@ const VuiAvatar = forwardRef(({ bgColor, size, shadow, ...rest }, ref) => (
 
 // Setting default values for the props of VuiAvatar
 VuiAvatar.defaultProps = {
-  bgColor: "transparent",
+  bgColor: "rgba(0, 0, 0, 0)",
   size: "md",
   shadow: "none",
 };
@@ -38,7 +22,7 @@ VuiAvatar.defaultProps = {
 // Typechecking props for the VuiAvatar
 VuiAvatar.propTypes = {
   bgColor: PropTypes.oneOf([
-    "transparent",
+    "rgba(0, 0, 0, 0)",
     "primary",
     "secondary",
     "info",

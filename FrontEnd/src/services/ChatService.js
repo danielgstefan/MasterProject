@@ -9,10 +9,7 @@ import SockJS from "sockjs-client";
 // This is a placeholder for the STOMP client that should be imported
 import { Client } from '@stomp/stompjs';
 
-/**
- * Service for handling chat API calls to the backend.
- * Also provides WebSocket functionality for real-time chat.
- */
+
 class ChatService {
   constructor() {
     this.stompClient = null;
@@ -21,12 +18,7 @@ class ChatService {
     this.messageHandlers = [];
   }
 
-  /**
-   * Connect to the WebSocket server.
-   * 
-   * @param {function} onMessageReceived - Callback function for when a message is received
-   * @returns {Promise} - A promise that resolves when connected or rejects on error
-   */
+  
   connect(onMessageReceived) {
     // Check if user is authenticated before connecting
     if (!AuthService.isAuthenticated()) {
@@ -96,9 +88,7 @@ class ChatService {
     });
   }
 
-  /**
-   * Disconnect from the WebSocket server.
-   */
+  
   disconnect() {
     if (this.stompClient) {
       if (this.subscription) {
@@ -113,13 +103,7 @@ class ChatService {
     }
   }
 
-  /**
-   * Send a message via WebSocket.
-   * 
-   * @param {string} message - The message content
-   * @returns {Promise} - A promise that resolves when the message is sent or rejects on error
-   *                     If falling back to REST API, resolves with the response from the API
-   */
+  
   sendMessageWs(message) {
     // Check if user is authenticated before sending
     if (!AuthService.isAuthenticated()) {
@@ -161,13 +145,7 @@ class ChatService {
       }
     });
   }
-  /**
-   * Get recent chat messages (newest first).
-   * 
-   * @param {number} page - Page number
-   * @param {number} size - Page size
-   * @returns {Promise} - A promise that resolves to the response data or a rejected promise if not authenticated
-   */
+  
   getRecentMessages(page = 0, size = 50) {
     // Check if user is authenticated before making the API call
     if (!AuthService.isAuthenticated()) {
@@ -176,13 +154,7 @@ class ChatService {
     return axios.get(`${API_URL}recent?page=${page}&size=${size}`);
   }
 
-  /**
-   * Get chat history in chronological order (oldest first).
-   * 
-   * @param {number} page - Page number
-   * @param {number} size - Page size
-   * @returns {Promise} - A promise that resolves to the response data or a rejected promise if not authenticated
-   */
+  
   getChatHistory(page = 0, size = 50) {
     // Check if user is authenticated before making the API call
     if (!AuthService.isAuthenticated()) {
@@ -191,12 +163,7 @@ class ChatService {
     return axios.get(`${API_URL}history?page=${page}&size=${size}`);
   }
 
-  /**
-   * Send a new chat message.
-   * 
-   * @param {string} message - The message content
-   * @returns {Promise} - A promise that resolves to the response data or a rejected promise if not authenticated
-   */
+  
   sendMessage(message) {
     // Check if user is authenticated before making the API call
     if (!AuthService.isAuthenticated()) {
@@ -205,12 +172,7 @@ class ChatService {
     return axios.post(`${API_URL}send`, { message });
   }
 
-  /**
-   * Delete a chat message (admin only).
-   * 
-   * @param {number} id - The message ID
-   * @returns {Promise} - A promise that resolves to the response data or a rejected promise if not authenticated
-   */
+  
   deleteMessage(id) {
     // Check if user is authenticated before making the API call
     if (!AuthService.isAuthenticated()) {

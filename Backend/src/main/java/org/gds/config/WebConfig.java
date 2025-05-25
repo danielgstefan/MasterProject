@@ -8,17 +8,11 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Web configuration class for the application.
- * This class configures CORS to allow requests from the frontend.
- */
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    /**
-     * Configures CORS to allow requests from the frontend.
-     * @return CorsFilter
-     */
+
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -37,15 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
         config.setAllowCredentials(true);
 
         // Apply this configuration to all paths
-        source.registerCorsConfiguration("/**", config);
-
-        return new CorsFilter(source);
-    }
-
-    /**
-     * Configure static resource handling for uploaded files.
-     * @param registry ResourceHandlerRegistry
-     */
+        source.registerCorsConfiguration("
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Map "/uploads/**" to the "uploads" directory in the file system

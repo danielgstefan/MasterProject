@@ -51,7 +51,7 @@ function Shop() {
             </VuiBox>
           </Grid>
           
-          {/* Search and Filter Section */}
+          {}
           <Grid item xs={12}>
             <Card>
               <VuiBox p={3}>
@@ -73,7 +73,7 @@ function Shop() {
             </Card>
           </Grid>
 
-          {/* Products Grid */}
+          {}
           <Grid item xs={12}>
             <Grid container spacing={3}>
               {products.map((product) => (

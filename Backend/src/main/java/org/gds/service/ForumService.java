@@ -16,9 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service for forum operations.
- */
+
 @Service
 public class ForumService {
 
@@ -33,54 +31,27 @@ public class ForumService {
 
     // Post operations
 
-    /**
-     * Get all posts with pagination.
-     *
-     * @param pageable pagination information
-     * @return page of posts
-     */
+
     public Page<ForumPost> getAllPosts(Pageable pageable) {
         return postRepository.findAll(pageable);
     }
 
-    /**
-     * Get posts by category with pagination.
-     *
-     * @param category category name
-     * @param pageable pagination information
-     * @return page of posts in the category
-     */
+
     public Page<ForumPost> getPostsByCategory(String category, Pageable pageable) {
         return postRepository.findByCategory(category, pageable);
     }
 
-    /**
-     * Get a post by ID.
-     *
-     * @param id post ID
-     * @return the post if found
-     */
+
     public Optional<ForumPost> getPostById(Long id) {
         return postRepository.findById(id);
     }
 
-    /**
-     * Create a new post.
-     *
-     * @param post the post to create
-     * @return the created post
-     */
+
     public ForumPost createPost(ForumPost post) {
         return postRepository.save(post);
     }
 
-    /**
-     * Update a post.
-     *
-     * @param id post ID
-     * @param updatedPost the updated post data
-     * @return the updated post if found
-     */
+
     public Optional<ForumPost> updatePost(Long id, ForumPost updatedPost) {
         return postRepository.findById(id)
                 .map(post -> {
@@ -91,11 +62,7 @@ public class ForumService {
                 });
     }
 
-    /**
-     * Delete a post.
-     *
-     * @param id post ID
-     */
+
     @Transactional
     public void deletePost(Long id) {
         postRepository.findById(id).ifPresent(post -> {
@@ -113,13 +80,7 @@ public class ForumService {
         });
     }
 
-    /**
-     * Search posts by title or content.
-     *
-     * @param query search query
-     * @param pageable pagination information
-     * @return page of matching posts
-     */
+
     public Page<ForumPost> searchPosts(String query, Pageable pageable) {
         return postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
                 query, query, pageable);
@@ -127,36 +88,19 @@ public class ForumService {
 
     // Comment operations
 
-    /**
-     * Get comments for a post with pagination.
-     *
-     * @param postId post ID
-     * @param pageable pagination information
-     * @return page of comments for the post
-     */
+
     public Page<ForumComment> getCommentsByPostId(Long postId, Pageable pageable) {
         return postRepository.findById(postId)
                 .map(post -> commentRepository.findByPost(post, pageable))
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
     }
 
-    /**
-     * Create a new comment.
-     *
-     * @param comment the comment to create
-     * @return the created comment
-     */
+
     public ForumComment createComment(ForumComment comment) {
         return commentRepository.save(comment);
     }
 
-    /**
-     * Update a comment.
-     *
-     * @param id comment ID
-     * @param updatedComment the updated comment data
-     * @return the updated comment if found
-     */
+
     public Optional<ForumComment> updateComment(Long id, ForumComment updatedComment) {
         return commentRepository.findById(id)
                 .map(comment -> {
@@ -165,35 +109,19 @@ public class ForumService {
                 });
     }
 
-    /**
-     * Get a comment by ID.
-     *
-     * @param id comment ID
-     * @return the comment if found
-     */
+
     public Optional<ForumComment> getCommentById(Long id) {
         return commentRepository.findById(id);
     }
 
-    /**
-     * Delete a comment.
-     *
-     * @param id comment ID
-     */
+
     public void deleteComment(Long id) {
         commentRepository.deleteById(id);
     }
 
     // Like operations
 
-    /**
-     * Like or dislike a post.
-     *
-     * @param user the user
-     * @param postId the post ID
-     * @param isLike true for like, false for dislike
-     * @return the created or updated like
-     */
+
     @Transactional
     public ForumLike likePost(User user, Long postId, boolean isLike) {
         ForumPost post = postRepository.findById(postId)
@@ -211,12 +139,7 @@ public class ForumService {
         }
     }
 
-    /**
-     * Remove a like or dislike from a post.
-     *
-     * @param user the user
-     * @param postId the post ID
-     */
+
     @Transactional
     public void removeLike(User user, Long postId) {
         ForumPost post = postRepository.findById(postId)
@@ -226,12 +149,7 @@ public class ForumService {
                 .ifPresent(like -> likeRepository.delete(like));
     }
 
-    /**
-     * Get the like count for a post.
-     *
-     * @param postId the post ID
-     * @return the like count (likes minus dislikes)
-     */
+
     public Long getLikeCount(Long postId) {
         ForumPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
@@ -240,12 +158,7 @@ public class ForumService {
         return count != null ? count : 0L;
     }
 
-    /**
-     * Get the count of likes for a post.
-     *
-     * @param postId the post ID
-     * @return the count of likes
-     */
+
     public Long getLikesCount(Long postId) {
         ForumPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
@@ -253,12 +166,7 @@ public class ForumService {
         return likeRepository.countByPostAndIsLike(post, true);
     }
 
-    /**
-     * Get the count of dislikes for a post.
-     *
-     * @param postId the post ID
-     * @return the count of dislikes
-     */
+
     public Long getDislikesCount(Long postId) {
         ForumPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
@@ -266,13 +174,7 @@ public class ForumService {
         return likeRepository.countByPostAndIsLike(post, false);
     }
 
-    /**
-     * Check if a user has liked or disliked a post.
-     *
-     * @param user the user
-     * @param postId the post ID
-     * @return the like status (true for like, false for dislike, null if not liked)
-     */
+
     public Boolean getUserLikeStatus(User user, Long postId) {
         ForumPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));

@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-/**
- * Entity representing a forum post.
- */
+
 @Entity
 @Table(name = "forum_posts")
 public class ForumPost {

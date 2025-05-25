@@ -13,9 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-/**
- * Service for handling chat operations.
- */
+
 @Service
 public class ChatService {
 
@@ -28,63 +26,31 @@ public class ChatService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-    /**
-     * Get recent chat messages.
-     *
-     * @param page Page number
-     * @param size Page size
-     * @return Page of chat messages
-     */
+    
     public Page<Chat> getRecentMessages(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return chatRepository.findAllByOrderByTimestampDesc(pageable);
     }
 
-    /**
-     * Get recent chat messages as DTOs.
-     * This method avoids the need to access the User's roles collection after the Hibernate session is closed.
-     *
-     * @param page Page number
-     * @param size Page size
-     * @return Page of chat message DTOs
-     */
+    
     public Page<ChatDTO> getRecentMessagesDTO(int page, int size) {
         Page<Chat> messages = getRecentMessages(page, size);
         return messages.map(chat -> new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp()));
     }
 
-    /**
-     * Get chat history in chronological order.
-     *
-     * @param page Page number
-     * @param size Page size
-     * @return Page of chat messages
-     */
+    
     public Page<Chat> getChatHistory(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return chatRepository.findAllByOrderByTimestampAsc(pageable);
     }
 
-    /**
-     * Get chat history in chronological order as DTOs.
-     * This method avoids the need to access the User's roles collection after the Hibernate session is closed.
-     *
-     * @param page Page number
-     * @param size Page size
-     * @return Page of chat message DTOs
-     */
+    
     public Page<ChatDTO> getChatHistoryDTO(int page, int size) {
         Page<Chat> messages = getChatHistory(page, size);
         return messages.map(chat -> new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp()));
     }
 
-    /**
-     * Send a new chat message.
-     *
-     * @param message Message content
-     * @param username Username of the sender
-     * @return The created chat message
-     */
+    
     public Chat sendMessage(String message, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
@@ -93,24 +59,13 @@ public class ChatService {
         return chatRepository.save(chat);
     }
 
-    /**
-     * Send a new chat message and return it as a DTO.
-     * This method avoids the need to access the User's roles collection after the Hibernate session is closed.
-     *
-     * @param message Message content
-     * @param username Username of the sender
-     * @return The created chat message as a DTO
-     */
+    
     public ChatDTO sendMessageDTO(String message, String username) {
         Chat chat = sendMessage(message, username);
         return new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp());
     }
 
-    /**
-     * Delete a chat message.
-     *
-     * @param id Message ID
-     */
+    
     public void deleteMessage(Long id) {
         chatRepository.deleteById(id);
 
@@ -120,12 +75,7 @@ public class ChatService {
         messagingTemplate.convertAndSend("/topic/public", chatDTO);
     }
 
-    /**
-     * Create a system message.
-     * 
-     * @param message The system message content
-     * @return A chat message with system as the sender
-     */
+    
     public Chat createSystemMessage(String message) {
         User systemUser = userRepository.findByUsername("system")
                 .orElseGet(() -> {
@@ -147,13 +97,7 @@ public class ChatService {
         return chatRepository.save(chat);
     }
 
-    /**
-     * Create a system message DTO directly.
-     * This method avoids the need to access the User's roles collection after the Hibernate session is closed.
-     * 
-     * @param message The system message content
-     * @return A chat message DTO with system as the sender
-     */
+    
     public ChatDTO createSystemMessageDTO(String message) {
         Chat chat = createSystemMessage(message);
         return new ChatDTO(chat.getId(), chat.getMessage(), chat.getSender().getUsername(), chat.getTimestamp());

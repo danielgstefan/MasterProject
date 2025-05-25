@@ -238,7 +238,7 @@ function Chat() {
       <DashboardNavbar />
       <VuiBox py={3}>
         <Grid container spacing={3}>
-          {/* Header */}
+          {}
           <Grid item xs={12}>
             <VuiBox mb={3}>
               <VuiTypography variant="h2" fontWeight="bold" color="white">
@@ -250,10 +250,10 @@ function Chat() {
             </VuiBox>
           </Grid>
 
-          {/* Chat Container */}
+          {}
           <Grid item xs={12}>
             <Card sx={{ height: "70vh", display: "flex", flexDirection: "column" }}>
-              {/* Messages Area */}
+              {}
               <VuiBox 
                 p={3} 
                 sx={{ 
@@ -263,14 +263,14 @@ function Chat() {
                   flexDirection: "column"
                 }}
               >
-                {/* Loading indicator */}
+                {}
                 {loading && (
                   <VuiBox display="flex" justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
                     <CircularProgress color="primary" />
                   </VuiBox>
                 )}
 
-                {/* Error message */}
+                {}
                 {error && !loading && (
                   <VuiBox textAlign="center" sx={{ height: "100%" }}>
                     <VuiTypography color="error" variant="body2">
@@ -287,7 +287,7 @@ function Chat() {
                   </VuiBox>
                 )}
 
-                {/* No messages */}
+                {}
                 {!loading && !error && messages.length === 0 && (
                   <VuiBox 
                     display="flex" 
@@ -301,7 +301,7 @@ function Chat() {
                   </VuiBox>
                 )}
 
-                {/* Messages list */}
+                {}
                 {!loading && !error && messages.length > 0 && (
                   <VuiBox>
                     {messages.map((message) => (
@@ -365,7 +365,7 @@ function Chat() {
                 )}
               </VuiBox>
 
-              {/* Input Area */}
+              {}
               {isAuthenticated ? (
                 <VuiBox p={3} display="flex" alignItems="center">
                   <TextField
@@ -413,7 +413,7 @@ function Chat() {
         </Grid>
       </VuiBox>
 
-      {/* Notification Snackbar */}
+      {}
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}

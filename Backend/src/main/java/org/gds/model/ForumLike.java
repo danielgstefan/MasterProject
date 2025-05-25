@@ -3,9 +3,7 @@ package org.gds.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * Entity representing a like or dislike on a forum post.
- */
+
 @Entity
 @Table(name = "forum_likes", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"user_id", "post_id"})
