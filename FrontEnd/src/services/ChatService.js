@@ -18,7 +18,7 @@ class ChatService {
     this.messageHandlers = [];
   }
 
-  
+
   connect(onMessageReceived) {
     // Check if user is authenticated before connecting
     if (!AuthService.isAuthenticated()) {
@@ -88,7 +88,7 @@ class ChatService {
     });
   }
 
-  
+
   disconnect() {
     if (this.stompClient) {
       if (this.subscription) {
@@ -103,7 +103,7 @@ class ChatService {
     }
   }
 
-  
+
   sendMessageWs(message) {
     // Check if user is authenticated before sending
     if (!AuthService.isAuthenticated()) {
@@ -145,8 +145,8 @@ class ChatService {
       }
     });
   }
-  
-  getRecentMessages(page = 0, size = 50) {
+
+  getRecentMessages(page = 0, size = 200) {
     // Check if user is authenticated before making the API call
     if (!AuthService.isAuthenticated()) {
       return Promise.reject(new Error("User is not authenticated"));
@@ -154,8 +154,8 @@ class ChatService {
     return axios.get(`${API_URL}recent?page=${page}&size=${size}`);
   }
 
-  
-  getChatHistory(page = 0, size = 50) {
+
+  getChatHistory(page = 0, size = 200) {
     // Check if user is authenticated before making the API call
     if (!AuthService.isAuthenticated()) {
       return Promise.reject(new Error("User is not authenticated"));
@@ -163,7 +163,7 @@ class ChatService {
     return axios.get(`${API_URL}history?page=${page}&size=${size}`);
   }
 
-  
+
   sendMessage(message) {
     // Check if user is authenticated before making the API call
     if (!AuthService.isAuthenticated()) {
@@ -172,7 +172,7 @@ class ChatService {
     return axios.post(`${API_URL}send`, { message });
   }
 
-  
+
   deleteMessage(id) {
     // Check if user is authenticated before making the API call
     if (!AuthService.isAuthenticated()) {

@@ -31,7 +31,10 @@ public class WebConfig implements WebMvcConfigurer {
         config.setAllowCredentials(true);
 
         // Apply this configuration to all paths
-        source.registerCorsConfiguration("
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Map "/uploads/**" to the "uploads" directory in the file system
