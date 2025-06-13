@@ -1,5 +1,7 @@
 package org.gds.dto;
 
+import org.gds.model.Car;
+
 public class CarDTO {
     private Long id;
     private String alias;
@@ -11,8 +13,7 @@ public class CarDTO {
     private String photoUrl;
     private Long userId;
 
-    public CarDTO() {
-    }
+    public CarDTO() {}
 
     public CarDTO(Long id, String alias, String brand, String model, Integer horsePower, Integer torque, String bio, String photoUrl, Long userId) {
         this.id = id;
@@ -26,6 +27,21 @@ public class CarDTO {
         this.userId = userId;
     }
 
+    public static CarDTO from(Car car) {
+        return new CarDTO(
+            car.getId(),
+            car.getAlias(),
+            car.getBrand(),
+            car.getModel(),
+            car.getHorsePower(),
+            car.getTorque(),
+            car.getBio(),
+            car.getPhotoUrl(),
+            car.getUser().getId()
+        );
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
