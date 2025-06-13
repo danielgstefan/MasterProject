@@ -13,10 +13,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.Map;
 
-/**
- * WebSocket event listener.
- * Handles WebSocket connection and disconnection events.
- */
+
 @Component
 public class WebSocketEventListener {
 
@@ -28,21 +25,13 @@ public class WebSocketEventListener {
     @Autowired
     private ChatService chatService;
 
-    /**
-     * Handle WebSocket connection events.
-     * 
-     * @param event The session connected event
-     */
+
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         logger.info("Received a new WebSocket connection");
     }
 
-    /**
-     * Handle WebSocket disconnection events.
-     * 
-     * @param event The session disconnect event
-     */
+
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         String username = (String) event.getMessage().getHeaders().get("simpSessionAttributes", Map.class).get("username");

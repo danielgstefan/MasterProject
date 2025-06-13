@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-/**
- * Entity representing a forum post.
- */
+
 @Entity
 @Table(name = "forum_posts")
 public class ForumPost {
@@ -32,8 +33,12 @@ public class ForumPost {
     @Size(max = 50)
     private String category;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ForumPostPhoto> photos = new ArrayList<>();
+
     private LocalDateTime createdAt;
-    
+
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -100,5 +105,24 @@ public class ForumPost {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    // Photo management methods
+    public List<ForumPostPhoto> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<ForumPostPhoto> photos) {
+        this.photos = photos;
+    }
+
+    public void addPhoto(ForumPostPhoto photo) {
+        photos.add(photo);
+        photo.setPost(this);
+    }
+
+    public void removePhoto(ForumPostPhoto photo) {
+        photos.remove(photo);
+        photo.setPost(null);
     }
 }

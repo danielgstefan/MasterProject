@@ -1,12 +1,11 @@
 package org.gds.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
-/**
- * Entity representing a comment on a forum post.
- */
+
 @Entity
 @Table(name = "forum_comments")
 public class ForumComment {
@@ -23,12 +22,13 @@ public class ForumComment {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     private ForumPost post;
 
     private LocalDateTime createdAt;
-    
+
     private LocalDateTime updatedAt;
 
     @PrePersist

@@ -18,10 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * Web Security Configuration.
- * This class configures Spring Security for the application.
- */
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -36,9 +33,7 @@ public class WebSecurityConfig {
     @Autowired
     private AuthTokenFilter authTokenFilter; // ✅ injectat corect ca bean
 
-    /**
-     * Create a DaoAuthenticationProvider bean.
-     */
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -47,25 +42,19 @@ public class WebSecurityConfig {
         return authProvider;
     }
 
-    /**
-     * Create an AuthenticationManager bean.
-     */
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    /**
-     * Create a PasswordEncoder bean.
-     */
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Configure the SecurityFilterChain.
-     */
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -77,10 +66,17 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/signup").permitAll()
                         .requestMatchers("/api/auth/refresh-token").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
+                        .requestMatchers("/api/audio/**").permitAll()
+                        .requestMatchers("/api/car-photos/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/audio/**").permitAll()
+                        .requestMatchers("/cars/**").permitAll()
+                        .requestMatchers("/forum/**").permitAll()
+                        // Secure tuning endpoints
+                        .requestMatchers("/api/tuning/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))

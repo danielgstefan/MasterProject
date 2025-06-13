@@ -62,6 +62,10 @@ public class User {
     @JsonIgnore
     private List<Car> cars = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<TuningRequest> tuningRequests = new ArrayList<>();
+
     public User() {}
 
     public User(String username, String email, String password, String firstName, String lastName, String phoneNumber, String location) {
@@ -95,4 +99,12 @@ public class User {
 
     public List<Car> getCars() { return cars; }
     public void setCars(List<Car> cars) { this.cars = cars; }
+
+    public List<TuningRequest> getTuningRequests() {
+        return tuningRequests;
+    }
+
+    public void setTuningRequests(List<TuningRequest> tuningRequests) {
+        this.tuningRequests = tuningRequests;
+    }
 }

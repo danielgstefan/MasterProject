@@ -3,6 +3,7 @@ package org.gds.controller;
 import org.gds.model.ForumComment;
 import org.gds.model.ForumLike;
 import org.gds.model.ForumPost;
+import org.gds.model.ForumPostPhoto;
 import org.gds.model.User;
 import org.gds.payload.request.CommentRequest;
 import org.gds.payload.request.PostRequest;
@@ -10,6 +11,7 @@ import org.gds.payload.response.MessageResponse;
 import org.gds.service.ForumService;
 import org.gds.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,15 +21,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-/**
- * REST controller for forum operations.
- */
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/forum")
@@ -39,6 +47,9 @@ public class ForumController {
     @Autowired
     private UserService userService;
 
+    @Value("${forum.photo.upload.dir:uploads/forum}")
+    private String uploadDir;
+
     // Helper method to get the current authenticated user
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -49,15 +60,7 @@ public class ForumController {
 
     // Post endpoints
 
-    /**
-     * Get all posts with pagination.
-     *
-     * @param page page number
-     * @param size page size
-     * @param sort sort field
-     * @param direction sort direction
-     * @return page of posts
-     */
+
     @GetMapping("/posts")
     public ResponseEntity<Page<ForumPost>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
@@ -73,14 +76,7 @@ public class ForumController {
         return ResponseEntity.ok(posts);
     }
 
-    /**
-     * Get posts by category with pagination.
-     *
-     * @param category category name
-     * @param page page number
-     * @param size page size
-     * @return page of posts in the category
-     */
+
     @GetMapping("/posts/category/{category}")
     public ResponseEntity<Page<ForumPost>> getPostsByCategory(
             @PathVariable String category,
@@ -92,12 +88,7 @@ public class ForumController {
         return ResponseEntity.ok(posts);
     }
 
-    /**
-     * Get a post by ID.
-     *
-     * @param id post ID
-     * @return the post if found
-     */
+
     @GetMapping("/posts/{id}")
     public ResponseEntity<ForumPost> getPostById(@PathVariable Long id) {
         return forumService.getPostById(id)
@@ -105,12 +96,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Create a new post.
-     *
-     * @param postRequest post request data
-     * @return the created post
-     */
+
     @PostMapping("/posts")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ForumPost> createPost(@Valid @RequestBody PostRequest postRequest) {
@@ -127,13 +113,7 @@ public class ForumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
-    /**
-     * Update a post.
-     *
-     * @param id post ID
-     * @param postRequest updated post data
-     * @return the updated post if found
-     */
+
     @PutMapping("/posts/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> updatePost(
@@ -164,12 +144,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Delete a post.
-     *
-     * @param id post ID
-     * @return success message
-     */
+
     @DeleteMapping("/posts/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
@@ -191,14 +166,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Search posts by title or content.
-     *
-     * @param query search query
-     * @param page page number
-     * @param size page size
-     * @return page of matching posts
-     */
+
     @GetMapping("/posts/search")
     public ResponseEntity<Page<ForumPost>> searchPosts(
             @RequestParam String query,
@@ -212,14 +180,7 @@ public class ForumController {
 
     // Comment endpoints
 
-    /**
-     * Get comments for a post with pagination.
-     *
-     * @param postId post ID
-     * @param page page number
-     * @param size page size
-     * @return page of comments for the post
-     */
+
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<Page<ForumComment>> getCommentsByPostId(
             @PathVariable Long postId,
@@ -236,13 +197,7 @@ public class ForumController {
         }
     }
 
-    /**
-     * Create a new comment.
-     *
-     * @param postId post ID
-     * @param commentRequest comment request data
-     * @return the created comment
-     */
+
     @PostMapping("/posts/{postId}/comments")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> createComment(
@@ -265,13 +220,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Update a comment.
-     *
-     * @param commentId comment ID
-     * @param commentRequest updated comment data
-     * @return the updated comment if found
-     */
+
     @PutMapping("/comments/{commentId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> updateComment(
@@ -300,12 +249,7 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Delete a comment.
-     *
-     * @param commentId comment ID
-     * @return success message
-     */
+
     @DeleteMapping("/comments/{commentId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
@@ -329,12 +273,7 @@ public class ForumController {
 
     // Like endpoints
 
-    /**
-     * Like a post.
-     *
-     * @param postId post ID
-     * @return success message
-     */
+
     @PostMapping("/posts/{postId}/like")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> likePost(@PathVariable Long postId) {
@@ -348,12 +287,7 @@ public class ForumController {
         }
     }
 
-    /**
-     * Dislike a post.
-     *
-     * @param postId post ID
-     * @return success message
-     */
+
     @PostMapping("/posts/{postId}/dislike")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> dislikePost(@PathVariable Long postId) {
@@ -367,12 +301,7 @@ public class ForumController {
         }
     }
 
-    /**
-     * Remove a like or dislike from a post.
-     *
-     * @param postId post ID
-     * @return success message
-     */
+
     @DeleteMapping("/posts/{postId}/like")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> removeLike(@PathVariable Long postId) {
@@ -386,12 +315,7 @@ public class ForumController {
         }
     }
 
-    /**
-     * Get the like status and count for a post.
-     *
-     * @param postId post ID
-     * @return like status and count
-     */
+
     @GetMapping("/posts/{postId}/likes")
     public ResponseEntity<?> getLikeInfo(@PathVariable Long postId) {
         try {
@@ -417,5 +341,97 @@ public class ForumController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // Photo endpoints
+
+    @PostMapping("/posts/{postId}/photos")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> uploadPostPhoto(
+            @PathVariable Long postId,
+            @RequestParam("file") MultipartFile file) {
+
+        User currentUser = getCurrentUser();
+
+        return forumService.getPostById(postId)
+                .map(post -> {
+                    // Check if the user is the author or an admin
+                    if (!post.getAuthor().getId().equals(currentUser.getId()) && 
+                            !currentUser.getRoles().stream().anyMatch(role -> 
+                                    role.getName().name().equals("ROLE_ADMIN"))) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(new MessageResponse("You can only add photos to your own posts"));
+                    }
+
+                    if (file.isEmpty()) {
+                        return ResponseEntity.badRequest()
+                                .body(new MessageResponse("Please select a file to upload"));
+                    }
+
+                    try {
+                        String originalName = StringUtils.cleanPath(file.getOriginalFilename());
+                        String extension = "";
+                        int i = originalName.lastIndexOf('.');
+                        if (i > 0) extension = originalName.substring(i);
+                        String filename = UUID.randomUUID() + extension;
+
+                        Path uploadPath = Paths.get(uploadDir);
+                        if (!Files.exists(uploadPath)) {
+                            Files.createDirectories(uploadPath);
+                        }
+
+                        Path filePath = uploadPath.resolve(filename);
+                        file.transferTo(filePath);
+
+                        String url = "/forum/" + filename;
+
+                        ForumPostPhoto photo = new ForumPostPhoto(filename, url, originalName, post);
+                        ForumPostPhoto savedPhoto = forumService.savePhoto(photo);
+
+                        return ResponseEntity.ok(savedPhoto);
+                    } catch (IOException e) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(new MessageResponse("Failed to upload photo: " + e.getMessage()));
+                    }
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/posts/{postId}/photos")
+    public ResponseEntity<List<ForumPostPhoto>> getPostPhotos(@PathVariable Long postId) {
+        return forumService.getPostById(postId)
+                .map(post -> ResponseEntity.ok(forumService.getPhotosByPost(post)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/photos/{photoId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> deletePhoto(@PathVariable Long photoId) {
+        User currentUser = getCurrentUser();
+
+        return forumService.getPhotoById(photoId)
+                .map(photo -> {
+                    ForumPost post = photo.getPost();
+
+                    // Check if the user is the author or an admin
+                    if (!post.getAuthor().getId().equals(currentUser.getId()) && 
+                            !currentUser.getRoles().stream().anyMatch(role -> 
+                                    role.getName().name().equals("ROLE_ADMIN"))) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(new MessageResponse("You can only delete photos from your own posts"));
+                    }
+
+                    try {
+                        Path filePath = Paths.get(uploadDir).resolve(photo.getFilename());
+                        Files.deleteIfExists(filePath);
+                    } catch (IOException e) {
+                        // Log the error but continue with database deletion
+                        System.err.println("Error deleting file: " + e.getMessage());
+                    }
+
+                    forumService.deletePhoto(photo);
+                    return ResponseEntity.ok(new MessageResponse("Photo deleted successfully"));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

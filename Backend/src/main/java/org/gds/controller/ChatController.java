@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
-/**
- * REST controller for chat operations.
- */
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/chat")
@@ -24,13 +22,7 @@ public class ChatController {
     @Autowired
     private ChatService chatService;
 
-    /**
-     * Get recent chat messages.
-     *
-     * @param page Page number
-     * @param size Page size
-     * @return Page of chat message DTOs
-     */
+
     @GetMapping("/recent")
     public ResponseEntity<Page<ChatDTO>> getRecentMessages(
             @RequestParam(defaultValue = "0") int page,
@@ -40,13 +32,7 @@ public class ChatController {
         return ResponseEntity.ok(messageDTOs);
     }
 
-    /**
-     * Get chat history in chronological order.
-     *
-     * @param page Page number
-     * @param size Page size
-     * @return Page of chat message DTOs
-     */
+
     @GetMapping("/history")
     public ResponseEntity<Page<ChatDTO>> getChatHistory(
             @RequestParam(defaultValue = "0") int page,
@@ -56,12 +42,7 @@ public class ChatController {
         return ResponseEntity.ok(messageDTOs);
     }
 
-    /**
-     * Send a new chat message.
-     *
-     * @param chatRequest Chat message request
-     * @return The created chat message DTO
-     */
+
     @PostMapping("/send")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ChatDTO> sendMessage(@Valid @RequestBody ChatRequest chatRequest) {
@@ -73,12 +54,7 @@ public class ChatController {
         return ResponseEntity.ok(messageDTO);
     }
 
-    /**
-     * Delete a chat message.
-     *
-     * @param id Message ID
-     * @return Response with no content
-     */
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteMessage(@PathVariable Long id) {

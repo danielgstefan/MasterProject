@@ -16,6 +16,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import LinearProgress from "@mui/material/LinearProgress";
 
 // Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
@@ -57,6 +58,7 @@ function Forum() {
   const [commentCounts, setCommentCounts] = useState({});
   const [editingComment, setEditingComment] = useState(null);
   const [editCommentContent, setEditCommentContent] = useState("");
+  const [commentListVersion, setCommentListVersion] = useState({});
 
   // State for creating/editing posts
   const [newPostContent, setNewPostContent] = useState("");
@@ -64,6 +66,14 @@ function Forum() {
   const [newPostCategory, setNewPostCategory] = useState("");
   const [openPostDialog, setOpenPostDialog] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+
+  // State for photos
+  const [postPhotos, setPostPhotos] = useState({});
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [previewImages, setPreviewImages] = useState([]);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
 
   // State for notifications
   const [notification, setNotification] = useState({ open: false, message: "", severity: "success" });
@@ -77,6 +87,30 @@ function Forum() {
     fetchPosts();
     fetchCategories();
   }, [currentPage, selectedCategory]);
+
+  // Fetch photos for a post
+  const fetchPostPhotos = async (postId) => {
+    try {
+      const response = await ForumService.getPostPhotos(postId);
+      setPostPhotos(prev => ({
+        ...prev,
+        [postId]: response.data
+      }));
+
+      // If editing a post, we want to show the existing photos
+      if (editingPost && editingPost.id === postId) {
+        // Clear any previously selected files
+        setSelectedFiles([]);
+        setPreviewImages([]);
+
+        // We don't actually load the files here since we can't get them back from the server
+        // But we can show the existing photos in the UI if needed
+        // This would require additional UI in the dialog to show existing photos
+      }
+    } catch (err) {
+      console.error(`Error fetching photos for post ${postId}:`, err);
+    }
+  };
 
   // Fetch like information for a post
   const fetchLikeInfo = async (postId) => {
@@ -180,15 +214,13 @@ function Forum() {
   };
 
   // Handle starting to edit a comment
-  const handleEditComment = (comment) => {
+  const startEditComment = (comment) => {
     setEditingComment(comment);
     setEditCommentContent(comment.content);
   };
 
   // Handle saving the edited comment
-  const handleUpdateComment = async () => {
-    if (!editingComment) return;
-
+  const handleEditComment = async (comment) => {
     if (!editCommentContent.trim()) {
       setNotification({
         open: true,
@@ -199,19 +231,45 @@ function Forum() {
     }
 
     try {
-      await ForumService.updateComment(editingComment.id, editCommentContent);
+      // Find which post this comment belongs to by searching through all posts' comments
+      let foundPostId = null;
+      Object.entries(comments).forEach(([postId, postComments]) => {
+        if (postComments.some(c => c.id === comment.id)) {
+          foundPostId = postId;
+        }
+      });
+
+      if (!foundPostId) {
+        throw new Error("Could not find the post for this comment");
+      }
+
+      await ForumService.updateComment(comment.id, editCommentContent);
+
+      // Update the comments state with the new content
+      setComments(prev => ({
+        ...prev,
+        [foundPostId]: prev[foundPostId].map(c =>
+          c.id === comment.id ? { ...c, content: editCommentContent } : c
+        )
+      }));
+
+      // Force re-render of comments
+      setCommentListVersion(prev => ({
+        ...prev,
+        [foundPostId]: (prev[foundPostId] || 0) + 1
+      }));
+
+      // Reset editing state
+      setEditingComment(null);
+      setEditCommentContent("");
+
       setNotification({
         open: true,
         message: "Comment updated successfully",
         severity: "success"
       });
-      // Refresh comments for the post
-      fetchComments(editingComment.post.id);
-      // Reset editing state
-      setEditingComment(null);
-      setEditCommentContent("");
     } catch (err) {
-      console.error(`Error updating comment ${editingComment.id}:`, err);
+      console.error("Error updating comment:", err);
       setNotification({
         open: true,
         message: "Failed to update comment. Please try again.",
@@ -220,33 +278,51 @@ function Forum() {
     }
   };
 
+  const handleDeleteComment = async (comment) => {
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+      try {
+        // Find which post this comment belongs to
+        let foundPostId = null;
+        Object.entries(comments).forEach(([postId, postComments]) => {
+          if (postComments.some(c => c.id === comment.id)) {
+            foundPostId = postId;
+          }
+        });
+
+        if (!foundPostId) {
+          throw new Error("Could not find the post for this comment");
+        }
+
+        await ForumService.deleteComment(comment.id);
+
+        // Update local state immediately
+        setComments(prev => ({
+          ...prev,
+          [foundPostId]: prev[foundPostId].filter(c => c.id !== comment.id)
+        }));
+
+        // Update comment count
+        setCommentCounts(prev => ({
+          ...prev,
+          [foundPostId]: Math.max(0, (prev[foundPostId] || 1) - 1)
+        }));
+
+        // Force re-render of comments
+        setCommentListVersion(prev => ({
+          ...prev,
+          [foundPostId]: (prev[foundPostId] || 0) + 1
+        }));
+
+      } catch (error) {
+        console.error("Error deleting comment:", error);
+      }
+    }
+  };
+
   // Handle canceling comment edit
   const handleCancelEditComment = () => {
     setEditingComment(null);
     setEditCommentContent("");
-  };
-
-  // Handle deleting a comment
-  const handleDeleteComment = async (comment) => {
-    if (window.confirm("Are you sure you want to delete this comment?")) {
-      try {
-        await ForumService.deleteComment(comment.id);
-        setNotification({
-          open: true,
-          message: "Comment deleted successfully",
-          severity: "success"
-        });
-        // Refresh comments for the post
-        fetchComments(comment.post.id);
-      } catch (err) {
-        console.error(`Error deleting comment ${comment.id}:`, err);
-        setNotification({
-          open: true,
-          message: "Failed to delete comment. Please try again.",
-          severity: "error"
-        });
-      }
-    }
   };
 
   // Fetch posts from the backend
@@ -263,10 +339,11 @@ function Forum() {
       setTotalPages(response.data.totalPages);
       setLoading(false);
 
-      // Fetch like information and comment counts for each post
+      // Fetch like information, comment counts, and photos for each post
       response.data.content.forEach(post => {
         fetchLikeInfo(post.id);
         fetchCommentCount(post.id);
+        fetchPostPhotos(post.id);
       });
     } catch (err) {
       console.error("Error fetching posts:", err);
@@ -303,6 +380,28 @@ function Forum() {
     setCategories(forumCategories);
   };
 
+  // Handle file selection for post creation
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files);
+    setSelectedFiles(files);
+
+    // Create preview URLs for the selected files
+    const previews = files.map(file => URL.createObjectURL(file));
+    setPreviewImages(previews);
+  };
+
+  // Handle removing a selected file
+  const handleRemoveFile = (index) => {
+    const newFiles = [...selectedFiles];
+    newFiles.splice(index, 1);
+    setSelectedFiles(newFiles);
+
+    const newPreviews = [...previewImages];
+    URL.revokeObjectURL(newPreviews[index]); // Free up memory
+    newPreviews.splice(index, 1);
+    setPreviewImages(newPreviews);
+  };
+
   // Handle creating a new post
   const handleCreatePost = async () => {
     if (!newPostTitle.trim() || !newPostContent.trim() || !newPostCategory.trim()) {
@@ -315,14 +414,17 @@ function Forum() {
     }
 
     try {
+      let postId;
+
       if (editingPost) {
         // Update existing post
-        await ForumService.updatePost(
+        const response = await ForumService.updatePost(
           editingPost.id,
           newPostTitle,
           newPostContent,
           newPostCategory
         );
+        postId = editingPost.id;
         setNotification({
           open: true,
           message: "Post updated successfully",
@@ -330,11 +432,12 @@ function Forum() {
         });
       } else {
         // Create new post
-        await ForumService.createPost(
+        const response = await ForumService.createPost(
           newPostTitle,
           newPostContent,
           newPostCategory
         );
+        postId = response.data.id;
         setNotification({
           open: true,
           message: "Post created successfully",
@@ -342,10 +445,31 @@ function Forum() {
         });
       }
 
+      // Upload photos if any are selected
+      if (selectedFiles.length > 0) {
+        setUploadProgress(0);
+        for (let i = 0; i < selectedFiles.length; i++) {
+          try {
+            await ForumService.uploadPhoto(postId, selectedFiles[i]);
+            setUploadProgress(Math.round(((i + 1) / selectedFiles.length) * 100));
+          } catch (error) {
+            console.error("Error uploading photo:", error);
+            setNotification({
+              open: true,
+              message: `Error uploading photo ${i + 1}. Post was created but some photos may be missing.`,
+              severity: "warning"
+            });
+          }
+        }
+      }
+
       // Reset form and refresh posts
       setNewPostTitle("");
       setNewPostContent("");
       setNewPostCategory("");
+      setSelectedFiles([]);
+      setPreviewImages([]);
+      setUploadProgress(0);
       setOpenPostDialog(false);
       setEditingPost(null);
       fetchPosts();
@@ -367,12 +491,17 @@ function Forum() {
       setNewPostTitle(post.title);
       setNewPostContent(post.content);
       setNewPostCategory(post.category);
+
+      // Fetch photos for the post if editing
+      fetchPostPhotos(post.id);
     } else {
       // Creating new post
       setEditingPost(null);
       setNewPostTitle("");
       setNewPostContent("");
       setNewPostCategory(categories[0]?.name || "");
+      setSelectedFiles([]);
+      setPreviewImages([]);
     }
     setOpenPostDialog(true);
   };
@@ -381,6 +510,11 @@ function Forum() {
   const handleClosePostDialog = () => {
     setOpenPostDialog(false);
     setEditingPost(null);
+
+    // Clean up preview URLs to avoid memory leaks
+    previewImages.forEach(url => URL.revokeObjectURL(url));
+    setPreviewImages([]);
+    setSelectedFiles([]);
   };
 
   // Handle deleting a post
@@ -484,7 +618,7 @@ function Forum() {
       <DashboardNavbar />
       <VuiBox py={3}>
         <Grid container spacing={3}>
-          {/* Header */}
+          {}
           <Grid item xs={12}>
             <VuiBox mb={3} display="flex" justifyContent="space-between" alignItems="center">
               <VuiBox>
@@ -496,7 +630,7 @@ function Forum() {
                 </VuiTypography>
               </VuiBox>
 
-              {/* Category Filter */}
+              {}
               <VuiBox>
                 <FormControl sx={{ minWidth: 200 }}>
                   <InputLabel id="category-select-label" sx={{ color: "white" }}>
@@ -531,7 +665,7 @@ function Forum() {
             </VuiBox>
           </Grid>
 
-          {/* Create New Post Button (only for authenticated users) */}
+          {}
           {isAuthenticated && (
             <Grid item xs={12}>
               <Card>
@@ -550,7 +684,7 @@ function Forum() {
             </Grid>
           )}
 
-          {/* Categories */}
+          {}
           <Grid item xs={12}>
             <VuiTypography variant="h5" fontWeight="bold" color="white" mb={2}>
               Categories
@@ -582,20 +716,20 @@ function Forum() {
             </Grid>
           </Grid>
 
-          {/* Posts */}
+          {}
           <Grid item xs={12}>
             <VuiTypography variant="h5" fontWeight="bold" color="white" mb={2}>
               {selectedCategory ? `Posts in ${selectedCategory}` : "All Posts"}
             </VuiTypography>
 
-            {/* Loading indicator */}
+            {}
             {loading && (
               <VuiBox display="flex" justifyContent="center" p={5}>
                 <CircularProgress color="info" />
               </VuiBox>
             )}
 
-            {/* Error message */}
+            {}
             {error && (
               <Card>
                 <VuiBox p={3} textAlign="center">
@@ -614,7 +748,7 @@ function Forum() {
               </Card>
             )}
 
-            {/* No posts message */}
+            {}
             {!loading && !error && posts.length === 0 && (
               <Card>
                 <VuiBox p={3} textAlign="center">
@@ -625,7 +759,7 @@ function Forum() {
               </Card>
             )}
 
-            {/* Posts list */}
+            {}
             <Grid container spacing={3}>
               {!loading && !error && posts.map((post) => (
                 <Grid item xs={12} key={post.id}>
@@ -636,22 +770,36 @@ function Forum() {
                           {post.title}
                         </VuiTypography>
 
-                        {/* Edit/Delete buttons for post owner */}
+                        {}
                         {canEditPost(post) && (
                           <VuiBox>
                             <IconButton 
                               size="small" 
-                              sx={{ color: "white" }}
+                              sx={{ 
+                                color: "#0f1535",
+                                backgroundColor: "white",
+                                "&:hover": {
+                                  backgroundColor: "white"
+                                },
+                                mx: 0.5
+                              }}
                               onClick={() => handleOpenPostDialog(post)}
                             >
-                              <IoPencilOutline />
+                              <IoPencilOutline size={18} />
                             </IconButton>
                             <IconButton 
                               size="small" 
-                              sx={{ color: "white" }}
+                              sx={{ 
+                                color: "#0f1535",
+                                backgroundColor: "white",
+                                "&:hover": {
+                                  backgroundColor: "white"
+                                },
+                                mx: 0.5
+                              }}
                               onClick={() => handleDeletePost(post.id)}
                             >
-                              <IoTrashOutline />
+                              <IoTrashOutline size={18} />
                             </IconButton>
                           </VuiBox>
                         )}
@@ -673,8 +821,52 @@ function Forum() {
                         {post.content}
                       </VuiTypography>
 
+                      {/* Display post photos if available */}
+                      {postPhotos[post.id] && postPhotos[post.id].length > 0 && (
+                        <VuiBox mb={2}>
+                          <VuiBox 
+                            sx={{ 
+                              display: 'flex', 
+                              flexWrap: 'wrap', 
+                              gap: 1,
+                              maxHeight: '300px',
+                              overflowY: 'auto',
+                              backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                              borderRadius: '8px',
+                              p: 1
+                            }}
+                          >
+                            {postPhotos[post.id].map((photo) => (
+                              <VuiBox 
+                                key={photo.id} 
+                                sx={{ 
+                                  width: '120px',
+                                  height: '120px'
+                                }}
+                              >
+                                <img 
+                                  src={`http://localhost:8081${photo.url}`} 
+                                  alt={photo.title || "Post image"} 
+                                  style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                  }} 
+                                  onClick={() => {
+                                    setSelectedPhoto(photo);
+                                    setPhotoDialogOpen(true);
+                                  }}
+                                />
+                              </VuiBox>
+                            ))}
+                          </VuiBox>
+                        </VuiBox>
+                      )}
+
                       <VuiBox display="flex" gap={2} alignItems="center">
-                        {/* Like button */}
+                        {}
                         <VuiBox display="flex" alignItems="center">
                           <IconButton 
                             size="small" 
@@ -689,7 +881,7 @@ function Forum() {
                           </VuiTypography>
                         </VuiBox>
 
-                        {/* Dislike button */}
+                        {}
                         <VuiBox display="flex" alignItems="center">
                           <IconButton 
                             size="small" 
@@ -704,7 +896,7 @@ function Forum() {
                           </VuiTypography>
                         </VuiBox>
 
-                        {/* Comment button */}
+                        {}
                         <VuiBox display="flex" alignItems="center">
                           <IconButton 
                             size="small" 
@@ -719,21 +911,27 @@ function Forum() {
                         </VuiBox>
                       </VuiBox>
 
-                      {/* Comments section */}
+                      {}
                       {expandedComments[post.id] && (
-                        <VuiBox mt={3} pl={2} pr={2} pb={2}>
+                          <VuiBox
+                              key={`comments-${commentListVersion[post.id] || 0}`}
+                              mt={3}
+                              pl={2}
+                              pr={2}
+                              pb={2}
+                          >
                           <VuiTypography variant="subtitle2" color="white" mb={2}>
                             Comments
                           </VuiTypography>
 
-                          {/* Loading indicator for comments */}
+                          {}
                           {loadingComments[post.id] && (
                             <VuiBox display="flex" justifyContent="center" p={2}>
                               <CircularProgress color="info" size={20} />
                             </VuiBox>
                           )}
 
-                          {/* Comments list */}
+                          {}
                           {!loadingComments[post.id] && comments[post.id] && comments[post.id].length > 0 ? (
                             <VuiBox>
                               {comments[post.id].map((comment) => (
@@ -747,22 +945,38 @@ function Forum() {
                                         <VuiTypography variant="caption" color="text" mr={2}>
                                           {formatDate(comment.createdAt)}
                                         </VuiTypography>
-                                        {/* Edit/Delete buttons for comment owner */}
+                                        {}
                                         {canEditComment(comment) && (
                                           <VuiBox>
                                             <IconButton 
                                               size="small" 
-                                              sx={{ color: "white", p: 0.5 }}
-                                              onClick={() => handleEditComment(comment)}
+                                              sx={{ 
+                                                color: "#0f1535", 
+                                                p: 0.5,
+                                                backgroundColor: "white",
+                                                "&:hover": {
+                                                  backgroundColor: "white"
+                                                },
+                                                mx: 0.5
+                                              }}
+                                              onClick={() => startEditComment(comment)}
                                             >
-                                              <IoPencilOutline size={14} />
+                                              <IoPencilOutline size={16} />
                                             </IconButton>
                                             <IconButton 
                                               size="small" 
-                                              sx={{ color: "white", p: 0.5 }}
+                                              sx={{ 
+                                                color: "#0f1535", 
+                                                p: 0.5,
+                                                backgroundColor: "white",
+                                                "&:hover": {
+                                                  backgroundColor: "white"
+                                                },
+                                                mx: 0.5
+                                              }}
                                               onClick={() => handleDeleteComment(comment)}
                                             >
-                                              <IoTrashOutline size={14} />
+                                              <IoTrashOutline size={16} />
                                             </IconButton>
                                           </VuiBox>
                                         )}
@@ -807,7 +1021,7 @@ function Forum() {
                                             variant="contained" 
                                             color="info" 
                                             size="small"
-                                            onClick={handleUpdateComment}
+                                            onClick={() => handleEditComment(comment)}
                                           >
                                             Update
                                           </VuiButton>
@@ -833,7 +1047,7 @@ function Forum() {
                             )
                           )}
 
-                          {/* Comment form */}
+                          {}
                           {isAuthenticated && (
                             <VuiBox mt={2}>
                               <TextField
@@ -879,7 +1093,7 @@ function Forum() {
               ))}
             </Grid>
 
-            {/* Pagination */}
+            {}
             {totalPages > 1 && (
               <VuiBox display="flex" justifyContent="center" mt={3}>
                 <VuiButton
@@ -909,7 +1123,7 @@ function Forum() {
         </Grid>
       </VuiBox>
 
-      {/* Create/Edit Post Dialog */}
+      {}
       <Dialog 
         open={openPostDialog} 
         onClose={handleClosePostDialog}
@@ -1011,6 +1225,113 @@ function Forum() {
               </Select>
             </FormControl>
           </VuiBox>
+
+          {/* Photo upload section */}
+          <VuiBox mb={2}>
+            <VuiTypography variant="subtitle2" color="white" mb={1}>
+              Add Photos (Optional)
+            </VuiTypography>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileSelect}
+              style={{ 
+                display: 'none' 
+              }}
+              id="post-photo-input"
+            />
+            <label htmlFor="post-photo-input">
+              <VuiButton
+                component="span"
+                variant="outlined"
+                color="white"
+                fullWidth
+                sx={{ mb: 2 }}
+              >
+                Select Photos
+              </VuiButton>
+            </label>
+
+            {/* Preview of selected images */}
+            {previewImages.length > 0 && (
+              <VuiBox>
+                <VuiTypography variant="caption" color="white" mb={1}>
+                  Selected Photos ({previewImages.length})
+                </VuiTypography>
+                <VuiBox 
+                  sx={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    gap: 1,
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                    borderRadius: '8px',
+                    p: 1
+                  }}
+                >
+                  {previewImages.map((preview, index) => (
+                    <VuiBox 
+                      key={index} 
+                      sx={{ 
+                        position: 'relative',
+                        width: '80px',
+                        height: '80px'
+                      }}
+                    >
+                      <img 
+                        src={preview} 
+                        alt={`Preview ${index}`} 
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'cover',
+                          borderRadius: '4px'
+                        }} 
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveFile(index)}
+                        sx={{
+                          position: 'absolute',
+                          top: -10,
+                          right: -10,
+                          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                          color: 'white',
+                          p: '4px',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                          }
+                        }}
+                      >
+                        <IoTrashOutline size={14} />
+                      </IconButton>
+                    </VuiBox>
+                  ))}
+                </VuiBox>
+              </VuiBox>
+            )}
+
+            {/* Upload progress indicator */}
+            {uploadProgress > 0 && (
+              <VuiBox mt={2}>
+                <VuiTypography variant="caption" color="white" mb={1}>
+                  Uploading: {uploadProgress}%
+                </VuiTypography>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={uploadProgress} 
+                  sx={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: 'info.main'
+                    }
+                  }}
+                />
+              </VuiBox>
+            )}
+          </VuiBox>
         </DialogContent>
         <DialogActions>
           <VuiButton onClick={handleClosePostDialog} color="white" variant="outlined">
@@ -1022,7 +1343,62 @@ function Forum() {
         </DialogActions>
       </Dialog>
 
-      {/* Notification Snackbar */}
+      {}
+      {/* Photo Dialog */}
+      <Dialog
+        open={photoDialogOpen}
+        onClose={() => setPhotoDialogOpen(false)}
+        maxWidth="lg"
+        PaperProps={{
+          style: {
+            backgroundColor: "#1a1f37",
+            color: "white",
+            maxWidth: "90vw",
+            maxHeight: "90vh",
+          },
+        }}
+      >
+        <DialogContent>
+          {selectedPhoto && (
+            <VuiBox 
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <img 
+                src={`http://localhost:8081${selectedPhoto.url}`} 
+                alt={selectedPhoto.title || "Post image"} 
+                style={{ 
+                  maxWidth: '100%', 
+                  maxHeight: '80vh', 
+                  objectFit: 'contain',
+                  borderRadius: '4px',
+                  marginBottom: '16px'
+                }} 
+              />
+              {selectedPhoto.title && (
+                <VuiTypography variant="h6" color="white" textAlign="center">
+                  {selectedPhoto.title}
+                </VuiTypography>
+              )}
+              {selectedPhoto.description && (
+                <VuiTypography variant="body2" color="text" textAlign="center">
+                  {selectedPhoto.description}
+                </VuiTypography>
+              )}
+            </VuiBox>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <VuiButton onClick={() => setPhotoDialogOpen(false)} color="white" variant="outlined">
+            Close
+          </VuiButton>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}
@@ -1043,4 +1419,4 @@ function Forum() {
   );
 }
 
-export default Forum; 
+export default Forum;

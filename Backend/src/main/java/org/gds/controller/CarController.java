@@ -24,9 +24,7 @@ import java.util.UUID;
 
 import java.util.List;
 
-/**
- * Controller for car operations.
- */
+
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @RestController
 @RequestMapping("/api/cars")
@@ -35,11 +33,7 @@ public class CarController {
     @Autowired
     private CarService carService;
 
-    /**
-     * Get all cars for the authenticated user.
-     *
-     * @return list of cars
-     */
+    
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<CarDTO>> getUserCars() {
@@ -48,12 +42,7 @@ public class CarController {
         return ResponseEntity.ok(cars);
     }
 
-    /**
-     * Get a car by ID.
-     *
-     * @param id the car ID
-     * @return the car if found and belongs to the user
-     */
+    
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> getCarById(@PathVariable Long id) {
@@ -64,12 +53,7 @@ public class CarController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Create a new car.
-     *
-     * @param carRequest the car data
-     * @return the created car
-     */
+    
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<CarDTO> createCar(@Valid @RequestBody CarRequestDTO carRequest) {
@@ -78,13 +62,7 @@ public class CarController {
         return ResponseEntity.ok(createdCar);
     }
 
-    /**
-     * Update an existing car.
-     *
-     * @param id the car ID
-     * @param carRequest the updated car data
-     * @return the updated car
-     */
+    
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> updateCar(@PathVariable Long id, @Valid @RequestBody CarRequestDTO carRequest) {
@@ -94,12 +72,7 @@ public class CarController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Delete a car.
-     *
-     * @param id the car ID
-     * @return success message if deleted
-     */
+    
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> deleteCar(@PathVariable Long id) {
@@ -113,12 +86,7 @@ public class CarController {
         }
     }
 
-    /**
-     * Upload a car image.
-     *
-     * @param file the image file
-     * @return the URL of the uploaded image
-     */
+    
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> uploadCarImage(@RequestParam("file") MultipartFile file) {
@@ -151,11 +119,7 @@ public class CarController {
         }
     }
 
-    /**
-     * Get the current authenticated user ID.
-     *
-     * @return the user ID
-     */
+    
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

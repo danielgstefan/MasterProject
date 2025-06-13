@@ -1,8 +1,6 @@
 package org.gds.payload.response;
 
-/**
- * Response DTO for returning simple messages from the API.
- */
+
 public class MessageResponse {
     private String message;
 

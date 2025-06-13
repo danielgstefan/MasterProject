@@ -4,10 +4,7 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-/**
- * JWT Response DTO.
- * This class represents the response body for the login endpoint.
- */
+
 @Data
 public class JwtResponse {
     @JsonProperty("token")

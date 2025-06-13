@@ -5,16 +5,14 @@ const TOKEN_KEY = "user_token";
 const USER_KEY = "user_data";
 const REFRESH_TOKEN_KEY = "refresh_token";
 
-/**
- * Service for handling authentication API calls to the backend.
- */
+
 class AuthService {
   constructor() {
     // Add request interceptor to add token to all requests
     axios.interceptors.request.use(
       (config) => {
-        // Only add token to requests to our API
-        if (config.url && config.url.startsWith(API_URL)) {
+        // Add token to all requests to our backend API
+        if (config.url && config.url.includes('localhost:8081')) {
           const token = this.getToken();
           if (token) {
             config.headers = config.headers || {};
@@ -33,7 +31,7 @@ class AuthService {
         const originalRequest = error.config;
 
         // If the error is 401 and we haven't retried yet
-        if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url.startsWith(API_URL)) {
+        if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url.includes('localhost:8081')) {
           originalRequest._retry = true;
 
           try {
@@ -63,12 +61,7 @@ class AuthService {
     );
   }
 
-  /**
-   * Login a user.
-   * @param {string} username - The username
-   * @param {string} password - The password
-   * @returns {Promise} - A promise that resolves to the user data
-   */
+
   async login(username, password) {
     try {
       const response = await axios.post(
@@ -122,21 +115,14 @@ class AuthService {
     }
   }
 
-  /**
-   * Refresh the access token using the refresh token.
-   * @param {string} refreshToken - The refresh token
-   * @returns {Promise} - A promise that resolves to the new token data
-   */
+
   refreshToken(refreshToken) {
     return axios.post(API_URL + "refresh-token", {
       refreshToken
     });
   }
 
-  /**
-   * Set the access token in storage.
-   * @param {string} token - The access token
-   */
+
   setToken(token) {
     if (token && typeof token === "string" && token.includes(".")) {
       localStorage.setItem(TOKEN_KEY, token);
@@ -145,10 +131,7 @@ class AuthService {
     }
   }
 
-  /**
-   * Get the stored access token.
-   * @returns {string|null} - The access token or null if not found
-   */
+
   getToken() {
     return localStorage.getItem(TOKEN_KEY);
   }
@@ -156,25 +139,17 @@ class AuthService {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
-  /**
-   * Set the refresh token in storage.
-   * @param {string} refreshToken - The refresh token
-   */
+
   setRefreshToken(refreshToken) {
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   }
 
-  /**
-   * Set the user data in storage.
-   * @param {Object} userData - The user data
-   */
+
   setUserData(userData) {
     localStorage.setItem(USER_KEY, JSON.stringify(userData));
   }
 
-  /**
-   * Logout the current user.
-   */
+
   async logout() {
     try {
       const token = this.getToken();
@@ -191,17 +166,7 @@ class AuthService {
     localStorage.removeItem(USER_KEY);
   }
 
-  /**
-   * Register a new user.
-   * @param {string} username - The username
-   * @param {string} email - The email
-   * @param {string} password - The password
-   * @param {string} firstName - The first name
-   * @param {string} lastName - The last name
-   * @param {string} phoneNumber - The phone number
-   * @param {string} location - The location
-   * @returns {Promise} - A promise that resolves to the response data
-   */
+
   register(username, email, password, firstName, lastName, phoneNumber, location) {
     return axios
       .post(
@@ -238,10 +203,7 @@ class AuthService {
       });
   }
 
-  /**
-   * Get the current user data from storage.
-   * @returns {Object|null} - The user data or null if not found
-   */
+
   getCurrentUser() {
     const userStr = localStorage.getItem(USER_KEY);
     if (userStr) {
@@ -254,26 +216,14 @@ class AuthService {
     return null;
   }
 
-  /**
-   * Check if a user is authenticated.
-   * @returns {boolean} - True if authenticated, false otherwise
-   */
+
   isAuthenticated() {
     const token = this.getToken();
     const user = this.getCurrentUser();
     return !!(token && user);
   }
 
-  /**
-   * Update user profile information.
-   * @param {string} username - The new username
-   * @param {string} email - The new email
-   * @param {string} firstName - The new first name
-   * @param {string} lastName - The new last name
-   * @param {string} phoneNumber - The new phone number
-   * @param {string} location - The new location
-   * @returns {Promise} - A promise that resolves to the response data
-   */
+
   updateProfile(username, email, firstName, lastName, phoneNumber, location) {
     const token = this.getToken();
     return axios

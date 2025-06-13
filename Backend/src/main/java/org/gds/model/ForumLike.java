@@ -1,11 +1,10 @@
 package org.gds.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * Entity representing a like or dislike on a forum post.
- */
+
 @Entity
 @Table(name = "forum_likes", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"user_id", "post_id"})
@@ -20,6 +19,7 @@ public class ForumLike {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     private ForumPost post;
