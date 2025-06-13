@@ -11,8 +11,8 @@ class AuthService {
     // Add request interceptor to add token to all requests
     axios.interceptors.request.use(
       (config) => {
-        // Only add token to requests to our API
-        if (config.url && config.url.startsWith(API_URL)) {
+        // Add token to all requests to our backend API
+        if (config.url && config.url.includes('localhost:8081')) {
           const token = this.getToken();
           if (token) {
             config.headers = config.headers || {};
@@ -31,7 +31,7 @@ class AuthService {
         const originalRequest = error.config;
 
         // If the error is 401 and we haven't retried yet
-        if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url.startsWith(API_URL)) {
+        if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url.includes('localhost:8081')) {
           originalRequest._retry = true;
 
           try {

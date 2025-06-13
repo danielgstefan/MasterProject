@@ -8,6 +8,7 @@ import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import UserProfile from "layouts/user-profile";
+import TuningRequests from "layouts/tuning-requests";
 
 // GDS icons
 import { IoHome } from "react-icons/io5";
@@ -63,6 +64,15 @@ const routes = [
     route: "/chat",
     icon: <IoChatbubbles size="15px" color="inherit" />,
     component: Chat,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Tuning Requests",
+    key: "tuning-requests",
+    route: "/tuning-requests",
+    icon: <IoBuild size="15px" color="inherit" />,
+    component: TuningRequests,
     noCollapse: true,
   },
   { type: "title", title: "Account", key: "account-pages" },
