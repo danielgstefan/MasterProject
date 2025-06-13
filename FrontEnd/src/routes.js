@@ -1,7 +1,3 @@
-
-
-
-
 // GDS layouts
 import Dashboard from "layouts/dashboard";
 import Shop from "layouts/shop";
@@ -11,6 +7,7 @@ import Chat from "layouts/chat";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+import UserProfile from "layouts/user-profile";
 
 // GDS icons
 import { IoHome } from "react-icons/io5";
@@ -95,6 +92,16 @@ const routes = [
     icon: <IoRocketSharp size="15px" color="inherit" />,
     component: SignUp,
     noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "User Profile",
+    key: "user-profile",
+    route: "/user/:username",
+    icon: <BsFillPersonFill size="15px" color="inherit" />,
+    component: UserProfile,
+    noCollapse: true,
+    noDisplay: true,
   },
 ];
 
