@@ -101,7 +101,7 @@ const routes = [
     icon: <BsFillPersonFill size="15px" color="inherit" />,
     component: UserProfile,
     noCollapse: true,
-    noDisplay: true,
+    noDisplay: true, // This will hide it from the sidenav
   },
 ];
 

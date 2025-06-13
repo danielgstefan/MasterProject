@@ -6,6 +6,14 @@ import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Footer from "examples/Footer";
 import { getUserByUsername } from "services/userService";
+// Import Swiper React components
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import './styles.css';
 
 function UserProfile() {
   const { username } = useParams();
@@ -55,26 +63,95 @@ function UserProfile() {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Card>
-              <VuiBox p={3}>
-                <VuiTypography variant="h4" gutterBottom>
-                  User Profile
-                </VuiTypography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="h6">Username:</VuiTypography>
-                    <VuiTypography>{userData.username}</VuiTypography>
+              <VuiBox
+                p={3}
+                sx={{
+                  background: "linear-gradient(127.09deg, rgba(6, 11, 40, 0.94) 19.41%, rgba(10, 14, 35, 0.49) 76.65%)",
+                  borderRadius: "15px"
+                }}
+              >
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={4}>
+                    <VuiBox
+                      sx={{
+                        background: "linear-gradient(127.09deg, rgba(6, 11, 40, 0.94) 19.41%, rgba(10, 14, 35, 0.69) 76.65%)",
+                        borderRadius: "12px",
+                        p: 2
+                      }}
+                    >
+                      <VuiTypography variant="h6" color="white" fontWeight="bold">
+                        User Information
+                      </VuiTypography>
+                      <VuiBox mt={2}>
+                        <VuiBox display="flex" alignItems="center" mb={2}>
+                          <VuiTypography variant="button" color="text" fontWeight="medium">
+                            Username:
+                          </VuiTypography>
+                          <VuiTypography variant="button" color="white" fontWeight="medium" ml={1}>
+                            {userData.username}
+                          </VuiTypography>
+                        </VuiBox>
+                        <VuiBox display="flex" alignItems="center" mb={2}>
+                          <VuiTypography variant="button" color="text" fontWeight="medium">
+                            Full Name:
+                          </VuiTypography>
+                          <VuiTypography variant="button" color="white" fontWeight="medium" ml={1}>
+                            {`${userData.firstName} ${userData.lastName}`}
+                          </VuiTypography>
+                        </VuiBox>
+                      </VuiBox>
+                    </VuiBox>
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="h6">Name:</VuiTypography>
-                    <VuiTypography>{`${userData.firstName} ${userData.lastName}`}</VuiTypography>
+                  <Grid item xs={12} md={4}>
+                    <VuiBox
+                      sx={{
+                        background: "linear-gradient(127.09deg, rgba(6, 11, 40, 0.94) 19.41%, rgba(10, 14, 35, 0.69) 76.65%)",
+                        borderRadius: "12px",
+                        p: 2
+                      }}
+                    >
+                      <VuiTypography variant="h6" color="white" fontWeight="bold">
+                        Contact Details
+                      </VuiTypography>
+                      <VuiBox mt={2}>
+                        <VuiBox display="flex" alignItems="center" mb={2}>
+                          <VuiTypography variant="button" color="text" fontWeight="medium">
+                            Location:
+                          </VuiTypography>
+                          <VuiTypography variant="button" color="white" fontWeight="medium" ml={1}>
+                            {userData.location || "Not specified"}
+                          </VuiTypography>
+                        </VuiBox>
+                        <VuiBox display="flex" alignItems="center">
+                          <VuiTypography variant="button" color="text" fontWeight="medium">
+                            Phone:
+                          </VuiTypography>
+                          <VuiTypography variant="button" color="white" fontWeight="medium" ml={1}>
+                            {userData.phoneNumber || "Not specified"}
+                          </VuiTypography>
+                        </VuiBox>
+                      </VuiBox>
+                    </VuiBox>
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="h6">Location:</VuiTypography>
-                    <VuiTypography>{userData.location || "Not specified"}</VuiTypography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="h6">Phone:</VuiTypography>
-                    <VuiTypography>{userData.phoneNumber || "Not specified"}</VuiTypography>
+                  <Grid item xs={12} md={4}>
+                    <VuiBox
+                      sx={{
+                        background: "linear-gradient(127.09deg, rgba(6, 11, 40, 0.94) 19.41%, rgba(10, 14, 35, 0.69) 76.65%)",
+                        borderRadius: "12px",
+                        p: 2,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <VuiTypography variant="h6" color="white" fontWeight="bold" textAlign="center">
+                        {`${userData.cars?.length || 0} Cars`}
+                      </VuiTypography>
+                      <VuiTypography variant="button" color="text" fontWeight="regular" textAlign="center">
+                        in collection
+                      </VuiTypography>
+                    </VuiBox>
                   </Grid>
                 </Grid>
               </VuiBox>
@@ -84,47 +161,150 @@ function UserProfile() {
             <Grid item xs={12}>
               <Card>
                 <VuiBox p={3}>
-                  <VuiTypography variant="h4" gutterBottom>
-                    Cars
+                  <VuiTypography variant="h4" color="white" mb={3}>
+                    Car Collection
                   </VuiTypography>
-                  {userData.cars.map((car, index) => (
-                    <Grid container spacing={2} key={index} sx={{ mt: index > 0 ? 2 : 0 }}>
-                      <Grid item xs={12}>
-                        <VuiTypography variant="h5">{car.alias}</VuiTypography>
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <VuiTypography variant="h6">Brand:</VuiTypography>
-                        <VuiTypography>{car.brand}</VuiTypography>
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <VuiTypography variant="h6">Model:</VuiTypography>
-                        <VuiTypography>{car.model}</VuiTypography>
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <VuiTypography variant="h6">Horsepower:</VuiTypography>
-                        <VuiTypography>{car.horsePower || 'N/A'}</VuiTypography>
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <VuiTypography variant="h6">Torque:</VuiTypography>
-                        <VuiTypography>{car.torque || 'N/A'}</VuiTypography>
-                      </Grid>
-                      {car.bio && (
-                        <Grid item xs={12}>
-                          <VuiTypography variant="h6">Bio:</VuiTypography>
-                          <VuiTypography>{car.bio}</VuiTypography>
-                        </Grid>
-                      )}
-                      {car.photoUrl && (
-                        <Grid item xs={12}>
-                          <img
-                            src={car.photoUrl}
-                            alt={`${car.brand} ${car.model}`}
-                            style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }}
-                          />
-                        </Grid>
-                      )}
-                    </Grid>
-                  ))}
+                  <Swiper
+                    modules={[Navigation, Pagination]}
+                    navigation
+                    pagination={{ clickable: true }}
+                    spaceBetween={30}
+                    style={{
+                      "--swiper-navigation-color": "#fff",
+                      "--swiper-pagination-color": "#fff",
+                      height: "750px" // Increased height to show all content
+                    }}
+                  >
+                    {userData.cars.map((car, index) => (
+                      <SwiperSlide key={index}>
+                        <Card sx={{
+                          height: '100%',
+                          background: "linear-gradient(127.09deg, rgba(6, 11, 40, 0.94) 19.41%, rgba(10, 14, 35, 0.49) 76.65%) !important",
+                          display: 'flex',
+                          flexDirection: 'column',
+                          overflow: 'auto'
+                        }}>
+                          <VuiBox p={2} sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            {car.photoUrl && (
+                              <VuiBox mb={2} sx={{
+                                height: '350px',
+                                borderRadius: '15px',
+                                overflow: 'hidden',
+                                boxShadow: '0 0 20px rgba(0,0,0,0.3)'
+                              }}>
+                                <img
+                                  src={car.photoUrl}
+                                  alt={`${car.brand} ${car.model}`}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain',
+                                    backgroundColor: 'rgba(0,0,0,0.2)'
+                                  }}
+                                />
+                              </VuiBox>
+                            )}
+                            <VuiBox mb={3}>
+                              <VuiTypography variant="h4" color="white" fontWeight="bold">
+                                {car.alias}
+                              </VuiTypography>
+                              <VuiTypography variant="h6" color="text" fontWeight="regular">
+                                {`${car.brand} ${car.model}`}
+                              </VuiTypography>
+                            </VuiBox>
+                            <Grid container spacing={2}>
+                              <Grid item xs={12} md={3}>
+                                <VuiBox
+                                  sx={{
+                                    background: 'rgba(0,0,0,0.2)',
+                                    borderRadius: '10px',
+                                    p: 1.5,
+                                    textAlign: 'center',
+                                    height: '100%'
+                                  }}
+                                >
+                                  <VuiTypography variant="button" color="text" fontWeight="medium">
+                                    Brand
+                                  </VuiTypography>
+                                  <VuiTypography variant="h6" color="white">
+                                    {car.brand}
+                                  </VuiTypography>
+                                </VuiBox>
+                              </Grid>
+                              <Grid item xs={12} md={3}>
+                                <VuiBox
+                                  sx={{
+                                    background: 'rgba(0,0,0,0.2)',
+                                    borderRadius: '10px',
+                                    p: 1.5,
+                                    textAlign: 'center',
+                                    height: '100%'
+                                  }}
+                                >
+                                  <VuiTypography variant="button" color="text" fontWeight="medium">
+                                    Model
+                                  </VuiTypography>
+                                  <VuiTypography variant="h6" color="white">
+                                    {car.model}
+                                  </VuiTypography>
+                                </VuiBox>
+                              </Grid>
+                              <Grid item xs={12} md={3}>
+                                <VuiBox
+                                  sx={{
+                                    background: 'rgba(0,0,0,0.2)',
+                                    borderRadius: '10px',
+                                    p: 1.5,
+                                    textAlign: 'center',
+                                    height: '100%'
+                                  }}
+                                >
+                                  <VuiTypography variant="button" color="text" fontWeight="medium">
+                                    Horsepower
+                                  </VuiTypography>
+                                  <VuiTypography variant="h6" color="white">
+                                    {car.horsePower || 'N/A'}
+                                  </VuiTypography>
+                                </VuiBox>
+                              </Grid>
+                              <Grid item xs={12} md={3}>
+                                <VuiBox
+                                  sx={{
+                                    background: 'rgba(0,0,0,0.2)',
+                                    borderRadius: '10px',
+                                    p: 1.5,
+                                    textAlign: 'center',
+                                    height: '100%'
+                                  }}
+                                >
+                                  <VuiTypography variant="button" color="text" fontWeight="medium">
+                                    Torque
+                                  </VuiTypography>
+                                  <VuiTypography variant="h6" color="white">
+                                    {car.torque || 'N/A'}
+                                  </VuiTypography>
+                                </VuiBox>
+                              </Grid>
+                            </Grid>
+                            {car.bio && (
+                              <VuiBox mt={2} sx={{
+                                background: 'rgba(0,0,0,0.2)',
+                                borderRadius: '10px',
+                                p: 2
+                              }}>
+                                <VuiTypography variant="button" color="text" fontWeight="medium" mb={1} display="block">
+                                  Bio
+                                </VuiTypography>
+                                <VuiTypography variant="button" color="white" fontWeight="regular">
+                                  {car.bio}
+                                </VuiTypography>
+                              </VuiBox>
+                            )}
+                          </VuiBox>
+                        </Card>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
                 </VuiBox>
               </Card>
             </Grid>

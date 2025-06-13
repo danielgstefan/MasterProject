@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState } from "react";
 
 // react-router-dom components
@@ -74,8 +72,13 @@ function Sidenav({ color, brandName, routes, ...rest }) {
   }, []);
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, route, href }) => {
+  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, route, href, noDisplay }) => {
     let returnValue;
+
+    // Skip routes that should not be displayed
+    if (noDisplay) {
+      return null;
+    }
 
     // Skip sign in and sign up routes if user is authenticated
     if (isAuthenticated && (key === "sign-in" || key === "sign-up")) {
