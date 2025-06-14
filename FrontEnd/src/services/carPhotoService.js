@@ -15,7 +15,13 @@ export const uploadCarPhoto = (file, title) => {
         formData.append('title', title);
     }
 
-    return axiosInstance.post('/car-photos/upload', formData);
+    // For file uploads, let the browser set the Content-Type header
+    return axiosInstance.post('/car-photos/upload', formData, {
+        headers: {
+            // The Authorization header will be added by the interceptor
+            // Content-Type will be set automatically for FormData
+        }
+    });
 };
 
 // Update car photo title
