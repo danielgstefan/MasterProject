@@ -40,4 +40,8 @@ public class TuningRequestService {
         request.setStatus(status);
         return tuningRequestRepository.save(request);
     }
+
+    public List<TuningRequest> getAllRequests() {
+        return tuningRequestRepository.findAll();
+    }
 }

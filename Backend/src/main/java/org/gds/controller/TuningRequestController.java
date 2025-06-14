@@ -63,7 +63,7 @@ public class TuningRequestController {
     }
 
     @PutMapping("/request/{requestId}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateRequestStatus(
             @PathVariable Long requestId,
             @RequestParam String status) {
@@ -74,6 +74,19 @@ public class TuningRequestController {
             return ResponseEntity.status(403).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error updating request status: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/all-requests")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<?> getAllRequests() {
+        try {
+            List<TuningRequest> requests = tuningRequestService.getAllRequests();
+            return ResponseEntity.ok(requests);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error fetching requests: " + e.getMessage());
         }
     }
 }

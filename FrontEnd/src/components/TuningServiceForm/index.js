@@ -63,14 +63,7 @@ const exhaustFields = [
     type: "select",
     options: ["Catted", "Catless"],
     required: true,
-  },
-  {
-    name: "wantsSoundClip",
-    label: "Want Sound Clip Demo",
-    type: "select",
-    options: ["Yes", "No"],
-    required: true,
-  },
+  }
 ];
 
 const suspensionFields = [

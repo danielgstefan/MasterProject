@@ -24,8 +24,11 @@ const handleError = (error) => {
 };
 
 const getTuningRequests = async (userId) => {
+  const token = localStorage.getItem('user_token');
   try {
-    const response = await axios.get(`${API_URL}/tuning/requests/${userId}`);
+    const response = await axios.get(`${API_URL}/tuning/requests/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -54,12 +57,45 @@ const createTuningRequest = async (userId, requestData) => {
 };
 
 const getTuningRequestsByType = async (userId, type) => {
+  const token = localStorage.getItem('user_token');
   try {
-    const response = await axios.get(`${API_URL}/tuning/requests/${userId}/${type}`);
+    const response = await axios.get(`${API_URL}/tuning/requests/${userId}/${type}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
 
-export { getTuningRequests, createTuningRequest, getTuningRequestsByType };
+const getAllTuningRequests = async () => {
+  const token = localStorage.getItem('user_token');
+  try {
+    const response = await axios.get(`${API_URL}/tuning/all-requests`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+const updateRequestStatus = async (requestId, status) => {
+  const token = localStorage.getItem('user_token');
+  try {
+    const response = await axios.put(`${API_URL}/tuning/request/${requestId}/status?status=${status}`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export { getTuningRequests, createTuningRequest, getTuningRequestsByType, getAllTuningRequests, updateRequestStatus };

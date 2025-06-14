@@ -9,34 +9,23 @@ import {
 } from "@mui/material";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
+import VuiButton from "components/VuiButton";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useAuth } from "context/AuthContext";
-import { getTuningRequests, getTuningRequestsByType } from "services/tuningService";
+import { getAllTuningRequests, updateRequestStatus } from "services/tuningService";
 import { handleTokenExpiration } from "utils/handleTokenExpiration";
 
 function TuningRequests() {
   const [expandedRequest, setExpandedRequest] = useState(null);
   const [currentTab, setCurrentTab] = useState(0);
   const [requests, setRequests] = useState([]);
-  const { user } = useAuth();
   const history = useHistory();
 
-  useEffect(() => {
-    fetchRequests();
-  }, [user]);
-
   const fetchRequests = async () => {
-    if (!user) return;
     try {
-      let fetchedRequests;
-      if (currentTab === 0) {
-        fetchedRequests = await getTuningRequests(user.id);
-      } else {
-        const types = ['ENGINE', 'EXHAUST', 'SUSPENSION'];
-        fetchedRequests = await getTuningRequestsByType(user.id, types[currentTab - 1]);
-      }
+      const fetchedRequests = await getAllTuningRequests();
       setRequests(fetchedRequests);
     } catch (error) {
       console.error('Error fetching requests:', error);
@@ -48,7 +37,7 @@ function TuningRequests() {
 
   useEffect(() => {
     fetchRequests();
-  }, [currentTab]);
+  }, []);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -56,6 +45,19 @@ function TuningRequests() {
 
   const handleRequestClick = (requestId) => {
     setExpandedRequest(expandedRequest === requestId ? null : requestId);
+  };
+
+  const handleUpdateStatus = async (requestId, newStatus) => {
+    try {
+      await updateRequestStatus(requestId, newStatus);
+      // After successful update, refresh the requests list
+      await fetchRequests();
+    } catch (error) {
+      console.error('Error updating request status:', error);
+      if (!handleTokenExpiration(error, history)) {
+        alert('Error updating request status. Please try again.');
+      }
+    }
   };
 
   const getStatusColor = (status) => {
@@ -76,129 +78,157 @@ function TuningRequests() {
   };
 
   const renderRequestCard = (request) => (
-    <Card
-      key={request.id}
-      sx={{
-        mb: 2,
-        cursor: 'pointer',
-        background: "linear-gradient(127.09deg, rgba(6, 11, 40, 0.94) 19.41%, rgba(10, 14, 35, 0.49) 76.65%)"
-      }}
-      onClick={() => handleRequestClick(request.id)}
-    >
-      <VuiBox p={2}>
-        <Grid container alignItems="center">
-          <Grid item xs={12} md={6}>
-            <VuiTypography variant="button" color="white" fontWeight="medium">
-              {request.model} - {request.year}
-            </VuiTypography>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <VuiTypography variant="button" color="text" fontWeight="regular">
-              {new Date(request.createdAt).toLocaleDateString()}
-            </VuiTypography>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <VuiTypography
-              variant="button"
-              color={getStatusColor(request.status)}
-              fontWeight="medium"
-            >
-              {request.status}
-            </VuiTypography>
-          </Grid>
-        </Grid>
-
-        <Collapse in={expandedRequest === request.id}>
-          <VuiBox mt={2}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <VuiTypography variant="button" color="text" fontWeight="medium">
-                  Engine: {request.engine}
-                </VuiTypography>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <VuiTypography variant="button" color="text" fontWeight="medium">
-                  Fuel Type: {request.fuelType}
-                </VuiTypography>
-              </Grid>
-
-              {request.tuningType === 'ENGINE' && (
-                <>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Current Power: {request.currentPower} HP
-                    </VuiTypography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Desired Power: {request.desiredPower} HP
-                    </VuiTypography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Remove Emission Control: {request.removeEmissionControl}
-                    </VuiTypography>
-                  </Grid>
-                </>
-              )}
-
-              {request.tuningType === 'EXHAUST' && (
-                <>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Exhaust Type: {request.exhaustType}
-                    </VuiTypography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Downpipe: {request.downpipeType}
-                    </VuiTypography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Sound Clip Demo: {request.wantsSoundClip}
-                    </VuiTypography>
-                  </Grid>
-                </>
-              )}
-
-              {request.tuningType === 'SUSPENSION' && (
-                <>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Type: {request.suspensionType}
-                    </VuiTypography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Current Height: {request.currentHeight}
-                    </VuiTypography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Desired Height: {request.desiredHeight}
-                    </VuiTypography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Needs Alignment: {request.needsAlignment}
-                    </VuiTypography>
-                  </Grid>
-                </>
-              )}
-
-              {request.additionalNotes && (
-                <Grid item xs={12}>
-                  <VuiTypography variant="button" color="text" fontWeight="medium">
-                    Notes: {request.additionalNotes}
+    <Grid item xs={12} key={request.id}>
+      <Card
+        onClick={() => setExpandedRequest(expandedRequest === request.id ? null : request.id)}
+        sx={{ cursor: 'pointer', mb: 3 }}
+      >
+        <VuiBox p={2}>
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <VuiTypography variant="h6" color="white">
+                {request.model} - {request.tuningType}
+              </VuiTypography>
+              <VuiTypography variant="button" fontWeight="regular" color="text">
+                Requested by: {request.user.username}
+              </VuiTypography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Grid container justifyContent="flex-end" alignItems="center" spacing={1}>
+                <Grid item>
+                  <VuiTypography variant="button" color="text" align="right">
+                    Status: {request.status}
                   </VuiTypography>
                 </Grid>
-              )}
+                {request.status === 'PENDING' && (
+                  <>
+                    <Grid item>
+                      <VuiButton
+                        color="success"
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStatus(request.id, 'APPROVED');
+                        }}
+                      >
+                        Approve
+                      </VuiButton>
+                    </Grid>
+                    <Grid item>
+                      <VuiButton
+                        color="error"
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStatus(request.id, 'DECLINED');
+                        }}
+                      >
+                        Decline
+                      </VuiButton>
+                    </Grid>
+                  </>
+                )}
+              </Grid>
             </Grid>
-          </VuiBox>
-        </Collapse>
-      </VuiBox>
-    </Card>
+          </Grid>
+
+          <Collapse in={expandedRequest === request.id}>
+            <VuiBox mt={2}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <VuiTypography variant="button" color="text" fontWeight="medium">
+                    BMW Model: {request.model}
+                  </VuiTypography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <VuiTypography variant="button" color="text" fontWeight="medium">
+                    Year: {request.year}
+                  </VuiTypography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <VuiTypography variant="button" color="text" fontWeight="medium">
+                    Engine: {request.engine}
+                  </VuiTypography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <VuiTypography variant="button" color="text" fontWeight="medium">
+                    Fuel Type: {request.fuelType}
+                  </VuiTypography>
+                </Grid>
+
+                {request.tuningType === 'ENGINE' && (
+                  <>
+                    <Grid item xs={12} md={6}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Current Power: {request.currentPower} HP
+                      </VuiTypography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Desired Power: {request.desiredPower} HP
+                      </VuiTypography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Remove Emission Control: {request.removeEmissionControl ? 'Yes' : 'No'}
+                      </VuiTypography>
+                    </Grid>
+                  </>
+                )}
+
+                {request.tuningType === 'EXHAUST' && (
+                  <>
+                    <Grid item xs={12} md={6}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Exhaust Type: {request.exhaustType}
+                      </VuiTypography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Downpipe: {request.downpipeType}
+                      </VuiTypography>
+                    </Grid>
+                  </>
+                )}
+
+                {request.tuningType === 'SUSPENSION' && (
+                  <>
+                    <Grid item xs={12} md={6}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Type: {request.suspensionType}
+                      </VuiTypography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Current Height: {request.currentHeight}
+                      </VuiTypography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Desired Height: {request.desiredHeight}
+                      </VuiTypography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <VuiTypography variant="button" color="text" fontWeight="medium">
+                        Needs Alignment: {request.needsAlignment ? 'Yes' : 'No'}
+                      </VuiTypography>
+                    </Grid>
+                  </>
+                )}
+
+                {request.additionalNotes && (
+                  <Grid item xs={12}>
+                    <VuiTypography variant="button" color="text" fontWeight="medium">
+                      Notes: {request.additionalNotes}
+                    </VuiTypography>
+                  </Grid>
+                )}
+              </Grid>
+            </VuiBox>
+          </Collapse>
+        </VuiBox>
+      </Card>
+    </Grid>
   );
 
   return (
@@ -209,7 +239,7 @@ function TuningRequests() {
           <VuiBox p={3}>
             <VuiBox mb={3}>
               <VuiTypography variant="h4" color="white">
-                My Tuning Requests
+                All Tuning Requests
               </VuiTypography>
             </VuiBox>
 
@@ -223,7 +253,9 @@ function TuningRequests() {
                 textAlign: 'center'
               }}
             >
-              <Tab label="All Requests" sx={{ color: 'info.main'}} />
+              <Tab label="Pending Requests" sx={{ color: 'info.main'}} />
+              <Tab label="Approved Requests" sx={{ color: 'info.main'}} />
+              <Tab label="Declined Requests" sx={{ color: 'info.main'}} />
               <Tab label="Engine" sx={{ color: 'info.main'}} />
               <Tab label="Exhaust" sx={{ color: 'info.main'}} />
               <Tab label="Suspension" sx={{ color: 'info.main'}} />
@@ -234,17 +266,22 @@ function TuningRequests() {
                 No requests found. Visit our Tuning Services page to create a new request.
               </VuiTypography>
             ) : (
-              requests
-                .filter(request => {
-                  switch (currentTab) {
-                    case 0: return true;
-                    case 1: return request.tuningType === 'ENGINE';
-                    case 2: return request.tuningType === 'EXHAUST';
-                    case 3: return request.tuningType === 'SUSPENSION';
-                    default: return true;
-                  }
-                })
-                .map(request => renderRequestCard(request))
+              <Grid container spacing={3}>
+                {requests
+                  .filter(request => {
+                    switch (currentTab) {
+                      case 0: return request.status === 'PENDING';
+                      case 1: return request.status === 'APPROVED';
+                      case 2: return request.status === 'DECLINED';
+                      case 3: return request.tuningType === 'ENGINE';
+                      case 4: return request.tuningType === 'EXHAUST';
+                      case 5: return request.tuningType === 'SUSPENSION';
+                      default: return true;
+                    }
+                  })
+                  .map(request => renderRequestCard(request))
+                }
+              </Grid>
             )}
           </VuiBox>
         </Card>
