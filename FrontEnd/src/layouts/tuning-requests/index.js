@@ -219,7 +219,7 @@ function TuningRequests() {
                 {request.additionalNotes && (
                   <Grid item xs={12}>
                     <VuiTypography variant="button" color="text" fontWeight="medium">
-                      Notes: {request.additionalNotes}
+                      Notes + Budget in USD: {request.additionalNotes}
                     </VuiTypography>
                   </Grid>
                 )}

@@ -209,7 +209,7 @@ function TuningServiceForm({ open, onClose, type = "", onSubmit }) {
               ))}
               <Grid item xs={12}>
                 <VuiTypography variant="button" color="text" fontWeight="medium" mb={1}>
-                  Additional Notes
+                  Additional Notes + Budget in USD
                 </VuiTypography>
                 <VuiBox mb={2}>
                   <VuiInput
