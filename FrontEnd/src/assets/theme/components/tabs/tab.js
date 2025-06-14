@@ -28,7 +28,7 @@ export default {
       lineHeight: "inherit",
       padding: `${pxToRem(10)} !important`,
       borderRadius: borderRadius.md,
-      color: `${white.main} !important`,
+      color: `${white.main}`,
       opacity: "1 !important",
 
       "& .material-icons, .material-icons-round": {
