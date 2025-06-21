@@ -1,6 +1,5 @@
 // GDS layouts
 import Dashboard from "layouts/dashboard";
-import Shop from "layouts/shop";
 import Tuning from "layouts/tuning";
 import Forum from "layouts/forum";
 import Chat from "layouts/chat";
@@ -14,7 +13,6 @@ import TuningRequests from "layouts/tuning-requests";
 import { IoHome } from "react-icons/io5";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoBuild } from "react-icons/io5";
-import { BsCreditCardFill } from "react-icons/bs";
 import { IoChatbubbles } from "react-icons/io5";
 import { IoCarSport } from "react-icons/io5";
 import { IoRocketSharp } from "react-icons/io5";
@@ -28,15 +26,6 @@ const routes = [
     route: "/dashboard",
     icon: <IoHome size="15px" color="inherit" />,
     component: Dashboard,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Shop",
-    key: "shop",
-    route: "/shop",
-    icon: <BsCreditCardFill size="15px" color="inherit" />,
-    component: Shop,
     noCollapse: true,
   },
   {
