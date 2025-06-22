@@ -168,52 +168,27 @@ class AuthService {
 
 
   register(username, email, password, firstName, lastName, phoneNumber, location) {
-    return axios
-      .post(
-        API_URL + "signup",
-        {
-          username,
-          email,
-          password,
-          firstName,
-          lastName,
-          phoneNumber,
-          location
-        },
-        {
-          timeout: 10000,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-      .catch(error => {
-        if (error.response) {
-          // Server responded with error
-          console.error("Server error:", error.response.data);
-          console.error("Status:", error.response.status);
-        } else if (error.request) {
-          // Request was made but no response
-          console.error("No response received:", error.request);
-        } else {
-          // Error in request setup
-          console.error("Request setup error:", error.message);
-        }
-        throw error;
-      });
+    return axios.post(API_URL + "signup", {
+      username,
+      email,
+      password,
+      firstName,
+      lastName,
+      phoneNumber,
+      location,
+      role: ["user"] // Default role for new registrations
+    });
   }
 
 
   getCurrentUser() {
-    const userStr = localStorage.getItem(USER_KEY);
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
+    return JSON.parse(localStorage.getItem(USER_KEY));
+  }
+
+
+  isAdmin() {
+    const user = this.getCurrentUser();
+    return user && user.roles && user.roles.includes("ROLE_ADMIN");
   }
 
 
