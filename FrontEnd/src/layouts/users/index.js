@@ -4,15 +4,24 @@ import {
   Stack,
   Switch,
   Grid,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
+import VuiButton from "components/VuiButton";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Footer from "examples/Footer";
 import UserManagementService from "services/UserManagementService";
+import { IoTrashOutline } from "react-icons/io5";
 
 function Users() {
   const [users, setUsers] = useState([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     loadUsers();
@@ -37,6 +46,24 @@ function Users() {
       .catch(error => {
         console.error("Error updating user role:", error);
       });
+  };
+
+  const handleDeleteClick = (user) => {
+    setSelectedUser(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedUser) {
+      UserManagementService.deleteUser(selectedUser.id)
+        .then(() => {
+          loadUsers(); // Reload users after deletion
+          setDeleteDialogOpen(false);
+        })
+        .catch(error => {
+          console.error("Error deleting user:", error);
+        });
+    }
   };
 
   return (
@@ -84,6 +111,17 @@ function Users() {
                             onChange={() => handleRoleChange(user.id, user.roles)}
                             color="info"
                           />
+                          <IconButton
+                            onClick={() => handleDeleteClick(user)}
+                            sx={{
+                              color: "error.main",
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                              }
+                            }}
+                          >
+                            <IoTrashOutline />
+                          </IconButton>
                         </Stack>
                       </VuiBox>
                     ))}
@@ -94,6 +132,42 @@ function Users() {
           </Grid>
         </VuiBox>
       </VuiBox>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        PaperProps={{
+          style: {
+            backgroundColor: '#1a1b36',
+            color: 'white',
+          },
+        }}
+      >
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <VuiTypography variant="button" color="text">
+            Are you sure you want to delete user {selectedUser?.username}?
+          </VuiTypography>
+        </DialogContent>
+        <DialogActions>
+          <VuiButton
+            variant="contained"
+            color="primary"
+            onClick={() => setDeleteDialogOpen(false)}
+          >
+            Cancel
+          </VuiButton>
+          <VuiButton
+            variant="contained"
+            color="error"
+            onClick={handleDeleteConfirm}
+          >
+            Delete
+          </VuiButton>
+        </DialogActions>
+      </Dialog>
+
       <Footer />
     </DashboardLayout>
   );

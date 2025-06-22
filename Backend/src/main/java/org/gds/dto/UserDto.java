@@ -1,17 +1,15 @@
 package org.gds.dto;
 
-import java.util.Set;
-
 public class UserDto {
     private Long id;
     private String username;
     private String email;
-    private Set<String> roles;
+    private Integer roles;
 
     public UserDto() {
     }
 
-    public UserDto(Long id, String username, String email, Set<String> roles) {
+    public UserDto(Long id, String username, String email, Integer roles) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -42,11 +40,11 @@ public class UserDto {
         this.email = email;
     }
 
-    public Set<String> getRoles() {
+    public Integer getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Integer roles) {
         this.roles = roles;
     }
 }

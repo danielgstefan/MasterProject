@@ -1,17 +1,7 @@
-
-
 import { useEffect } from "react";
-
-// react-router-dom components
 import { useLocation } from "react-router-dom";
-
-// prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
-
-// Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
-
-// Vision UI Dashboard React context
 import { useVisionUIController, setLayout } from "context";
 
 function DashboardLayout({ children }) {
@@ -26,9 +16,23 @@ function DashboardLayout({ children }) {
   return (
     <VuiBox
       sx={({ breakpoints, transitions, functions: { pxToRem } }) => ({
-        p: 3,
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
         position: "relative",
-
+        "&:before": {
+          content: '""',
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+          zIndex: -1,
+        },
         [breakpoints.up("xl")]: {
           marginLeft: miniSidenav ? pxToRem(120) : pxToRem(274),
           transition: transitions.create(["margin-left", "margin-right"], {
@@ -38,12 +42,22 @@ function DashboardLayout({ children }) {
         },
       })}
     >
-      {children}
+      <VuiBox
+        sx={{
+          flex: 1,
+          p: 3,
+          position: "relative",
+          minHeight: "calc(100vh - 120px)",
+          overflowX: "hidden",
+          zIndex: 1,
+        }}
+      >
+        {children}
+      </VuiBox>
     </VuiBox>
   );
 }
 
-// Typechecking props for the DashboardLayout
 DashboardLayout.propTypes = {
   children: PropTypes.node.isRequired,
 };

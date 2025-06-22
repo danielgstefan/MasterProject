@@ -4,8 +4,10 @@ import org.gds.dto.UserDto;
 import org.gds.model.User;
 import org.gds.model.Role;
 import org.gds.repository.UserRepository;
+import org.gds.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +21,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
 
     public Optional<User> getUserByUsername(String username) {
@@ -47,12 +52,35 @@ public class UserService {
         });
     }
 
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if this is the last admin
+        if (user.getRoles().stream().anyMatch(role -> role.getId() == 2)) {
+            long adminCount = userRepository.findAll().stream()
+                .filter(u -> u.getRoles().stream().anyMatch(role -> role.getId() == 2))
+                .count();
+            if (adminCount <= 1) {
+                throw new RuntimeException("Cannot delete the last admin user");
+            }
+        }
+
+        // First delete associated refresh tokens
+        refreshTokenRepository.deleteByUser(user);
+
+        // Then delete the user
+        userRepository.delete(user);
+    }
+
     private UserDto convertToDto(User user) {
+        int roleId = user.getRoles().isEmpty() ? 1 : user.getRoles().iterator().next().getId();
         return new UserDto(
             user.getId(),
             user.getUsername(),
             user.getEmail(),
-            user.getRoles().isEmpty() ? 1 : user.getRoles().iterator().next().getId()
+            roleId
         );
     }
 }

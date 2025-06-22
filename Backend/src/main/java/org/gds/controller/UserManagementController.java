@@ -27,4 +27,10 @@ public class UserManagementController {
         userService.updateUserRole(id, roleRequest.getRole());
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
 }
