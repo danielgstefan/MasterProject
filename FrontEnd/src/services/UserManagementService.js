@@ -21,6 +21,15 @@ class UserManagementService {
       }
     });
   }
+
+  deleteUser(userId) {
+    const token = AuthService.getToken();
+    return axios.delete(API_URL + `${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
 }
 
 export default new UserManagementService();
