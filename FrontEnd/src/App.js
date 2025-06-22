@@ -1,8 +1,4 @@
-
-
 import { useState, useEffect, useMemo } from "react";
-
-// react-router components
 import { Route, Switch, Redirect, useLocation } from "react-router-dom";
 
 // @mui material components
@@ -32,6 +28,7 @@ import routes from "routes";
 // Vision UI Dashboard React contexts
 import { useVisionUIController, setMiniSidenav, setOpenConfigurator } from "context";
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from "components/ProtectedRoute";
 
 export default function App() {
   const [controller, dispatch] = useVisionUIController();
@@ -87,7 +84,18 @@ export default function App() {
       }
 
       if (route.route) {
-        return <Route exact path={route.route} component={route.component} key={route.key} />;
+        // Use ProtectedRoute for routes that require specific roles
+        return route.isProtected ? (
+          <ProtectedRoute
+            exact
+            path={route.route}
+            component={route.component}
+            roleRequired={route.roleRequired}
+            key={route.key}
+          />
+        ) : (
+          <Route exact path={route.route} component={route.component} key={route.key} />
+        );
       }
 
       return null;

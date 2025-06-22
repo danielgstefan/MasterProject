@@ -41,6 +41,7 @@ function Sidenav({ color, brandName, routes, ...rest }) {
   const { pathname } = location;
   const collapseName = pathname.split("/").slice(1)[0];
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
@@ -66,13 +67,29 @@ function Sidenav({ color, brandName, routes, ...rest }) {
     }
   }, []);
 
-  // Check if user is authenticated
+  // Check if user is authenticated and get current user
   useEffect(() => {
-    setIsAuthenticated(AuthService.isAuthenticated());
+    const checkAuth = () => {
+      setIsAuthenticated(AuthService.isAuthenticated());
+      setCurrentUser(AuthService.getCurrentUser());
+    };
+
+    // Initial check
+    checkAuth();
+
+    // Listen for storage events (in case user data changes)
+    const handleStorageChange = (e) => {
+      if (e.key === 'user_data' || e.key === 'user_token') {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, route, href, noDisplay }) => {
+  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, route, href, noDisplay, isProtected, roleRequired }) => {
     let returnValue;
 
     // Skip routes that should not be displayed
@@ -82,6 +99,12 @@ function Sidenav({ color, brandName, routes, ...rest }) {
 
     // Skip sign in and sign up routes if user is authenticated
     if (isAuthenticated && (key === "sign-in" || key === "sign-up")) {
+      return null;
+    }
+
+    // Skip protected routes if user doesn't have the required role
+    if (isProtected && roleRequired && (!currentUser || !currentUser.roles.includes(roleRequired))) {
+      console.log('Protected route check:', { userRoles: currentUser?.roles, roleRequired, name }); // Debug log
       return null;
     }
 
@@ -115,6 +138,11 @@ function Sidenav({ color, brandName, routes, ...rest }) {
         </NavLink>
       );
     } else if (type === "title") {
+      // Skip protected titles if user doesn't have the required role
+      if (isProtected && roleRequired && (!currentUser || !currentUser.roles.includes(roleRequired))) {
+        return null;
+      }
+
       // Skip "Account" title if user is authenticated (since sign-in and sign-up will be hidden)
       if (isAuthenticated && title === "Account" && key === "account-pages") {
         returnValue = null;
