@@ -6,6 +6,8 @@ import colors from 'assets/theme/base/colors';
 import { FaEllipsisH, FaUpload, FaTrash, FaEdit } from 'react-icons/fa';
 import { fetchCarPhotos, uploadCarPhoto, updateCarPhotoTitle, deleteCarPhoto } from 'services/carPhotoService';
 import axiosInstance from 'services/axiosInstance';
+import AuthService from 'services/AuthService';
+
 const API_BASE = 'http://localhost:8081'; // Adjust if backend runs elsewhere
 
 function CarPhotoGallery() {
@@ -15,6 +17,8 @@ function CarPhotoGallery() {
 	const [editingPhoto, setEditingPhoto] = useState(null);
 	const [editTitle, setEditTitle] = useState('');
 	const [uploading, setUploading] = useState(false);
+
+	const isAdmin = AuthService.getCurrentUser()?.roles?.includes('ROLE_ADMIN') || false;
 
 	// Fetch photos from backend
 	useEffect(() => {
@@ -95,21 +99,23 @@ function CarPhotoGallery() {
 					<VuiTypography variant='lg' color='white' mr='auto' fontWeight='bold'>
 						Car Photo Gallery
 					</VuiTypography>
-					<VuiBox
-						display='flex'
-						justifyContent='center'
-						alignItems='center'
-						bgColor='#22234B'
-						sx={{ width: '37px', height: '37px', cursor: 'pointer', borderRadius: '12px' }}>
-						<FaEllipsisH color={info?.main || "#0075ff"} size='18px' />
-					</VuiBox>
+					{isAdmin && (
+						<VuiBox
+							display='flex'
+							justifyContent='center'
+							alignItems='center'
+							bgColor='#22234B'
+							sx={{ width: '37px', height: '37px', cursor: 'pointer', borderRadius: '12px' }}>
+							<FaEllipsisH color={info?.main || "#0075ff"} size='18px' />
+						</VuiBox>
+					)}
 				</VuiBox>
 
 				<VuiBox mb={3}>
 					<VuiBox>
 						{carPhotos.length === 0 ? (
 							<VuiTypography color='text' variant='button' fontWeight='regular' textAlign='center' display='block'>
-								No car photos yet. Upload your first car photo!
+								No car photos yet. {isAdmin && "Upload your first car photo!"}
 							</VuiTypography>
 						) : (
 							<Grid container spacing={2}>
@@ -177,42 +183,44 @@ function CarPhotoGallery() {
 																borderRadius: '10px'
 															}}
 														/>
-														<VuiBox 
-															sx={{ 
-																position: 'absolute', 
-																top: '10px', 
-																right: '10px',
-																display: 'flex',
-																gap: '5px'
-															}}
-														>
-															<IconButton
-																onClick={() => startEditPhoto(photo.id, photo.title)}
-																sx={{ 
-																	color: 'white',
-																	backgroundColor: 'rgba(0, 0, 0, 0.5)',
-																	'&:hover': {
-																		backgroundColor: 'rgba(0, 0, 0, 0.7)',
-																	}
+														{isAdmin && (
+															<VuiBox
+																sx={{
+																	position: 'absolute',
+																	top: '10px',
+																	right: '10px',
+																	display: 'flex',
+																	gap: '5px'
 																}}
-																size="small"
 															>
-																<FaEdit size="14px" />
-															</IconButton>
-															<IconButton
-																onClick={() => handleDelete(photo.id)}
-																sx={{ 
-																	color: 'white',
-																	backgroundColor: 'rgba(255, 0, 0, 0.5)',
-																	'&:hover': {
-																		backgroundColor: 'rgba(255, 0, 0, 0.7)',
-																	}
-																}}
-																size="small"
-															>
-																<FaTrash size="14px" />
-															</IconButton>
-														</VuiBox>
+																<IconButton
+																	onClick={() => startEditPhoto(photo.id, photo.title)}
+																	sx={{
+																		color: 'white',
+																		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+																		'&:hover': {
+																			backgroundColor: 'rgba(0, 0, 0, 0.7)',
+																		}
+																	}}
+																	size="small"
+																>
+																	<FaEdit size="14px" />
+																</IconButton>
+																<IconButton
+																	onClick={() => handleDelete(photo.id)}
+																	sx={{
+																		color: 'white',
+																		backgroundColor: 'rgba(255, 0, 0, 0.5)',
+																		'&:hover': {
+																			backgroundColor: 'rgba(255, 0, 0, 0.7)',
+																		}
+																	}}
+																	size="small"
+																>
+																	<FaTrash size="14px" />
+																</IconButton>
+															</VuiBox>
+														)}
 													</VuiBox>
 													<VuiTypography 
 														color='white' 
@@ -229,52 +237,54 @@ function CarPhotoGallery() {
 							</Grid>
 						)}
 					</VuiBox>
-					<VuiBox display='flex' flexDirection='column' mb={2} mt={4}>
-						<TextField
-							label="Photo Title"
-							variant="outlined"
-							value={newTitle}
-							onChange={(e) => setNewTitle(e.target.value)}
-							sx={{
-								mb: 2,
-								'& .MuiOutlinedInput-root': {
-									color: 'white',
-									'& fieldset': {
-										borderColor: 'rgba(255, 255, 255, 0.3)',
+					{isAdmin && (
+						<VuiBox display='flex' flexDirection='column' mb={2} mt={4}>
+							<TextField
+								label="Photo Title"
+								variant="outlined"
+								value={newTitle}
+								onChange={(e) => setNewTitle(e.target.value)}
+								sx={{
+									mb: 2,
+									'& .MuiOutlinedInput-root': {
+										color: 'white',
+										'& fieldset': {
+											borderColor: 'rgba(255, 255, 255, 0.3)',
+										},
+										'&:hover fieldset': {
+											borderColor: 'rgba(255, 255, 255, 0.5)',
+										},
+										'&.Mui-focused fieldset': {
+											borderColor: info?.main || "#0075ff",
+										},
 									},
-									'&:hover fieldset': {
-										borderColor: 'rgba(255, 255, 255, 0.5)',
+									'& .MuiInputLabel-root': {
+										color: 'rgba(255, 255, 255, 0.7)',
 									},
-									'&.Mui-focused fieldset': {
-										borderColor: info?.main || "#0075ff",
-									},
-								},
-								'& .MuiInputLabel-root': {
-									color: 'rgba(255, 255, 255, 0.7)',
-								},
-							}}
-						/>
-						<Button
-							variant="contained"
-							component="label"
-							startIcon={<FaUpload />}
-							sx={{
-								bgcolor: info?.main || "#0075ff",
-								'&:hover': {
-									bgcolor: info?.dark || "#0062d6",
-								},
-							}}
-							disabled={uploading}
-						>
-							Upload Photo
-							<input
-								type="file"
-								accept="image/*"
-								hidden
-								onChange={handleFileUpload}
+								}}
 							/>
-						</Button>
-					</VuiBox>
+							<Button
+								variant="contained"
+								component="label"
+								startIcon={<FaUpload />}
+								sx={{
+									bgcolor: info?.main || "#0075ff",
+									'&:hover': {
+										bgcolor: info?.dark || "#0062d6",
+									},
+								}}
+								disabled={uploading}
+							>
+								Upload Photo
+								<input
+									type="file"
+									accept="image/*"
+									hidden
+									onChange={handleFileUpload}
+								/>
+							</Button>
+						</VuiBox>
+					)}
 				</VuiBox>
 			</VuiBox>
 		</Card>

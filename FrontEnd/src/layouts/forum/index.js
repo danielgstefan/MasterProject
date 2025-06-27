@@ -347,7 +347,7 @@ function Forum() {
       });
     } catch (err) {
       console.error("Error fetching posts:", err);
-      setError("Failed to load posts. Please try again later.");
+      setError("Failed to load posts. Please log in.");
       setLoading(false);
     }
   };
@@ -723,409 +723,408 @@ function Forum() {
             </VuiTypography>
 
             {}
-            {loading && (
-              <VuiBox display="flex" justifyContent="center" p={5}>
-                <CircularProgress color="info" />
-              </VuiBox>
-            )}
-
-            {}
-            {error && (
+            {!isAuthenticated && (
               <Card>
                 <VuiBox p={3} textAlign="center">
-                  <VuiTypography color="error" variant="body2">
-                    {error}
+                  <VuiTypography color="white" variant="body2">
+                    Please log in to view and interact with forum posts.
                   </VuiTypography>
-                  <VuiButton 
-                    variant="contained" 
-                    color="info" 
-                    onClick={fetchPosts}
+                  <VuiButton
+                    variant="contained"
+                    color="info"
+                    onClick={() => window.location.href = '/authentication/sign-in'}
                     sx={{ mt: 2 }}
                   >
-                    Try Again
+                    Log in
                   </VuiButton>
                 </VuiBox>
               </Card>
             )}
 
-            {}
-            {!loading && !error && posts.length === 0 && (
-              <Card>
-                <VuiBox p={3} textAlign="center">
-                  <VuiTypography color="text" variant="body2">
-                    No posts found. {isAuthenticated ? "Be the first to create a post!" : "Please log in to create a post."}
-                  </VuiTypography>
-                </VuiBox>
-              </Card>
-            )}
+            {isAuthenticated && (
+              <>
+                {loading && (
+                  <VuiBox display="flex" justifyContent="center" p={5}>
+                    <CircularProgress color="info" />
+                  </VuiBox>
+                )}
 
-            {}
-            <Grid container spacing={3}>
-              {!loading && !error && posts.map((post) => (
-                <Grid item xs={12} key={post.id}>
+                {!loading && posts.length === 0 && (
                   <Card>
-                    <VuiBox p={3}>
-                      <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <VuiTypography variant="h6" fontWeight="bold" color="white">
-                          {post.title}
+                    <VuiBox p={3} textAlign="center">
+                      <VuiTypography color="text" variant="body2">
+                        No posts found. Be the first to create a post!
+                      </VuiTypography>
+                    </VuiBox>
+                  </Card>
+                )}
+
+                {!loading && posts.map((post) => (
+                  <Grid item xs={12} key={post.id}>
+                    <Card>
+                      <VuiBox p={3}>
+                        <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                          <VuiTypography variant="h6" fontWeight="bold" color="white">
+                            {post.title}
+                          </VuiTypography>
+
+                          {}
+                          {canEditPost(post) && (
+                            <VuiBox>
+                              <IconButton
+                                size="small"
+                                sx={{
+                                  color: "#0f1535",
+                                  backgroundColor: "white",
+                                  "&:hover": {
+                                    backgroundColor: "white"
+                                  },
+                                  mx: 0.5
+                                }}
+                                onClick={() => handleOpenPostDialog(post)}
+                              >
+                                <IoPencilOutline size={18} />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                sx={{
+                                  color: "#0f1535",
+                                  backgroundColor: "white",
+                                  "&:hover": {
+                                    backgroundColor: "white"
+                                  },
+                                  mx: 0.5
+                                }}
+                                onClick={() => handleDeletePost(post.id)}
+                              >
+                                <IoTrashOutline size={18} />
+                              </IconButton>
+                            </VuiBox>
+                          )}
+                        </VuiBox>
+
+                        <VuiBox display="flex" alignItems="center" mb={2}>
+                          <VuiTypography variant="caption" color="text" mr={2}>
+                            Posted by {post.author.username}
+                          </VuiTypography>
+                          <VuiTypography variant="caption" color="text" mr={2}>
+                            in {post.category}
+                          </VuiTypography>
+                          <VuiTypography variant="caption" color="text">
+                            {formatDate(post.createdAt)}
+                          </VuiTypography>
+                        </VuiBox>
+
+                        <VuiTypography variant="body2" color="text" mb={2}>
+                          {post.content}
                         </VuiTypography>
 
+                        {/* Display post photos if available */}
+                        {postPhotos[post.id] && postPhotos[post.id].length > 0 && (
+                          <VuiBox mb={2}>
+                            <VuiBox
+                              sx={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: 1,
+                                maxHeight: '300px',
+                                overflowY: 'auto',
+                                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                                borderRadius: '8px',
+                                p: 1
+                              }}
+                            >
+                              {postPhotos[post.id].map((photo) => (
+                                <VuiBox
+                                  key={photo.id}
+                                  sx={{
+                                    width: '120px',
+                                    height: '120px'
+                                  }}
+                                >
+                                  <img
+                                    src={`http://localhost:8081${photo.url}`}
+                                    alt={photo.title || "Post image"}
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover',
+                                      borderRadius: '4px',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() => {
+                                      setSelectedPhoto(photo);
+                                      setPhotoDialogOpen(true);
+                                    }}
+                                  />
+                                </VuiBox>
+                              ))}
+                            </VuiBox>
+                          </VuiBox>
+                        )}
+
+                        <VuiBox display="flex" gap={2} alignItems="center">
+                          {}
+                          <VuiBox display="flex" alignItems="center">
+                            <IconButton
+                              size="small"
+                              sx={{ color: postLikes[post.id]?.userLikeStatus === true ? "info.main" : "white" }}
+                              onClick={() => handleLikePost(post.id, true)}
+                              disabled={!isAuthenticated}
+                            >
+                              {postLikes[post.id]?.userLikeStatus === true ? <IoThumbsUp /> : <IoThumbsUpOutline />}
+                            </IconButton>
+                            <VuiTypography variant="caption" color="info.main">
+                              {postLikes[post.id]?.likesCount || 0}
+                            </VuiTypography>
+                          </VuiBox>
+
+                          {}
+                          <VuiBox display="flex" alignItems="center">
+                            <IconButton
+                              size="small"
+                              sx={{ color: postLikes[post.id]?.userLikeStatus === false ? "error.main" : "white" }}
+                              onClick={() => handleLikePost(post.id, false)}
+                              disabled={!isAuthenticated}
+                            >
+                              {postLikes[post.id]?.userLikeStatus === false ? <IoThumbsDown /> : <IoThumbsDownOutline />}
+                            </IconButton>
+                            <VuiTypography variant="caption" color="error.main">
+                              {postLikes[post.id]?.dislikesCount || 0}
+                            </VuiTypography>
+                          </VuiBox>
+
+                          {}
+                          <VuiBox display="flex" alignItems="center">
+                            <IconButton
+                              size="small"
+                              sx={{ color: expandedComments[post.id] ? "info.main" : "white" }}
+                              onClick={() => toggleComments(post.id)}
+                            >
+                              <IoChatbubbleOutline />
+                            </IconButton>
+                            <VuiTypography variant="caption" color="text">
+                              {commentCounts[post.id] || 0}
+                            </VuiTypography>
+                          </VuiBox>
+                        </VuiBox>
+
                         {}
-                        {canEditPost(post) && (
-                          <VuiBox>
-                            <IconButton 
-                              size="small" 
-                              sx={{ 
-                                color: "#0f1535",
-                                backgroundColor: "white",
-                                "&:hover": {
-                                  backgroundColor: "white"
-                                },
-                                mx: 0.5
-                              }}
-                              onClick={() => handleOpenPostDialog(post)}
+                        {expandedComments[post.id] && (
+                            <VuiBox
+                                key={`comments-${commentListVersion[post.id] || 0}`}
+                                mt={3}
+                                pl={2}
+                                pr={2}
+                                pb={2}
                             >
-                              <IoPencilOutline size={18} />
-                            </IconButton>
-                            <IconButton 
-                              size="small" 
-                              sx={{ 
-                                color: "#0f1535",
-                                backgroundColor: "white",
-                                "&:hover": {
-                                  backgroundColor: "white"
-                                },
-                                mx: 0.5
-                              }}
-                              onClick={() => handleDeletePost(post.id)}
-                            >
-                              <IoTrashOutline size={18} />
-                            </IconButton>
+                            <VuiTypography variant="subtitle2" color="white" mb={2}>
+                              Comments
+                            </VuiTypography>
+
+                            {}
+                            {loadingComments[post.id] && (
+                              <VuiBox display="flex" justifyContent="center" p={2}>
+                                <CircularProgress color="info" size={20} />
+                              </VuiBox>
+                            )}
+
+                            {}
+                            {!loadingComments[post.id] && comments[post.id] && comments[post.id].length > 0 ? (
+                              <VuiBox>
+                                {comments[post.id].map((comment) => (
+                                  <Card key={comment.id} sx={{ mb: 2, backgroundColor: "rgba(255, 255, 255, 0.05)" }}>
+                                    <VuiBox p={2}>
+                                      <VuiBox display="flex" justifyContent="space-between" mb={1}>
+                                        <VuiTypography variant="caption" color="info.main">
+                                          {comment.author.username}
+                                        </VuiTypography>
+                                        <VuiBox display="flex" alignItems="center">
+                                          <VuiTypography variant="caption" color="text" mr={2}>
+                                            {formatDate(comment.createdAt)}
+                                          </VuiTypography>
+                                          {}
+                                          {canEditComment(comment) && (
+                                            <VuiBox>
+                                              <IconButton
+                                                size="small"
+                                                sx={{
+                                                  color: "#0f1535",
+                                                  p: 0.5,
+                                                  backgroundColor: "white",
+                                                  "&:hover": {
+                                                    backgroundColor: "white"
+                                                  },
+                                                  mx: 0.5
+                                                }}
+                                                onClick={() => startEditComment(comment)}
+                                              >
+                                                <IoPencilOutline size={16} />
+                                              </IconButton>
+                                              <IconButton
+                                                size="small"
+                                                sx={{
+                                                  color: "#0f1535",
+                                                  p: 0.5,
+                                                  backgroundColor: "white",
+                                                  "&:hover": {
+                                                    backgroundColor: "white"
+                                                  },
+                                                  mx: 0.5
+                                                }}
+                                                onClick={() => handleDeleteComment(comment)}
+                                              >
+                                                <IoTrashOutline size={16} />
+                                              </IconButton>
+                                            </VuiBox>
+                                          )}
+                                        </VuiBox>
+                                      </VuiBox>
+                                      {editingComment && editingComment.id === comment.id ? (
+                                        // Edit form
+                                        <VuiBox>
+                                          <TextField
+                                            fullWidth
+                                            multiline
+                                            rows={2}
+                                            value={editCommentContent}
+                                            onChange={(e) => setEditCommentContent(e.target.value)}
+                                            sx={{
+                                              "& .MuiOutlinedInput-root": {
+                                                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                                borderRadius: "8px",
+                                                "& fieldset": {
+                                                  borderColor: "rgba(255, 255, 255, 0.2)",
+                                                },
+                                                "&:hover fieldset": {
+                                                  borderColor: "rgba(255, 255, 255, 0.4)",
+                                                },
+                                              },
+                                              "& .MuiInputBase-input": {
+                                                color: "white",
+                                              },
+                                              mb: 1
+                                            }}
+                                          />
+                                          <VuiBox display="flex" justifyContent="flex-end" gap={1}>
+                                            <VuiButton
+                                              variant="outlined"
+                                              color="white"
+                                              size="small"
+                                              onClick={handleCancelEditComment}
+                                            >
+                                              Cancel
+                                            </VuiButton>
+                                            <VuiButton
+                                              variant="contained"
+                                              color="info"
+                                              size="small"
+                                              onClick={() => handleEditComment(comment)}
+                                            >
+                                              Update
+                                            </VuiButton>
+                                          </VuiBox>
+                                        </VuiBox>
+                                      ) : (
+                                        // Comment content
+                                        <VuiTypography variant="body2" color="white">
+                                          {comment.content}
+                                        </VuiTypography>
+                                      )}
+                                    </VuiBox>
+                                  </Card>
+                                ))}
+                              </VuiBox>
+                            ) : (
+                              !loadingComments[post.id] && (
+                                <VuiBox p={2} textAlign="center">
+                                  <VuiTypography variant="body2" color="text">
+                                    No comments yet. Be the first to comment!
+                                  </VuiTypography>
+                                </VuiBox>
+                              )
+                            )}
+
+                            {}
+                            {isAuthenticated && (
+                              <VuiBox mt={2}>
+                                <TextField
+                                  fullWidth
+                                  multiline
+                                  rows={2}
+                                  placeholder="Write a comment..."
+                                  value={newComments[post.id] || ""}
+                                  onChange={(e) => setNewComments(prev => ({ ...prev, [post.id]: e.target.value }))}
+                                  sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                                      borderRadius: "8px",
+                                      "& fieldset": {
+                                        borderColor: "rgba(255, 255, 255, 0.2)",
+                                      },
+                                      "&:hover fieldset": {
+                                        borderColor: "rgba(255, 255, 255, 0.4)",
+                                      },
+                                    },
+                                    "& .MuiInputBase-input": {
+                                      color: "white",
+                                    },
+                                  }}
+                                />
+                                <VuiBox display="flex" justifyContent="flex-end" mt={1}>
+                                  <VuiButton
+                                    variant="contained"
+                                    color="info"
+                                    size="small"
+                                    onClick={() => handleCreateComment(post.id)}
+                                  >
+                                    Post Comment
+                                  </VuiButton>
+                                </VuiBox>
+                              </VuiBox>
+                            )}
                           </VuiBox>
                         )}
                       </VuiBox>
+                    </Card>
+                  </Grid>
+                ))}
 
-                      <VuiBox display="flex" alignItems="center" mb={2}>
-                        <VuiTypography variant="caption" color="text" mr={2}>
-                          Posted by {post.author.username}
-                        </VuiTypography>
-                        <VuiTypography variant="caption" color="text" mr={2}>
-                          in {post.category}
-                        </VuiTypography>
-                        <VuiTypography variant="caption" color="text">
-                          {formatDate(post.createdAt)}
-                        </VuiTypography>
-                      </VuiBox>
-
-                      <VuiTypography variant="body2" color="text" mb={2}>
-                        {post.content}
-                      </VuiTypography>
-
-                      {/* Display post photos if available */}
-                      {postPhotos[post.id] && postPhotos[post.id].length > 0 && (
-                        <VuiBox mb={2}>
-                          <VuiBox 
-                            sx={{ 
-                              display: 'flex', 
-                              flexWrap: 'wrap', 
-                              gap: 1,
-                              maxHeight: '300px',
-                              overflowY: 'auto',
-                              backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                              borderRadius: '8px',
-                              p: 1
-                            }}
-                          >
-                            {postPhotos[post.id].map((photo) => (
-                              <VuiBox 
-                                key={photo.id} 
-                                sx={{ 
-                                  width: '120px',
-                                  height: '120px'
-                                }}
-                              >
-                                <img 
-                                  src={`http://localhost:8081${photo.url}`} 
-                                  alt={photo.title || "Post image"} 
-                                  style={{ 
-                                    width: '100%', 
-                                    height: '100%', 
-                                    objectFit: 'cover',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                  }} 
-                                  onClick={() => {
-                                    setSelectedPhoto(photo);
-                                    setPhotoDialogOpen(true);
-                                  }}
-                                />
-                              </VuiBox>
-                            ))}
-                          </VuiBox>
-                        </VuiBox>
-                      )}
-
-                      <VuiBox display="flex" gap={2} alignItems="center">
-                        {}
-                        <VuiBox display="flex" alignItems="center">
-                          <IconButton 
-                            size="small" 
-                            sx={{ color: postLikes[post.id]?.userLikeStatus === true ? "info.main" : "white" }}
-                            onClick={() => handleLikePost(post.id, true)}
-                            disabled={!isAuthenticated}
-                          >
-                            {postLikes[post.id]?.userLikeStatus === true ? <IoThumbsUp /> : <IoThumbsUpOutline />}
-                          </IconButton>
-                          <VuiTypography variant="caption" color="info.main">
-                            {postLikes[post.id]?.likesCount || 0}
-                          </VuiTypography>
-                        </VuiBox>
-
-                        {}
-                        <VuiBox display="flex" alignItems="center">
-                          <IconButton 
-                            size="small" 
-                            sx={{ color: postLikes[post.id]?.userLikeStatus === false ? "error.main" : "white" }}
-                            onClick={() => handleLikePost(post.id, false)}
-                            disabled={!isAuthenticated}
-                          >
-                            {postLikes[post.id]?.userLikeStatus === false ? <IoThumbsDown /> : <IoThumbsDownOutline />}
-                          </IconButton>
-                          <VuiTypography variant="caption" color="error.main">
-                            {postLikes[post.id]?.dislikesCount || 0}
-                          </VuiTypography>
-                        </VuiBox>
-
-                        {}
-                        <VuiBox display="flex" alignItems="center">
-                          <IconButton 
-                            size="small" 
-                            sx={{ color: expandedComments[post.id] ? "info.main" : "white" }}
-                            onClick={() => toggleComments(post.id)}
-                          >
-                            <IoChatbubbleOutline />
-                          </IconButton>
-                          <VuiTypography variant="caption" color="text">
-                            {commentCounts[post.id] || 0}
-                          </VuiTypography>
-                        </VuiBox>
-                      </VuiBox>
-
-                      {}
-                      {expandedComments[post.id] && (
-                          <VuiBox
-                              key={`comments-${commentListVersion[post.id] || 0}`}
-                              mt={3}
-                              pl={2}
-                              pr={2}
-                              pb={2}
-                          >
-                          <VuiTypography variant="subtitle2" color="white" mb={2}>
-                            Comments
-                          </VuiTypography>
-
-                          {}
-                          {loadingComments[post.id] && (
-                            <VuiBox display="flex" justifyContent="center" p={2}>
-                              <CircularProgress color="info" size={20} />
-                            </VuiBox>
-                          )}
-
-                          {}
-                          {!loadingComments[post.id] && comments[post.id] && comments[post.id].length > 0 ? (
-                            <VuiBox>
-                              {comments[post.id].map((comment) => (
-                                <Card key={comment.id} sx={{ mb: 2, backgroundColor: "rgba(255, 255, 255, 0.05)" }}>
-                                  <VuiBox p={2}>
-                                    <VuiBox display="flex" justifyContent="space-between" mb={1}>
-                                      <VuiTypography variant="caption" color="info.main">
-                                        {comment.author.username}
-                                      </VuiTypography>
-                                      <VuiBox display="flex" alignItems="center">
-                                        <VuiTypography variant="caption" color="text" mr={2}>
-                                          {formatDate(comment.createdAt)}
-                                        </VuiTypography>
-                                        {}
-                                        {canEditComment(comment) && (
-                                          <VuiBox>
-                                            <IconButton 
-                                              size="small" 
-                                              sx={{ 
-                                                color: "#0f1535", 
-                                                p: 0.5,
-                                                backgroundColor: "white",
-                                                "&:hover": {
-                                                  backgroundColor: "white"
-                                                },
-                                                mx: 0.5
-                                              }}
-                                              onClick={() => startEditComment(comment)}
-                                            >
-                                              <IoPencilOutline size={16} />
-                                            </IconButton>
-                                            <IconButton 
-                                              size="small" 
-                                              sx={{ 
-                                                color: "#0f1535", 
-                                                p: 0.5,
-                                                backgroundColor: "white",
-                                                "&:hover": {
-                                                  backgroundColor: "white"
-                                                },
-                                                mx: 0.5
-                                              }}
-                                              onClick={() => handleDeleteComment(comment)}
-                                            >
-                                              <IoTrashOutline size={16} />
-                                            </IconButton>
-                                          </VuiBox>
-                                        )}
-                                      </VuiBox>
-                                    </VuiBox>
-                                    {editingComment && editingComment.id === comment.id ? (
-                                      // Edit form
-                                      <VuiBox>
-                                        <TextField
-                                          fullWidth
-                                          multiline
-                                          rows={2}
-                                          value={editCommentContent}
-                                          onChange={(e) => setEditCommentContent(e.target.value)}
-                                          sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                              backgroundColor: "rgba(255, 255, 255, 0.1)",
-                                              borderRadius: "8px",
-                                              "& fieldset": {
-                                                borderColor: "rgba(255, 255, 255, 0.2)",
-                                              },
-                                              "&:hover fieldset": {
-                                                borderColor: "rgba(255, 255, 255, 0.4)",
-                                              },
-                                            },
-                                            "& .MuiInputBase-input": {
-                                              color: "white",
-                                            },
-                                            mb: 1
-                                          }}
-                                        />
-                                        <VuiBox display="flex" justifyContent="flex-end" gap={1}>
-                                          <VuiButton 
-                                            variant="outlined" 
-                                            color="white" 
-                                            size="small"
-                                            onClick={handleCancelEditComment}
-                                          >
-                                            Cancel
-                                          </VuiButton>
-                                          <VuiButton 
-                                            variant="contained" 
-                                            color="info" 
-                                            size="small"
-                                            onClick={() => handleEditComment(comment)}
-                                          >
-                                            Update
-                                          </VuiButton>
-                                        </VuiBox>
-                                      </VuiBox>
-                                    ) : (
-                                      // Comment content
-                                      <VuiTypography variant="body2" color="white">
-                                        {comment.content}
-                                      </VuiTypography>
-                                    )}
-                                  </VuiBox>
-                                </Card>
-                              ))}
-                            </VuiBox>
-                          ) : (
-                            !loadingComments[post.id] && (
-                              <VuiBox p={2} textAlign="center">
-                                <VuiTypography variant="body2" color="text">
-                                  No comments yet. Be the first to comment!
-                                </VuiTypography>
-                              </VuiBox>
-                            )
-                          )}
-
-                          {}
-                          {isAuthenticated && (
-                            <VuiBox mt={2}>
-                              <TextField
-                                fullWidth
-                                multiline
-                                rows={2}
-                                placeholder="Write a comment..."
-                                value={newComments[post.id] || ""}
-                                onChange={(e) => setNewComments(prev => ({ ...prev, [post.id]: e.target.value }))}
-                                sx={{
-                                  "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                                    borderRadius: "8px",
-                                    "& fieldset": {
-                                      borderColor: "rgba(255, 255, 255, 0.2)",
-                                    },
-                                    "&:hover fieldset": {
-                                      borderColor: "rgba(255, 255, 255, 0.4)",
-                                    },
-                                  },
-                                  "& .MuiInputBase-input": {
-                                    color: "white",
-                                  },
-                                }}
-                              />
-                              <VuiBox display="flex" justifyContent="flex-end" mt={1}>
-                                <VuiButton 
-                                  variant="contained" 
-                                  color="info" 
-                                  size="small"
-                                  onClick={() => handleCreateComment(post.id)}
-                                >
-                                  Post Comment
-                                </VuiButton>
-                              </VuiBox>
-                            </VuiBox>
-                          )}
-                        </VuiBox>
-                      )}
-                    </VuiBox>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-
-            {}
-            {totalPages > 1 && (
-              <VuiBox display="flex" justifyContent="center" mt={3}>
-                <VuiButton
-                  variant="outlined"
-                  color="white"
-                  onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-                  disabled={currentPage === 0}
-                  sx={{ mx: 1 }}
-                >
-                  Previous
-                </VuiButton>
-                <VuiTypography variant="body2" color="white" sx={{ alignSelf: "center", mx: 2 }}>
-                  Page {currentPage + 1} of {totalPages}
-                </VuiTypography>
-                <VuiButton
-                  variant="outlined"
-                  color="white"
-                  onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
-                  disabled={currentPage === totalPages - 1}
-                  sx={{ mx: 1 }}
-                >
-                  Next
-                </VuiButton>
-              </VuiBox>
+                {}
+                {totalPages > 1 && (
+                  <VuiBox display="flex" justifyContent="center" mt={3}>
+                    <VuiButton
+                      variant="outlined"
+                      color="white"
+                      onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                      disabled={currentPage === 0}
+                      sx={{ mx: 1 }}
+                    >
+                      Previous
+                    </VuiButton>
+                    <VuiTypography variant="body2" color="white" sx={{ alignSelf: "center", mx: 2 }}>
+                      Page {currentPage + 1} of {totalPages}
+                    </VuiTypography>
+                    <VuiButton
+                      variant="outlined"
+                      color="white"
+                      onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                      disabled={currentPage === totalPages - 1}
+                      sx={{ mx: 1 }}
+                    >
+                      Next
+                    </VuiButton>
+                  </VuiBox>
+                )}
+              </>
             )}
           </Grid>
         </Grid>
       </VuiBox>
 
       {}
-      <Dialog 
-        open={openPostDialog} 
+      <Dialog
+        open={openPostDialog}
         onClose={handleClosePostDialog}
         maxWidth="md"
         fullWidth
@@ -1236,8 +1235,8 @@ function Forum() {
               multiple
               accept="image/*"
               onChange={handleFileSelect}
-              style={{ 
-                display: 'none' 
+              style={{
+                display: 'none'
               }}
               id="post-photo-input"
             />
@@ -1259,10 +1258,10 @@ function Forum() {
                 <VuiTypography variant="caption" color="white" mb={1}>
                   Selected Photos ({previewImages.length})
                 </VuiTypography>
-                <VuiBox 
-                  sx={{ 
-                    display: 'flex', 
-                    flexWrap: 'wrap', 
+                <VuiBox
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
                     gap: 1,
                     maxHeight: '200px',
                     overflowY: 'auto',
@@ -1272,23 +1271,23 @@ function Forum() {
                   }}
                 >
                   {previewImages.map((preview, index) => (
-                    <VuiBox 
-                      key={index} 
-                      sx={{ 
+                    <VuiBox
+                      key={index}
+                      sx={{
                         position: 'relative',
                         width: '80px',
                         height: '80px'
                       }}
                     >
-                      <img 
-                        src={preview} 
-                        alt={`Preview ${index}`} 
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
+                      <img
+                        src={preview}
+                        alt={`Preview ${index}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
                           objectFit: 'cover',
                           borderRadius: '4px'
-                        }} 
+                        }}
                       />
                       <IconButton
                         size="small"
@@ -1319,10 +1318,10 @@ function Forum() {
                 <VuiTypography variant="caption" color="white" mb={1}>
                   Uploading: {uploadProgress}%
                 </VuiTypography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={uploadProgress} 
-                  sx={{ 
+                <LinearProgress
+                  variant="determinate"
+                  value={uploadProgress}
+                  sx={{
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     '& .MuiLinearProgress-bar': {
                       backgroundColor: 'info.main'
@@ -1360,24 +1359,24 @@ function Forum() {
       >
         <DialogContent>
           {selectedPhoto && (
-            <VuiBox 
-              sx={{ 
-                display: 'flex', 
+            <VuiBox
+              sx={{
+                display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <img 
-                src={`http://localhost:8081${selectedPhoto.url}`} 
-                alt={selectedPhoto.title || "Post image"} 
-                style={{ 
-                  maxWidth: '100%', 
-                  maxHeight: '80vh', 
+              <img
+                src={`http://localhost:8081${selectedPhoto.url}`}
+                alt={selectedPhoto.title || "Post image"}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '80vh',
                   objectFit: 'contain',
                   borderRadius: '4px',
                   marginBottom: '16px'
-                }} 
+                }}
               />
               {selectedPhoto.title && (
                 <VuiTypography variant="h6" color="white" textAlign="center">
@@ -1405,8 +1404,8 @@ function Forum() {
         onClose={() => setNotification({ ...notification, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert 
-          onClose={() => setNotification({ ...notification, open: false })} 
+        <Alert
+          onClose={() => setNotification({ ...notification, open: false })}
           severity={notification.severity}
           sx={{ width: '100%' }}
         >
