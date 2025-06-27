@@ -16,12 +16,13 @@ import VuiButton from "components/VuiButton";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Footer from "examples/Footer";
 import UserManagementService from "services/UserManagementService";
-import { IoTrashOutline } from "react-icons/io5";
+import { IoLockClosedOutline, IoLockOpenOutline } from "react-icons/io5";
 
 function Users() {
   const [users, setUsers] = useState([]);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isBanning, setIsBanning] = useState(true); // true for ban, false for unban
 
   useEffect(() => {
     loadUsers();
@@ -48,23 +49,29 @@ function Users() {
       });
   };
 
-  const handleDeleteClick = (user) => {
+  const handleBanClick = (user, ban) => {
     setSelectedUser(user);
-    setDeleteDialogOpen(true);
+    setIsBanning(ban);
+    setBanDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleBanConfirm = () => {
     if (selectedUser) {
-      UserManagementService.deleteUser(selectedUser.id)
-        .then(() => {
-          loadUsers(); // Reload users after deletion
-          setDeleteDialogOpen(false);
+      const action = isBanning ?
+        UserManagementService.banUser(selectedUser.id) :
+        UserManagementService.unbanUser(selectedUser.id);
+
+      action.then(() => {
+          loadUsers(); // Reload users after ban/unban
+          setBanDialogOpen(false);
         })
         .catch(error => {
-          console.error("Error deleting user:", error);
+          console.error(`Error ${isBanning ? 'banning' : 'unbanning'} user:`, error);
         });
     }
   };
+
+  const isAdmin = (user) => user.roles === 2;
 
   return (
     <DashboardLayout>
@@ -99,28 +106,28 @@ function Users() {
                             {user.username}
                           </VuiTypography>
                           <VuiTypography variant="caption" color="text">
-                            ({user.email})
+                            {user.email}
                           </VuiTypography>
+                          {user.banned && (
+                            <VuiTypography variant="caption" color="error">
+                              BANNED
+                            </VuiTypography>
+                          )}
                         </Stack>
                         <Stack spacing={2} direction="row" alignItems="center">
                           <VuiTypography variant="button" color="text">
-                            Admin
+                            Admin Access
                           </VuiTypography>
                           <Switch
-                            checked={user.roles === 2}
+                            checked={isAdmin(user)}
                             onChange={() => handleRoleChange(user.id, user.roles)}
-                            color="info"
+                            color="success"
                           />
                           <IconButton
-                            onClick={() => handleDeleteClick(user)}
-                            sx={{
-                              color: "error.main",
-                              '&:hover': {
-                                backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                              }
-                            }}
+                            onClick={() => handleBanClick(user, !user.banned)}
+                            sx={{ color: user.banned ? 'success.main' : 'error.main' }}
                           >
-                            <IoTrashOutline />
+                            {user.banned ? <IoLockOpenOutline /> : <IoLockClosedOutline />}
                           </IconButton>
                         </Stack>
                       </VuiBox>
@@ -133,37 +140,24 @@ function Users() {
         </VuiBox>
       </VuiBox>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        PaperProps={{
-          style: {
-            backgroundColor: '#1a1b36',
-            color: 'white',
-          },
-        }}
-      >
-        <DialogTitle>Confirm Delete</DialogTitle>
+      <Dialog open={banDialogOpen} onClose={() => setBanDialogOpen(false)}>
+        <DialogTitle>
+          {isBanning ? "Ban User" : "Unban User"}
+        </DialogTitle>
         <DialogContent>
-          <VuiTypography variant="button" color="text">
-            Are you sure you want to delete user {selectedUser?.username}?
-          </VuiTypography>
+          Are you sure you want to {isBanning ? "ban" : "unban"} {selectedUser?.username}?
+          {isBanning && (
+            <VuiTypography variant="caption" color="text">
+              This will prevent the user from logging in to their account.
+            </VuiTypography>
+          )}
         </DialogContent>
         <DialogActions>
-          <VuiButton
-            variant="contained"
-            color="primary"
-            onClick={() => setDeleteDialogOpen(false)}
-          >
+          <VuiButton onClick={() => setBanDialogOpen(false)} color="primary">
             Cancel
           </VuiButton>
-          <VuiButton
-            variant="contained"
-            color="error"
-            onClick={handleDeleteConfirm}
-          >
-            Delete
+          <VuiButton onClick={handleBanConfirm} color={isBanning ? "error" : "success"}>
+            {isBanning ? "Ban" : "Unban"}
           </VuiButton>
         </DialogActions>
       </Dialog>

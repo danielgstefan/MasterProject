@@ -74,13 +74,44 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    @Transactional
+    public void banUser(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if this is the last admin
+        if (user.getRoles().stream().anyMatch(role -> role.getId() == 2)) {
+            long adminCount = userRepository.findAll().stream()
+                .filter(u -> u.getRoles().stream().anyMatch(role -> role.getId() == 2))
+                .count();
+            if (adminCount <= 1) {
+                throw new RuntimeException("Cannot ban the last admin user");
+            }
+        }
+
+        user.setBanned(true);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void unbanUser(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setBanned(false);
+        userRepository.save(user);
+    }
+
     private UserDto convertToDto(User user) {
-        int roleId = user.getRoles().isEmpty() ? 1 : user.getRoles().iterator().next().getId();
+        int roleId = user.getRoles().stream()
+            .findFirst()
+            .map(Role::getId)
+            .orElse(1); // Default to user role (1) if no roles found
         return new UserDto(
             user.getId(),
             user.getUsername(),
             user.getEmail(),
-            roleId
+            roleId,
+            user.isBanned()
         );
     }
 }

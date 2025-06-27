@@ -69,7 +69,7 @@ public class WebSecurityConfig {
                     .requestMatchers("/error").permitAll()
                     .requestMatchers("/api/test/**").permitAll()
                     .requestMatchers("/api/audio/**").permitAll()
-                    .requestMatchers("/api/car-photos/**").authenticated()
+                    .requestMatchers("/api/car-photos/**").permitAll()  // Changed to permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/favicon.ico").permitAll()
                     .requestMatchers("/ws/**").permitAll()

@@ -27,10 +27,11 @@ public class UserDetailsImpl implements UserDetails {
     private String password;
 
     private Collection<? extends GrantedAuthority> authorities;
+    private boolean banned;
 
     public UserDetailsImpl(Long id, String username, String email, String password,
                           String firstName, String lastName, String phoneNumber, String location,
-                          Collection<? extends GrantedAuthority> authorities) {
+                          Collection<? extends GrantedAuthority> authorities, boolean banned) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -40,6 +41,7 @@ public class UserDetailsImpl implements UserDetails {
         this.phoneNumber = phoneNumber;
         this.location = location;
         this.authorities = authorities;
+        this.banned = banned;
     }
 
 
@@ -57,7 +59,9 @@ public class UserDetailsImpl implements UserDetails {
                 user.getLastName(),
                 user.getPhoneNumber(),
                 user.getLocation(),
-                authorities);
+                authorities,
+                user.isBanned()
+        );
     }
 
     @Override
@@ -116,7 +120,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return !banned;
     }
 
     @Override
