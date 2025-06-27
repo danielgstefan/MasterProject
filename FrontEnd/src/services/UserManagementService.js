@@ -30,6 +30,24 @@ class UserManagementService {
       }
     });
   }
+
+  banUser(userId) {
+    const token = AuthService.getToken();
+    return axios.put(API_URL + `${userId}/ban`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
+
+  unbanUser(userId) {
+    const token = AuthService.getToken();
+    return axios.put(API_URL + `${userId}/unban`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
 }
 
 export default new UserManagementService();

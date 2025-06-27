@@ -33,4 +33,16 @@ public class UserManagementController {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/ban")
+    public ResponseEntity<?> banUser(@PathVariable Long id) {
+        userService.banUser(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/unban")
+    public ResponseEntity<?> unbanUser(@PathVariable Long id) {
+        userService.unbanUser(id);
+        return ResponseEntity.ok().build();
+    }
 }

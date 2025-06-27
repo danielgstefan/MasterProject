@@ -24,6 +24,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found with username or email: " + identifier));
 
+        if (user.isBanned()) {
+            throw new UsernameNotFoundException("This account has been banned");
+        }
+
         return UserDetailsImpl.build(user);
     }
 }

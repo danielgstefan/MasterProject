@@ -51,6 +51,8 @@ public class User {
     @Size(max = 100)
     private String location;
 
+    private boolean banned = false;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -87,6 +89,7 @@ public class User {
     public String getPhoneNumber() { return phoneNumber; }
     public String getLocation() { return location; }
     public Set<Role> getRoles() { return roles; }
+    public boolean isBanned() { return banned; }
 
     public void setUsername(String username) { this.username = username; }
     public void setEmail(String email) { this.email = email; }
@@ -96,6 +99,7 @@ public class User {
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     public void setLocation(String location) { this.location = location; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
+    public void setBanned(boolean banned) { this.banned = banned; }
 
     public List<Car> getCars() { return cars; }
     public void setCars(List<Car> cars) { this.cars = cars; }
