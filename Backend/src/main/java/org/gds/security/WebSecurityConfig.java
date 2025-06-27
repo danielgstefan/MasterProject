@@ -6,6 +6,7 @@ import org.gds.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -63,20 +64,31 @@ public class WebSecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
+                    .requestMatchers(HttpMethod.GET, "/api/car-photos/**").permitAll()  // Allow viewing car photos
+                    .requestMatchers(HttpMethod.GET, "/api/audio/**").permitAll()  // Allow viewing audio
+                    .requestMatchers(HttpMethod.POST, "/api/car-photos/**").hasRole("ADMIN")  // Restrict adding car photos to admins
+                    .requestMatchers(HttpMethod.PUT, "/api/car-photos/**").hasRole("ADMIN")   // Restrict editing car photos to admins
+                    .requestMatchers(HttpMethod.DELETE, "/api/car-photos/**").hasRole("ADMIN") // Restrict deleting car photos to admins
+                    .requestMatchers(HttpMethod.POST, "/api/audio/**").hasRole("ADMIN")  // Restrict adding audio to admins
+                    .requestMatchers(HttpMethod.PUT, "/api/audio/**").hasRole("ADMIN")   // Restrict editing audio to admins
+                    .requestMatchers(HttpMethod.DELETE, "/api/audio/**").hasRole("ADMIN") // Restrict deleting audio to admins
                     .requestMatchers("/api/auth/signin").permitAll()
                     .requestMatchers("/api/auth/signup").permitAll()
                     .requestMatchers("/api/auth/refresh-token").permitAll()
                     .requestMatchers("/error").permitAll()
                     .requestMatchers("/api/test/**").permitAll()
-                    .requestMatchers("/api/audio/**").permitAll()
-                    .requestMatchers("/api/car-photos/**").permitAll()  // Changed to permitAll()
+                    .requestMatchers("/forum/**").permitAll()
+                    .requestMatchers("/api/forum/posts").permitAll()
+                    .requestMatchers("/api/forum/posts/category/**").permitAll()
+                    .requestMatchers("/api/forum/posts/*/comments").permitAll()
+                    .requestMatchers("/api/forum/posts/*/photos").permitAll()
+                    .requestMatchers("/api/forum/posts/*/likes").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/favicon.ico").permitAll()
                     .requestMatchers("/ws/**").permitAll()
+                    .requestMatchers("/cars/**").permitAll()
                     .requestMatchers("/uploads/**").permitAll()
                     .requestMatchers("/audio/**").permitAll()
-                    .requestMatchers("/cars/**").permitAll()
-                    .requestMatchers("/forum/**").permitAll()
                     .requestMatchers("/api/tuning/**").authenticated()
                     .anyRequest().authenticated();
 

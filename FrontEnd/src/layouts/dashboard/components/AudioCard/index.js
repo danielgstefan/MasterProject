@@ -6,6 +6,8 @@ import colors from 'assets/theme/base/colors';
 import { FaEllipsisH, FaPlay, FaPause, FaUpload, FaTrash, FaStepBackward, FaUndo } from 'react-icons/fa';
 import { fetchAudioFiles } from 'services/audioService';
 import axiosInstance from 'services/axiosInstance';
+import AuthService from 'services/AuthService';
+
 const API_BASE = 'http://localhost:8081'; // Adjust if backend runs elsewhere
 
 const formatTime = (timeInSeconds) => {
@@ -26,6 +28,8 @@ function AudioCard() {
 	const [currentTime, setCurrentTime] = useState({});
 	const [duration, setDuration] = useState({});
 	const audioRefs = useRef({});
+
+	const isAdmin = AuthService.getCurrentUser()?.roles?.includes('ROLE_ADMIN') || false;
 
 	// Fetch audios from backend
 	useEffect(() => {
@@ -187,234 +191,213 @@ function AudioCard() {
 	return (
 		<Card
 			sx={{
-				height: '100%',
+				height: 'auto',
 				background: 'rgba(0,0,0,0)',
 				backdropFilter: 'blur(10px)',
 				border: '1px solid rgba(255, 255, 255, 0.125)'
 			}}>
-			<VuiBox sx={{ width: '100%' }}>
+			<VuiBox>
 				<VuiBox
 					display='flex'
 					alignItems='center'
 					justifyContent='space-beetween'
 					sx={{ width: '100%' }}
-					mb='40px'>
+					mb='24px'>
 					<VuiTypography variant='lg' color='white' mr='auto' fontWeight='bold'>
 						Audio Library
 					</VuiTypography>
-					<VuiBox
-						display='flex'
-						justifyContent='center'
-						alignItems='center'
-						bgColor='#22234B'
-						sx={{ width: '37px', height: '37px', cursor: 'pointer', borderRadius: '12px' }}>
-						<FaEllipsisH color={info?.main || "#0075ff"} size='18px' />
-					</VuiBox>
+					{isAdmin && (
+						<VuiBox
+							display='flex'
+							justifyContent='center'
+							alignItems='center'
+							bgColor='#22234B'
+							sx={{ width: '37px', height: '37px', cursor: 'pointer', borderRadius: '12px' }}>
+							<FaEllipsisH color={info?.main || "#0075ff"} size='18px' />
+						</VuiBox>
+					)}
 				</VuiBox>
 
-				<VuiBox mb={3}>
-					<VuiBox>
-						{audioFiles.length === 0 ? (
-							<VuiTypography color='text' variant='button' fontWeight='regular' textAlign='center' display='block'>
-								No audio files yet. Upload your first audio file!
-							</VuiTypography>
-						) : (
-							<Stack spacing={2}>
-								{audioFiles.map((audio) => (
-									<VuiBox
-										key={audio.id}
-										display='flex'
-										flexDirection='column'
-										p={2}
+				<Stack spacing={2}>
+					{audioFiles.map((audio) => (
+						<VuiBox
+							key={audio.id}
+							display='flex'
+							flexDirection='column'
+							p={2}
+							sx={{
+								background: 'rgba(34, 35, 75, 0.5)',
+								borderRadius: '15px',
+								border: '1px solid rgba(255, 255, 255, 0.125)',
+							}}
+						>
+							<VuiBox display='flex' alignItems='center' mb={2}>
+								<IconButton
+									onClick={() => togglePlay(audio.id)}
+									sx={{ color: playing === audio.id ? info?.main : 'white' }}
+								>
+									{playing === audio.id ? <FaPause /> : <FaPlay />}
+								</IconButton>
+								{editingTitle === audio.id ? (
+									<TextField
+										value={editTitle}
+										onChange={(e) => setEditTitle(e.target.value)}
+										size="small"
 										sx={{
-											background: 'rgba(34, 35, 75, 0.5)',
-											borderRadius: '15px',
-											border: '1px solid rgba(255, 255, 255, 0.125)',
+											flex: 1,
+											mx: 1,
+											'& .MuiOutlinedInput-root': {
+												color: 'white',
+												'& fieldset': {
+													borderColor: 'rgba(255, 255, 255, 0.3)',
+												},
+											},
 										}}
+									/>
+								) : (
+									<VuiTypography
+										variant='button'
+										color='white'
+										fontWeight='regular'
+										sx={{ flex: 1, mx: 2 }}
 									>
-										<VuiBox display='flex' alignItems='center' mb={1}>
-											<IconButton
-												onClick={() => togglePlay(audio.id)}
-												sx={{ color: info?.main || "#0075ff", mr: 1 }}
-											>
-												{playing === audio.id ? <FaPause /> : <FaPlay />}
-											</IconButton>
-											<VuiBox flexGrow={1}>
-												{editingTitle === audio.id ? (
-													<TextField
-														value={editTitle}
-														onChange={(e) => setEditTitle(e.target.value)}
-														variant="standard"
-														size="small"
-														fullWidth
-														autoFocus
-														onKeyPress={(e) => {
-															if (e.key === 'Enter') {
-																saveTitle(audio.id);
-															}
-														}}
-														InputProps={{
-															endAdornment: (
-																<>
-																	<IconButton 
-																		size="small" 
-																		onClick={() => saveTitle(audio.id)}
-																		sx={{ color: 'success.main' }}
-																	>
-																		✓
-																	</IconButton>
-																	<IconButton 
-																		size="small" 
-																		onClick={cancelEditTitle}
-																		sx={{ color: 'error.main' }}
-																	>
-																		✕
-																	</IconButton>
-																</>
-															),
-															sx: { color: 'white' }
-														}}
-													/>
-												) : (
-													<VuiTypography 
-														color='white' 
-														variant='button' 
-														fontWeight='bold'
-														onClick={() => startEditTitle(audio.id, audio.title)}
-														sx={{ cursor: 'pointer' }}
-													>
-														{audio.title || audio.originalName}
-													</VuiTypography>
-												)}
+										{audio.title || audio.originalName}
+									</VuiTypography>
+								)}
+								{isAdmin && (
+									<>
+										{editingTitle === audio.id ? (
+											<VuiBox>
+												<Button
+													variant="contained"
+													color="success"
+													size="small"
+													onClick={() => saveTitle(audio.id)}
+													sx={{ mr: 1 }}
+												>
+													Save
+												</Button>
+												<Button
+													variant="contained"
+													color="error"
+													size="small"
+													onClick={cancelEditTitle}
+												>
+													Cancel
+												</Button>
 											</VuiBox>
+										) : (
 											<IconButton
 												onClick={() => handleDelete(audio.id)}
-												sx={{ color: 'error.main' }}
+												sx={{ color: 'white' }}
 											>
-												<FaTrash size="14px" />
+												<FaTrash />
 											</IconButton>
-										</VuiBox>
+										)}
+									</>
+								)}
+							</VuiBox>
+							<VuiBox display='flex' alignItems='center'>
+								<VuiTypography variant='caption' color='text' sx={{ width: '50px' }}>
+									{formatTime(currentTime[audio.id] || 0)}
+								</VuiTypography>
+								<Slider
+									value={currentTime[audio.id] || 0}
+									max={duration[audio.id] || 0}
+									onChange={(e, value) => handleSliderChange(audio.id, value)}
+									sx={{
+										mx: 2,
+										color: info?.main || "#0075ff",
+										'& .MuiSlider-thumb': {
+											width: 8,
+											height: 8,
+											transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
+											'&:hover, &.Mui-focusVisible': {
+												boxShadow: 'none',
+											},
+										},
+									}}
+								/>
+								<VuiTypography variant='caption' color='text' sx={{ width: '50px' }}>
+									{formatTime(duration[audio.id] || 0)}
+								</VuiTypography>
+								<IconButton
+									onClick={() => handleRestart(audio.id)}
+									sx={{ color: 'white', ml: 1 }}
+								>
+									<FaUndo />
+								</IconButton>
+							</VuiBox>
+							<audio
+								ref={(element) => audioRefs.current[audio.id] = element}
+								src={API_BASE + audio.url}
+								onTimeUpdate={() => handleTimeUpdate(audio.id)}
+								onLoadedMetadata={() => {
+									setDuration(prev => ({ ...prev, [audio.id]: audioRefs.current[audio.id].duration }));
+									// Set initial position if available
+									if (audio.lastPosition && audio.lastPosition > 0) {
+										audioRefs.current[audio.id].currentTime = audio.lastPosition;
+										setCurrentTime(prev => ({ ...prev, [audio.id]: audio.lastPosition }));
+									}
+								}}
+								onEnded={() => {
+									setPlaying(null);
+									// Reset position to 0 when ended
+									savePosition(audio.id, 0);
+								}}
+							/>
+						</VuiBox>
+					))}
+				</Stack>
 
-										<VuiBox display='flex' alignItems='center' width='100%' mb={1}>
-											<Slider
-												value={currentTime[audio.id] || 0}
-												max={duration[audio.id] || 100}
-												onChange={(_, newValue) => handleSliderChange(audio.id, newValue)}
-												aria-labelledby="audio-slider"
-												sx={{
- 												color: info?.main || "#0075ff",
-													height: 4,
-													'& .MuiSlider-thumb': {
-														width: 12,
-														height: 12,
-														transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
-														'&:hover, &.Mui-focusVisible': {
- 														boxShadow: `0px 0px 0px 8px ${info?.main || "#0075ff"}33`,
-														},
-													},
-												}}
-											/>
-										</VuiBox>
-
-										<VuiBox display='flex' alignItems='center'>
-											<VuiTypography color='text' variant='caption' mr={1}>
-												{formatTime(currentTime[audio.id] || 0)}
-											</VuiTypography>
-											<VuiBox flexGrow={1} />
-											<VuiTypography color='text' variant='caption'>
-												{formatTime(duration[audio.id] || 0)}
-											</VuiTypography>
-										</VuiBox>
-
-										<VuiBox display='flex' justifyContent='center' mt={1}>
-											<IconButton
-												onClick={() => handleRewind(audio.id)}
-												sx={{ color: info?.main || "#0075ff", mx: 1 }}
-											>
-												<FaStepBackward size="14px" />
-											</IconButton>
-											<IconButton
-												onClick={() => handleRestart(audio.id)}
-												sx={{ color: info?.main || "#0075ff", mx: 1 }}
-											>
-												<FaUndo size="14px" />
-											</IconButton>
-										</VuiBox>
-
-										<audio
-											ref={(el) => {
-												if (el) {
-													audioRefs.current[audio.id] = el;
-													el.addEventListener('timeupdate', () => handleTimeUpdate(audio.id));
-													el.addEventListener('loadedmetadata', () => {
-														setDuration(prev => ({ ...prev, [audio.id]: el.duration }));
-														// Set initial position if available
-														if (audio.lastPosition && audio.lastPosition > 0) {
-															el.currentTime = audio.lastPosition;
-															setCurrentTime(prev => ({ ...prev, [audio.id]: audio.lastPosition }));
-														}
-													});
-												}
-											}}
-											src={API_BASE + audio.url}
-											onEnded={() => {
-												setPlaying(null);
-												// Reset position to 0 when ended
-												savePosition(audio.id, 0);
-											}}
-										/>
-									</VuiBox>
-								))}
-							</Stack>
-						)}
-					</VuiBox>
-				</VuiBox>
-				<VuiBox display='flex' flexDirection='column' mt={4} mb={2}>
-					<TextField
-						label="Audio Title"
-						variant="outlined"
-						value={newTitle}
-						onChange={(e) => setNewTitle(e.target.value)}
-						sx={{
-							mb: 2,
-							'& .MuiOutlinedInput-root': {
-								color: 'white',
-								'& fieldset': {
-									borderColor: 'rgba(255, 255, 255, 0.3)',
+				{isAdmin && (
+					<VuiBox display='flex' flexDirection='column' mt={4}>
+						<TextField
+							label="Audio Title"
+							variant="outlined"
+							value={newTitle}
+							onChange={(e) => setNewTitle(e.target.value)}
+							sx={{
+								mb: 2,
+								'& .MuiOutlinedInput-root': {
+									color: 'white',
+									'& fieldset': {
+										borderColor: 'rgba(255, 255, 255, 0.3)',
+									},
+									'&:hover fieldset': {
+										borderColor: 'rgba(255, 255, 255, 0.5)',
+									},
+									'&.Mui-focused fieldset': {
+										borderColor: info?.main || "#0075ff",
+									},
 								},
-								'&:hover fieldset': {
-									borderColor: 'rgba(255, 255, 255, 0.5)',
+								'& .MuiInputLabel-root': {
+									color: 'rgba(255, 255, 255, 0.7)',
 								},
-								'&.Mui-focused fieldset': {
-									borderColor: info?.main || "#0075ff",
-								},
-							},
-							'& .MuiInputLabel-root': {
-								color: 'rgba(255, 255, 255, 0.7)',
-							},
-						}}
-					/>
-					<Button
-						variant="contained"
-						component="label"
-						startIcon={<FaUpload />}
-						sx={{
-							bgcolor: info?.main || "#0075ff",
-							'&:hover': {
-								bgcolor: info?.dark || "#0062d6",
-							},
-						}}
-						disabled={uploading}
-					>
-						Upload Audio
-						<input
-							type="file"
-							accept="audio/*"
-							hidden
-							onChange={handleFileUpload}
+							}}
 						/>
-					</Button>
-				</VuiBox>
+						<Button
+							variant="contained"
+							component="label"
+							startIcon={<FaUpload />}
+							sx={{
+								bgcolor: info?.main || "#0075ff",
+								'&:hover': {
+									bgcolor: info?.dark || "#0062d6",
+								},
+							}}
+							disabled={uploading}
+						>
+							Upload Audio
+							<input
+								type="file"
+								accept="audio/*"
+								hidden
+								onChange={handleFileUpload}
+							/>
+						</Button>
+					</VuiBox>
+				)}
 			</VuiBox>
 		</Card>
 	);
