@@ -15,7 +15,6 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiInput from "components/VuiInput";
 import Breadcrumbs from "examples/Breadcrumbs";
-import NotificationItem from "examples/Items/NotificationItem";
 
 // Styles
 import {
@@ -46,7 +45,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator } = controller;
 
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
-  const [notifMenuAnchorEl, setNotifMenuAnchorEl] = useState(null);
 
   const route = useLocation().pathname.split("/").slice(1);
 
@@ -72,9 +70,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
 
   const handleUserMenuOpen = (event) => setUserMenuAnchorEl(event.currentTarget);
   const handleUserMenuClose = () => setUserMenuAnchorEl(null);
-
-  const handleNotifMenuOpen = (event) => setNotifMenuAnchorEl(event.currentTarget);
-  const handleNotifMenuClose = () => setNotifMenuAnchorEl(null);
 
   const handleLogout = () => {
     logout();
@@ -166,46 +161,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon>settings</Icon>
               </IconButton>
-              <IconButton
-                size="small"
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                onClick={handleNotifMenuOpen}
-              >
-                <Icon className={light ? "text-white" : "text-dark"}>notifications</Icon>
-              </IconButton>
-              <Menu
-                anchorEl={notifMenuAnchorEl}
-                open={Boolean(notifMenuAnchorEl)}
-                onClose={handleNotifMenuClose}
-                sx={{ mt: 2 }}
-              >
-                <NotificationItem
-                  image={<img src={team2} alt="person" />}
-                  title={["New message", "from Laur"]}
-                  date="13 minutes ago"
-                  onClick={handleNotifMenuClose}
-                />
-                <NotificationItem
-                  image={<img src={logoSpotify} alt="person" />}
-                  title={["New album", "by Travis Scott"]}
-                  date="1 day"
-                  onClick={handleNotifMenuClose}
-                />
-                <NotificationItem
-                  color="text"
-                  image={
-                    <Icon fontSize="small" sx={{ color: ({ palette: { white } }) => white.main }}>
-                      payment
-                    </Icon>
-                  }
-                  title={["", "Payment successfully completed"]}
-                  date="2 days"
-                  onClick={handleNotifMenuClose}
-                />
-              </Menu>
             </VuiBox>
           </VuiBox>
         )}

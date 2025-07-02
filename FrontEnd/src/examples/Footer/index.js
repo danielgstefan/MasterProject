@@ -41,40 +41,6 @@ function Footer() {
             </VuiTypography>
           </VuiTypography>
         </VuiBox>
-        <VuiBox item="true" xs={10}>
-          <VuiBox display="flex" justifyContent="center" flexWrap="wrap" mb={{ xs: 2, lg: 0 }}>
-            <VuiBox mr={{ xs: "20px", lg: "46px" }}>
-              <VuiTypography
-                component="a"
-                href="https://www.creative-tim.com/templates"
-                variant="body2"
-                color="white"
-              >
-                Marketplace
-              </VuiTypography>
-            </VuiBox>
-            <VuiBox mr={{ xs: "20px", lg: "46px" }}>
-              <VuiTypography
-                component="a"
-                href="https://www.creative-tim.com/blog"
-                variant="body2"
-                color="white"
-              >
-                Blog
-              </VuiTypography>
-            </VuiBox>
-            <VuiBox>
-              <VuiTypography
-                component="a"
-                href="https://www.creative-tim.com/license"
-                variant="body2"
-                color="white"
-              >
-                License
-              </VuiTypography>
-            </VuiBox>
-          </VuiBox>
-        </VuiBox>
       </VuiBox>
     </VuiBox>
   );

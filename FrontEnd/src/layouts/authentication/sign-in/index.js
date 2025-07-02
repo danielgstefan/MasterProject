@@ -90,7 +90,7 @@ function SignIn() {
     <CoverLayout
       color="white"
       premotto="ARE YOU READY FOR A RIDE?"
-      motto="Turn your engine on and let&apos;s go!"
+      motto="Ignite and burn that tires!"
       image={bgSignIn}
     >
       <VuiBox component="form" role="form" onSubmit={handleLogin}>
