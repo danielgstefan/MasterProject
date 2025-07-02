@@ -1,5 +1,3 @@
-
-
 import { useState } from "react";
 
 // react-router-dom components
@@ -20,7 +18,6 @@ import GradientBorder from "examples/GradientBorder";
 
 // Vision UI Dashboard assets
 import radialGradient from "assets/theme/functions/radialGradient";
-import rgba from "assets/theme/functions/rgba";
 import palette from "assets/theme/base/colors";
 import borders from "assets/theme/base/borders";
 
@@ -34,6 +31,7 @@ function SignUp() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -54,8 +52,14 @@ function SignUp() {
     setSuccessful(false);
     setLoading(true);
 
-    if (!username || !email || !password || !firstName || !lastName || !phoneNumber || !location) {
+    if (!username || !email || !password || !confirmPassword || !firstName || !lastName || !phoneNumber || !location) {
       setMessage("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match");
       setLoading(false);
       return;
     }
@@ -132,221 +136,270 @@ function SignUp() {
           >
             Register
           </VuiTypography>
-          <VuiBox mb={2}>
-            <VuiBox mb={1} ml={0.5}>
-              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                Username
-              </VuiTypography>
+          <VuiBox
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '24px'
+            }}
+          >
+            {/* Left Column */}
+            <VuiBox>
+              <VuiBox mb={2}>
+                <VuiBox mb={1} ml={0.5}>
+                  <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                    Username
+                  </VuiTypography>
+                </VuiBox>
+                <GradientBorder
+                  minWidth="100%"
+                  borderRadius={borders.borderRadius.lg}
+                  padding="1px"
+                  backgroundImage={radialGradient(
+                    palette.gradients.borderLight.main,
+                    palette.gradients.borderLight.state,
+                    palette.gradients.borderLight.angle
+                  )}
+                >
+                  <VuiInput
+                    placeholder="Your username..."
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    sx={({ typography: { size } }) => ({
+                      fontSize: size.sm,
+                    })}
+                  />
+                </GradientBorder>
+              </VuiBox>
+
+              <VuiBox mb={2}>
+                <VuiBox mb={1} ml={0.5}>
+                  <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                    Email
+                  </VuiTypography>
+                </VuiBox>
+                <GradientBorder
+                  minWidth="100%"
+                  borderRadius={borders.borderRadius.lg}
+                  padding="1px"
+                  backgroundImage={radialGradient(
+                    palette.gradients.borderLight.main,
+                    palette.gradients.borderLight.state,
+                    palette.gradients.borderLight.angle
+                  )}
+                >
+                  <VuiInput
+                    type="email"
+                    placeholder="Your email..."
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    sx={({ typography: { size } }) => ({
+                      fontSize: size.sm,
+                    })}
+                  />
+                </GradientBorder>
+              </VuiBox>
+
+              <VuiBox mb={2}>
+                <VuiBox mb={1} ml={0.5}>
+                  <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                    Password
+                  </VuiTypography>
+                </VuiBox>
+                <GradientBorder
+                  minWidth="100%"
+                  borderRadius={borders.borderRadius.lg}
+                  padding="1px"
+                  backgroundImage={radialGradient(
+                    palette.gradients.borderLight.main,
+                    palette.gradients.borderLight.state,
+                    palette.gradients.borderLight.angle
+                  )}
+                >
+                  <VuiInput
+                    type="password"
+                    placeholder="Your password..."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    sx={({ typography: { size } }) => ({
+                      fontSize: size.sm,
+                    })}
+                  />
+                </GradientBorder>
+              </VuiBox>
+
+              <VuiBox mb={2}>
+                <VuiBox mb={1} ml={0.5}>
+                  <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                    Confirm Password
+                  </VuiTypography>
+                </VuiBox>
+                <GradientBorder
+                  minWidth="100%"
+                  borderRadius={borders.borderRadius.lg}
+                  padding="1px"
+                  backgroundImage={radialGradient(
+                    palette.gradients.borderLight.main,
+                    palette.gradients.borderLight.state,
+                    palette.gradients.borderLight.angle
+                  )}
+                >
+                  <VuiInput
+                    type="password"
+                    placeholder="Confirm your password..."
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    sx={({ typography: { size } }) => ({
+                      fontSize: size.sm,
+                    })}
+                  />
+                </GradientBorder>
+              </VuiBox>
             </VuiBox>
-            <GradientBorder
-              minWidth="100%"
-              borderRadius={borders.borderRadius.lg}
-              padding="1px"
-              backgroundImage={radialGradient(
-                palette.gradients.borderLight.main,
-                palette.gradients.borderLight.state,
-                palette.gradients.borderLight.angle
-              )}
-            >
-              <VuiInput
-                placeholder="Your username..."
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                sx={({ typography: { size } }) => ({
-                  fontSize: size.sm,
-                })}
-              />
-            </GradientBorder>
-          </VuiBox>
-          <VuiBox mb={2}>
-            <VuiBox mb={1} ml={0.5}>
-              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                Email
-              </VuiTypography>
+
+            {/* Right Column */}
+            <VuiBox>
+              <VuiBox mb={2}>
+                <VuiBox mb={1} ml={0.5}>
+                  <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                    First Name
+                  </VuiTypography>
+                </VuiBox>
+                <GradientBorder
+                  minWidth="100%"
+                  borderRadius={borders.borderRadius.lg}
+                  padding="1px"
+                  backgroundImage={radialGradient(
+                    palette.gradients.borderLight.main,
+                    palette.gradients.borderLight.state,
+                    palette.gradients.borderLight.angle
+                  )}
+                >
+                  <VuiInput
+                    placeholder="Your first name..."
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    sx={({ typography: { size } }) => ({
+                      fontSize: size.sm,
+                    })}
+                  />
+                </GradientBorder>
+              </VuiBox>
+
+              <VuiBox mb={2}>
+                <VuiBox mb={1} ml={0.5}>
+                  <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                    Last Name
+                  </VuiTypography>
+                </VuiBox>
+                <GradientBorder
+                  minWidth="100%"
+                  borderRadius={borders.borderRadius.lg}
+                  padding="1px"
+                  backgroundImage={radialGradient(
+                    palette.gradients.borderLight.main,
+                    palette.gradients.borderLight.state,
+                    palette.gradients.borderLight.angle
+                  )}
+                >
+                  <VuiInput
+                    placeholder="Your last name..."
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    sx={({ typography: { size } }) => ({
+                      fontSize: size.sm,
+                    })}
+                  />
+                </GradientBorder>
+              </VuiBox>
+
+              <VuiBox mb={2}>
+                <VuiBox mb={1} ml={0.5}>
+                  <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                    Phone Number
+                  </VuiTypography>
+                </VuiBox>
+                <GradientBorder
+                  minWidth="100%"
+                  borderRadius={borders.borderRadius.lg}
+                  padding="1px"
+                  backgroundImage={radialGradient(
+                    palette.gradients.borderLight.main,
+                    palette.gradients.borderLight.state,
+                    palette.gradients.borderLight.angle
+                  )}
+                >
+                  <VuiInput
+                    placeholder="Your phone number..."
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    sx={({ typography: { size } }) => ({
+                      fontSize: size.sm,
+                    })}
+                  />
+                </GradientBorder>
+              </VuiBox>
+
+              <VuiBox mb={2}>
+                <VuiBox mb={1} ml={0.5}>
+                  <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                    Location
+                  </VuiTypography>
+                </VuiBox>
+                <GradientBorder
+                  minWidth="100%"
+                  borderRadius={borders.borderRadius.lg}
+                  padding="1px"
+                  backgroundImage={radialGradient(
+                    palette.gradients.borderLight.main,
+                    palette.gradients.borderLight.state,
+                    palette.gradients.borderLight.angle
+                  )}
+                >
+                  <VuiInput
+                    placeholder="Your location..."
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    sx={({ typography: { size } }) => ({
+                      fontSize: size.sm,
+                    })}
+                  />
+                </GradientBorder>
+              </VuiBox>
+
+              <VuiBox display="flex" alignItems="center">
+                <VuiSwitch color="info" checked={rememberMe} onChange={handleSetRememberMe} />
+                <VuiTypography
+                  variant="caption"
+                  color="white"
+                  fontWeight="medium"
+                  onClick={handleSetRememberMe}
+                  sx={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  &nbsp;&nbsp;Remember me
+                </VuiTypography>
+              </VuiBox>
             </VuiBox>
-            <GradientBorder
-              minWidth="100%"
-              borderRadius={borders.borderRadius.lg}
-              padding="1px"
-              backgroundImage={radialGradient(
-                palette.gradients.borderLight.main,
-                palette.gradients.borderLight.state,
-                palette.gradients.borderLight.angle
-              )}
-            >
-              <VuiInput
-                type="email"
-                placeholder="Your email..."
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                sx={({ typography: { size } }) => ({
-                  fontSize: size.sm,
-                })}
-              />
-            </GradientBorder>
           </VuiBox>
-          <VuiBox mb={2}>
-            <VuiBox mb={1} ml={0.5}>
-              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                First Name
-              </VuiTypography>
-            </VuiBox>
-            <GradientBorder
-              minWidth="100%"
-              borderRadius={borders.borderRadius.lg}
-              padding="1px"
-              backgroundImage={radialGradient(
-                palette.gradients.borderLight.main,
-                palette.gradients.borderLight.state,
-                palette.gradients.borderLight.angle
-              )}
-            >
-              <VuiInput
-                placeholder="Your first name..."
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                sx={({ typography: { size } }) => ({
-                  fontSize: size.sm,
-                })}
-              />
-            </GradientBorder>
-          </VuiBox>
-          <VuiBox mb={2}>
-            <VuiBox mb={1} ml={0.5}>
-              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                Last Name
-              </VuiTypography>
-            </VuiBox>
-            <GradientBorder
-              minWidth="100%"
-              borderRadius={borders.borderRadius.lg}
-              padding="1px"
-              backgroundImage={radialGradient(
-                palette.gradients.borderLight.main,
-                palette.gradients.borderLight.state,
-                palette.gradients.borderLight.angle
-              )}
-            >
-              <VuiInput
-                placeholder="Your last name..."
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                sx={({ typography: { size } }) => ({
-                  fontSize: size.sm,
-                })}
-              />
-            </GradientBorder>
-          </VuiBox>
-          <VuiBox mb={2}>
-            <VuiBox mb={1} ml={0.5}>
-              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                Phone Number
-              </VuiTypography>
-            </VuiBox>
-            <GradientBorder
-              minWidth="100%"
-              borderRadius={borders.borderRadius.lg}
-              padding="1px"
-              backgroundImage={radialGradient(
-                palette.gradients.borderLight.main,
-                palette.gradients.borderLight.state,
-                palette.gradients.borderLight.angle
-              )}
-            >
-              <VuiInput
-                placeholder="Your phone number..."
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                sx={({ typography: { size } }) => ({
-                  fontSize: size.sm,
-                })}
-              />
-            </GradientBorder>
-          </VuiBox>
-          <VuiBox mb={2}>
-            <VuiBox mb={1} ml={0.5}>
-              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                Location
-              </VuiTypography>
-            </VuiBox>
-            <GradientBorder
-              minWidth="100%"
-              borderRadius={borders.borderRadius.lg}
-              padding="1px"
-              backgroundImage={radialGradient(
-                palette.gradients.borderLight.main,
-                palette.gradients.borderLight.state,
-                palette.gradients.borderLight.angle
-              )}
-            >
-              <VuiInput
-                placeholder="Your location..."
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                sx={({ typography: { size } }) => ({
-                  fontSize: size.sm,
-                })}
-              />
-            </GradientBorder>
-          </VuiBox>
-          <VuiBox mb={2}>
-            <VuiBox mb={1} ml={0.5}>
-              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                Password
-              </VuiTypography>
-            </VuiBox>
-            <GradientBorder
-              minWidth="100%"
-              borderRadius={borders.borderRadius.lg}
-              padding="1px"
-              backgroundImage={radialGradient(
-                palette.gradients.borderLight.main,
-                palette.gradients.borderLight.state,
-                palette.gradients.borderLight.angle
-              )}
-            >
-              <VuiInput
-                type="password"
-                placeholder="Your password..."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                sx={({ typography: { size } }) => ({
-                  fontSize: size.sm,
-                })}
-              />
-            </GradientBorder>
-          </VuiBox>
+
           {message && (
-            <VuiBox mb={2}>
-              <VuiTypography 
-                variant="button" 
-                color={successful ? "success" : "error"} 
-                fontWeight="medium"
-              >
-                {message}
-              </VuiTypography>
-            </VuiBox>
-          )}
-          <VuiBox display="flex" alignItems="center">
-            <VuiSwitch color="info" checked={rememberMe} onChange={handleSetRememberMe} />
             <VuiTypography
-              variant="caption"
-              color="white"
-              fontWeight="medium"
-              onClick={handleSetRememberMe}
-              sx={{ cursor: "pointer", userSelect: "none" }}
+              color={successful ? "success" : "error"}
+              textAlign="center"
+              sx={{ mt: 2 }}
             >
-              &nbsp;&nbsp;&nbsp;&nbsp;Remember me
+              {message}
             </VuiTypography>
-          </VuiBox>
-          <VuiBox mt={4} mb={1}>
-            <VuiButton 
-              type="submit" 
-              color="info" 
-              fullWidth 
+          )}
+
+          <VuiBox mt={4}>
+            <VuiButton
+              color="info"
+              fullWidth
+              type="submit"
               disabled={loading}
             >
-              {loading ? "LOADING..." : "SIGN UP"}
+              {loading ? "REGISTERING..." : "REGISTER"}
             </VuiButton>
           </VuiBox>
           <VuiBox mt={3} textAlign="center">
