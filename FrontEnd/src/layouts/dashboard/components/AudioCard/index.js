@@ -4,9 +4,15 @@ import VuiBox from 'components/VuiBox';
 import VuiTypography from 'components/VuiTypography';
 import colors from 'assets/theme/base/colors';
 import { FaEllipsisH, FaPlay, FaPause, FaUpload, FaTrash, FaStepBackward, FaUndo } from 'react-icons/fa';
-import { fetchAudioFiles } from 'services/audioService';
-import axiosInstance from 'services/axiosInstance';
+import {
+  fetchAudioFiles,
+	  uploadAudioFile,
+	  deleteAudioFile,
+	  updateAudioFileTitle,
+	  updateAudioFilePosition,
+	} from 'services/audioService';
 import AuthService from 'services/AuthService';
+
 
 const API_BASE = 'http://localhost:8081'; // Adjust if backend runs elsewhere
 
@@ -48,7 +54,7 @@ function AudioCard() {
 				formData.append('title', newTitle);
 			}
 			try {
-				const res = await axiosInstance.post(`/audio/upload`, formData);
+				const res = await uploadAudioFile(file, newTitle);
 				if (res.status === 200) {
 					setAudioFiles(prev => [...prev, res.data]);
 					setNewTitle('');
@@ -60,7 +66,7 @@ function AudioCard() {
 	};
 
 	const handleDelete = async (id) => {
-		await axiosInstance.delete(`/audio/${id}`);
+		await deleteAudioFile(id);
 		setAudioFiles(prev => prev.filter(a => a.id !== id));
 		if (editingTitle === id) {
 			setEditingTitle(null);
@@ -81,9 +87,7 @@ function AudioCard() {
 		if (editTitle.trim() === '') return;
 
 		try {
-			const res = await axiosInstance.put(`/audio/${id}/title`, {
-				title: editTitle
-			});
+			const res = await updateAudioFileTitle(id, editTitle);
 
 			if (res.status === 200) {
 				setAudioFiles(prev =>
@@ -99,9 +103,7 @@ function AudioCard() {
 
 	const savePosition = async (id, position) => {
 		try {
-			await axiosInstance.put(`/audio/${id}/position`, {
-				position: Math.floor(position)
-			});
+			await updateAudioFilePosition(id, Math.floor(position))
 		} catch (error) {
 			console.error('Error saving position:', error);
 		}
