@@ -40,7 +40,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         // ⛔ Ignoră complet rutele fără JWT necesar
         if (path.startsWith("/h2-console") || path.equals("/favicon.ico") || path.equals("/error") || 
             path.equals("/api/auth/signin") || path.equals("/api/auth/signup") || path.equals("/api/auth/refresh-token") || 
-            path.startsWith("/uploads/") || path.startsWith("/api/audio") || path.startsWith("/audio")) {
+            path.startsWith("/uploads/")) {
             filterChain.doFilter(request, response);
             return;
         }
