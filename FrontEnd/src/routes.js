@@ -9,6 +9,7 @@ import SignUp from "layouts/authentication/sign-up";
 import UserProfile from "layouts/user-profile";
 import TuningRequests from "layouts/tuning-requests";
 import Users from "layouts/users";
+import UsersActivity from "layouts/users-activity";
 
 // GDS icons
 import { IoHome } from "react-icons/io5";
@@ -93,6 +94,17 @@ const routes = [
     route: "/users",
     icon: <BsPeopleFill size="15px" color="inherit" />,
     component: Users,
+    noCollapse: true,
+    isProtected: true,
+    roleRequired: "ROLE_ADMIN"
+  },
+  {
+    type: "collapse",
+    name: "Users Activity",
+    key: "users-activity",
+    route: "/users-activity",
+    icon: <IoIosDocument size="15px" color="inherit" />,
+    component: UsersActivity,
     noCollapse: true,
     isProtected: true,
     roleRequired: "ROLE_ADMIN"

@@ -120,6 +120,13 @@ public class CarController {
     }
 
     
+    @GetMapping("/admin/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CarDTO>> getUserCarsAdmin(@PathVariable Long userId) {
+        List<CarDTO> cars = carService.getCarsByUserId(userId);
+        return ResponseEntity.ok(cars);
+    }
+
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
