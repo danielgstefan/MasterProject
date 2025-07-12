@@ -1,17 +1,9 @@
-
-
 // React imports
 import { useState, useEffect } from "react";
 // @mui material components
-// @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 // Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
-import VuiTypography from "components/VuiTypography";
 import EditableProfileInfoCard from "examples/Cards/InfoCards/EditableProfileInfoCard";
 import Footer from "examples/Footer";
 // Vision UI Dashboard React example components
@@ -95,23 +87,6 @@ function Overview() {
                 phoneNumber: userData.phoneNumber,
                 location: userData.location,
               }}
-              social={[
-                {
-                  link: "https://www.facebook.com/CreativeTim/",
-                  icon: <FacebookIcon />,
-                  color: "facebook",
-                },
-                {
-                  link: "https://twitter.com/creativetim",
-                  icon: <TwitterIcon />,
-                  color: "twitter",
-                },
-                {
-                  link: "https://www.instagram.com/creativetimofficial/",
-                  icon: <InstagramIcon />,
-                  color: "instagram",
-                },
-              ]}
               onProfileUpdate={handleProfileUpdate}
             />
           </Grid>

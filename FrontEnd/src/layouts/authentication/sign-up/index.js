@@ -40,9 +40,24 @@ function SignUp() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [successful, setSuccessful] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    location: ""
+  });
   const history = useHistory();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    return passwordRegex.test(password);
+  };
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -52,14 +67,63 @@ function SignUp() {
     setSuccessful(false);
     setLoading(true);
 
-    if (!username || !email || !password || !confirmPassword || !firstName || !lastName || !phoneNumber || !location) {
-      setMessage("Please fill in all fields");
-      setLoading(false);
-      return;
+    // Reset field errors
+    const errors = {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      location: ""
+    };
+
+    let hasErrors = false;
+
+    // Validate each field
+    if (!username) {
+      errors.username = "Username is required";
+      hasErrors = true;
+    }
+    if (!email) {
+      errors.email = "Email is required";
+      hasErrors = true;
+    }
+    if (!password) {
+      errors.password = "Password is required";
+      hasErrors = true;
+    } else if (!validatePassword(password)) {
+      errors.password = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+      hasErrors = true;
+    }
+    if (!confirmPassword) {
+      errors.confirmPassword = "Please confirm your password";
+      hasErrors = true;
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+      hasErrors = true;
+    }
+    if (!firstName) {
+      errors.firstName = "First name is required";
+      hasErrors = true;
+    }
+    if (!lastName) {
+      errors.lastName = "Last name is required";
+      hasErrors = true;
+    }
+    if (!phoneNumber) {
+      errors.phoneNumber = "Phone number is required";
+      hasErrors = true;
+    }
+    if (!location) {
+      errors.location = "Location is required";
+      hasErrors = true;
     }
 
-    if (password !== confirmPassword) {
-      setMessage("Passwords do not match");
+    setFieldErrors(errors);
+
+    if (hasErrors) {
       setLoading(false);
       return;
     }
@@ -170,6 +234,11 @@ function SignUp() {
                     })}
                   />
                 </GradientBorder>
+                {fieldErrors.username && (
+                  <VuiTypography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {fieldErrors.username}
+                  </VuiTypography>
+                )}
               </VuiBox>
 
               <VuiBox mb={2}>
@@ -198,6 +267,11 @@ function SignUp() {
                     })}
                   />
                 </GradientBorder>
+                {fieldErrors.email && (
+                  <VuiTypography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {fieldErrors.email}
+                  </VuiTypography>
+                )}
               </VuiBox>
 
               <VuiBox mb={2}>
@@ -226,6 +300,11 @@ function SignUp() {
                     })}
                   />
                 </GradientBorder>
+                {fieldErrors.password && (
+                  <VuiTypography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {fieldErrors.password}
+                  </VuiTypography>
+                )}
               </VuiBox>
 
               <VuiBox mb={2}>
@@ -254,6 +333,11 @@ function SignUp() {
                     })}
                   />
                 </GradientBorder>
+                {fieldErrors.confirmPassword && (
+                  <VuiTypography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {fieldErrors.confirmPassword}
+                  </VuiTypography>
+                )}
               </VuiBox>
             </VuiBox>
 
@@ -284,6 +368,11 @@ function SignUp() {
                     })}
                   />
                 </GradientBorder>
+                {fieldErrors.firstName && (
+                  <VuiTypography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {fieldErrors.firstName}
+                  </VuiTypography>
+                )}
               </VuiBox>
 
               <VuiBox mb={2}>
@@ -311,6 +400,11 @@ function SignUp() {
                     })}
                   />
                 </GradientBorder>
+                {fieldErrors.lastName && (
+                  <VuiTypography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {fieldErrors.lastName}
+                  </VuiTypography>
+                )}
               </VuiBox>
 
               <VuiBox mb={2}>
@@ -338,6 +432,11 @@ function SignUp() {
                     })}
                   />
                 </GradientBorder>
+                {fieldErrors.phoneNumber && (
+                  <VuiTypography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {fieldErrors.phoneNumber}
+                  </VuiTypography>
+                )}
               </VuiBox>
 
               <VuiBox mb={2}>
@@ -365,6 +464,11 @@ function SignUp() {
                     })}
                   />
                 </GradientBorder>
+                {fieldErrors.location && (
+                  <VuiTypography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {fieldErrors.location}
+                  </VuiTypography>
+                )}
               </VuiBox>
 
               <VuiBox display="flex" alignItems="center">

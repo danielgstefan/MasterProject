@@ -66,6 +66,16 @@ function Forum() {
   const [newPostCategory, setNewPostCategory] = useState("");
   const [openPostDialog, setOpenPostDialog] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  const [formErrors, setFormErrors] = useState({
+    title: "",
+    content: "",
+    category: ""
+  });
+  const [touched, setTouched] = useState({
+    title: false,
+    content: false,
+    category: false
+  });
 
   // State for photos
   const [postPhotos, setPostPhotos] = useState({});
@@ -402,14 +412,108 @@ function Forum() {
     setPreviewImages(newPreviews);
   };
 
-  // Handle creating a new post
-  const handleCreatePost = async () => {
-    if (!newPostTitle.trim() || !newPostContent.trim() || !newPostCategory.trim()) {
-      setNotification({
-        open: true,
-        message: "Please fill in all fields",
-        severity: "error"
-      });
+  // Validation functions
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'title':
+        if (!value.trim()) {
+          return 'Title is required';
+        }
+        if (value.length < 5) {
+          return 'Title must be at least 5 characters long';
+        }
+        if (value.length > 100) {
+          return 'Title must not exceed 100 characters';
+        }
+        break;
+      case 'content':
+        if (!value.trim()) {
+          return 'Content is required';
+        }
+        if (value.length < 10) {
+          return 'Content must be at least 10 characters long';
+        }
+        if (value.length > 2000) {
+          return 'Content must not exceed 2000 characters';
+        }
+        break;
+      case 'category':
+        if (!value) {
+          return 'Please select a category';
+        }
+        break;
+      default:
+        return '';
+    }
+    return '';
+  };
+
+  const handleFieldChange = (event, field) => {
+    const value = event.target.value;
+
+    // Update the field value
+    switch (field) {
+      case 'title':
+        setNewPostTitle(value);
+        break;
+      case 'content':
+        setNewPostContent(value);
+        break;
+      case 'category':
+        setNewPostCategory(value);
+        break;
+      default:
+        break;
+    }
+
+    // Mark field as touched
+    setTouched(prev => ({
+      ...prev,
+      [field]: true
+    }));
+
+    // Validate field
+    setFormErrors(prev => ({
+      ...prev,
+      [field]: validateField(field, value)
+    }));
+  };
+
+  const handleFieldBlur = (field) => {
+    setTouched(prev => ({
+      ...prev,
+      [field]: true
+    }));
+
+    const value = field === 'title' ? newPostTitle :
+                 field === 'content' ? newPostContent :
+                 field === 'category' ? newPostCategory : '';
+
+    setFormErrors(prev => ({
+      ...prev,
+      [field]: validateField(field, value)
+    }));
+  };
+
+  const validateForm = () => {
+    const errors = {
+      title: validateField('title', newPostTitle),
+      content: validateField('content', newPostContent),
+      category: validateField('category', newPostCategory)
+    };
+
+    setFormErrors(errors);
+    setTouched({
+      title: true,
+      content: true,
+      category: true
+    });
+
+    return !Object.values(errors).some(error => error !== '');
+  };
+
+  const handleCreateOrUpdatePost = async () => {
+    if (!validateForm()) {
       return;
     }
 
@@ -506,15 +610,25 @@ function Forum() {
     setOpenPostDialog(true);
   };
 
-  // Handle closing the post dialog
+  // Reset form state when dialog closes
   const handleClosePostDialog = () => {
     setOpenPostDialog(false);
     setEditingPost(null);
-
-    // Clean up preview URLs to avoid memory leaks
-    previewImages.forEach(url => URL.revokeObjectURL(url));
-    setPreviewImages([]);
+    setNewPostTitle("");
+    setNewPostContent("");
+    setNewPostCategory("");
     setSelectedFiles([]);
+    setPreviewImages([]);
+    setFormErrors({
+      title: "",
+      content: "",
+      category: ""
+    });
+    setTouched({
+      title: false,
+      content: false,
+      category: false
+    });
   };
 
   // Handle deleting a post
@@ -1145,6 +1259,9 @@ function Forum() {
               label="Title"
               value={newPostTitle}
               onChange={(e) => setNewPostTitle(e.target.value)}
+              onBlur={() => handleFieldBlur('title')}
+              error={touched.title && Boolean(formErrors.title)}
+              helperText={touched.title && formErrors.title}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -1173,6 +1290,9 @@ function Forum() {
               label="Content"
               value={newPostContent}
               onChange={(e) => setNewPostContent(e.target.value)}
+              onBlur={() => handleFieldBlur('content')}
+              error={touched.content && Boolean(formErrors.content)}
+              helperText={touched.content && formErrors.content}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -1202,6 +1322,8 @@ function Forum() {
                 labelId="category-label"
                 value={newPostCategory}
                 onChange={(e) => setNewPostCategory(e.target.value)}
+                onBlur={() => handleFieldBlur('category')}
+                error={touched.category && Boolean(formErrors.category)}
                 sx={{
                   backgroundColor: "rgba(255, 255, 255, 0.05)",
                   color: "white",
@@ -1336,7 +1458,7 @@ function Forum() {
           <VuiButton onClick={handleClosePostDialog} color="white" variant="outlined">
             Cancel
           </VuiButton>
-          <VuiButton onClick={handleCreatePost} color="info" variant="contained">
+          <VuiButton onClick={handleCreateOrUpdatePost} color="info" variant="contained">
             {editingPost ? "Update" : "Create"}
           </VuiButton>
         </DialogActions>

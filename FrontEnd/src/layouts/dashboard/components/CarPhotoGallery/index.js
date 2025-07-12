@@ -17,6 +17,7 @@ function CarPhotoGallery() {
 	const [editingPhoto, setEditingPhoto] = useState(null);
 	const [editTitle, setEditTitle] = useState('');
 	const [uploading, setUploading] = useState(false);
+	const [titleError, setTitleError] = useState('');
 
 	const isAdmin = AuthService.getCurrentUser()?.roles?.includes('ROLE_ADMIN') || false;
 
@@ -28,6 +29,12 @@ function CarPhotoGallery() {
 	}, []);
 
 	const handleFileUpload = async (event) => {
+		if (!newTitle.trim()) {
+			setTitleError('Please enter a title for the photo');
+			return;
+		}
+		setTitleError('');
+
 		const file = event.target.files[0];
 		if (file && file.type.startsWith('image/')) {
 			setUploading(true);
@@ -36,7 +43,10 @@ function CarPhotoGallery() {
 				if (res.status === 200) {
 					setCarPhotos(prev => [...prev, res.data]);
 					setNewTitle('');
+					setTitleError('');
 				}
+			} catch (error) {
+				setTitleError('Failed to upload photo. Please try again.');
 			} finally {
 				setUploading(false);
 			}
@@ -237,22 +247,31 @@ function CarPhotoGallery() {
 							</Grid>
 						)}
 					</VuiBox>
+
 					{isAdmin && (
-						<VuiBox display='flex' flexDirection='column' mb={2} mt={4}>
+						<VuiBox mt={4} display="flex" alignItems="center" gap={2}>
 							<TextField
 								label="Photo Title"
 								variant="outlined"
 								value={newTitle}
-								onChange={(e) => setNewTitle(e.target.value)}
+								onChange={(e) => {
+									setNewTitle(e.target.value);
+									if (e.target.value.trim()) {
+										setTitleError('');
+									}
+								}}
+								error={Boolean(titleError)}
+								helperText={titleError}
+								required
 								sx={{
-									mb: 2,
+									flex: 1,
 									'& .MuiOutlinedInput-root': {
 										color: 'white',
 										'& fieldset': {
-											borderColor: 'rgba(255, 255, 255, 0.3)',
+											borderColor: titleError ? 'error.main' : 'rgba(255, 255, 255, 0.3)',
 										},
 										'&:hover fieldset': {
-											borderColor: 'rgba(255, 255, 255, 0.5)',
+											borderColor: titleError ? 'error.main' : 'rgba(255, 255, 255, 0.5)',
 										},
 										'&.Mui-focused fieldset': {
 											borderColor: info?.main || "#0075ff",
@@ -260,6 +279,9 @@ function CarPhotoGallery() {
 									},
 									'& .MuiInputLabel-root': {
 										color: 'rgba(255, 255, 255, 0.7)',
+									},
+									'& .MuiFormHelperText-root': {
+										color: 'error.main',
 									},
 								}}
 							/>
@@ -272,10 +294,14 @@ function CarPhotoGallery() {
 									'&:hover': {
 										bgcolor: info?.dark || "#0062d6",
 									},
+									'&.Mui-disabled': {
+										bgcolor: 'rgba(255, 255, 255, 0.12)',
+										color: 'rgba(255, 255, 255, 0.3)',
+									}
 								}}
-								disabled={uploading}
+								disabled={uploading || !newTitle.trim()}
 							>
-								Upload Photo
+								{uploading ? 'Uploading...' : 'Upload Photo'}
 								<input
 									type="file"
 									accept="image/*"
