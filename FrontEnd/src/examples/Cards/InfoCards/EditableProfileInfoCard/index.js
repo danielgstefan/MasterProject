@@ -1,5 +1,3 @@
-
-
 // prop-types is library for typechecking of props
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
@@ -9,7 +7,6 @@ import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 
 // Vision UI Dashboard React components
@@ -18,28 +15,11 @@ import VuiTypography from "components/VuiTypography";
 
 // Vision UI Dashboard React base styles
 import colors from "assets/theme/base/colors";
-import typography from "assets/theme/base/typography";
 
 // Auth service
 import AuthService from "services/AuthService";
 
-function EditableProfileInfoCard({ title, description, info, social, onProfileUpdate }) {
-  const { info: infoColor, text, white } = colors;
-  const labels = {
-    mt: 3,
-    mb: 2,
-    '& .MuiInputLabel-root': {
-      color: text?.main || '#a0aec0'
-    },
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: white?.main || '#ffffff',
-      },
-      '&:hover fieldset': {
-        borderColor: infoColor?.main || '#0075ff',
-      },
-    },
-  };
+function EditableProfileInfoCard({ title, description, info, onProfileUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,7 +31,6 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
     phoneNumber: info.phoneNumber || "",
     location: info.location || ""
   });
-  const { size } = typography;
 
   // Update formData when info prop changes or when exiting edit mode
   useEffect(() => {
@@ -405,24 +384,6 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
     );
   };
 
-  // Render the card social media icons
-  const renderSocial = Array.isArray(social) ? social.map(({ link, icon, color }) => (
-    <VuiBox
-      key={color}
-      component="a"
-      href={link}
-      target="_blank"
-      rel="noreferrer"
-      fontSize={size.lg}
-      color="white"
-      pr={1}
-      pl={0.5}
-      lineHeight={1}
-    >
-      {icon}
-    </VuiBox>
-  )) : [];
-
   return (
     <Card
       sx={{
@@ -456,19 +417,6 @@ function EditableProfileInfoCard({ title, description, info, social, onProfileUp
         <VuiBox>
           {renderUsernameEmail()}
           {renderItems()}
-          {!isEditing && renderSocial.length > 0 && (
-            <VuiBox display="flex" py={1} pr={2} color="white">
-              <VuiTypography
-                variant="button"
-                fontWeight="regular"
-                color="text"
-                textTransform="capitalize"
-              >
-                social: &nbsp;
-              </VuiTypography>
-              {renderSocial}
-            </VuiBox>
-          )}
         </VuiBox>
       </VuiBox>
     </Card>
@@ -480,8 +428,7 @@ EditableProfileInfoCard.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   info: PropTypes.object.isRequired,
-  social: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onProfileUpdate: PropTypes.func,
+  onProfileUpdate: PropTypes.func
 };
 
 export default EditableProfileInfoCard;

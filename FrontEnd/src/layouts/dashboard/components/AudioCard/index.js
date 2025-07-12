@@ -33,6 +33,7 @@ function AudioCard() {
 	const [playing, setPlaying] = useState(null);
 	const [currentTime, setCurrentTime] = useState({});
 	const [duration, setDuration] = useState({});
+	const [titleError, setTitleError] = useState('');
 	const audioRefs = useRef({});
 
 	const isAdmin = AuthService.getCurrentUser()?.roles?.includes('ROLE_ADMIN') || false;
@@ -45,20 +46,24 @@ function AudioCard() {
 	}, []);
 
 	const handleFileUpload = async (event) => {
+		if (!newTitle.trim()) {
+			setTitleError('Please enter a title for the audio');
+			return;
+		}
+		setTitleError('');
+
 		const file = event.target.files[0];
 		if (file && file.type.startsWith('audio/')) {
 			setUploading(true);
-			const formData = new FormData();
-			formData.append('file', file);
-			if (newTitle && newTitle.trim() !== '') {
-				formData.append('title', newTitle);
-			}
 			try {
 				const res = await uploadAudioFile(file, newTitle);
 				if (res.status === 200) {
 					setAudioFiles(prev => [...prev, res.data]);
 					setNewTitle('');
+					setTitleError('');
 				}
+			} catch (error) {
+				setTitleError('Failed to upload audio. Please try again.');
 			} finally {
 				setUploading(false);
 			}
@@ -358,16 +363,24 @@ function AudioCard() {
 							label="Audio Title"
 							variant="outlined"
 							value={newTitle}
-							onChange={(e) => setNewTitle(e.target.value)}
+							onChange={(e) => {
+								setNewTitle(e.target.value);
+								if (e.target.value.trim()) {
+									setTitleError('');
+								}
+							}}
+							error={Boolean(titleError)}
+							helperText={titleError}
+							required
 							sx={{
 								mb: 2,
 								'& .MuiOutlinedInput-root': {
 									color: 'white',
 									'& fieldset': {
-										borderColor: 'rgba(255, 255, 255, 0.3)',
+										borderColor: titleError ? 'error.main' : 'rgba(255, 255, 255, 0.3)',
 									},
 									'&:hover fieldset': {
-										borderColor: 'rgba(255, 255, 255, 0.5)',
+										borderColor: titleError ? 'error.main' : 'rgba(255, 255, 255, 0.5)',
 									},
 									'&.Mui-focused fieldset': {
 										borderColor: info?.main || "#0075ff",
@@ -375,6 +388,9 @@ function AudioCard() {
 								},
 								'& .MuiInputLabel-root': {
 									color: 'rgba(255, 255, 255, 0.7)',
+								},
+								'& .MuiFormHelperText-root': {
+									color: 'error.main',
 								},
 							}}
 						/>
@@ -388,9 +404,9 @@ function AudioCard() {
 									bgcolor: info?.dark || "#0062d6",
 								},
 							}}
-							disabled={uploading}
+							disabled={uploading || !newTitle.trim()}
 						>
-							Upload Audio
+							{uploading ? 'Uploading...' : 'Upload Audio'}
 							<input
 								type="file"
 								accept="audio/*"

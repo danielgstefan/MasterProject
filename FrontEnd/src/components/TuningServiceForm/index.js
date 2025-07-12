@@ -97,16 +97,87 @@ const suspensionFields = [
 
 function TuningServiceForm({ open, onClose, type = "", onSubmit }) {
   const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const validateField = (name, value) => {
+    if (!value && value !== 0) {
+      return `${name.charAt(0).toUpperCase() + name.slice(1).replace(/([A-Z])/g, ' $1')} is required`;
+    }
+
+    switch (name) {
+      case 'year':
+        if (value < 1980 || value > new Date().getFullYear()) {
+          return 'Please enter a valid year between 1980 and current year';
+        }
+        break;
+      case 'currentPower':
+      case 'desiredPower':
+        if (isNaN(value) || value < 0 || value > 2000) {
+          return 'Please enter a valid power value between 0 and 2000 HP';
+        }
+        break;
+      case 'currentHeight':
+      case 'desiredHeight':
+        if (isNaN(value) || value < 0 || value > 500) {
+          return 'Please enter a valid height between 0 and 500 mm';
+        }
+        break;
+      default:
+        break;
+    }
+    return '';
+  };
 
   const handleChange = (event) => {
+    const { name, value } = event.target;
     setFormData({
       ...formData,
-      [event.target.name]: event.target.value,
+      [name]: value,
+    });
+
+    // Validate field on change if it's been touched
+    if (touched[name]) {
+      setErrors({
+        ...errors,
+        [name]: validateField(name, value)
+      });
+    }
+  };
+
+  const handleBlur = (event) => {
+    const { name, value } = event.target;
+    setTouched({
+      ...touched,
+      [name]: true
+    });
+    setErrors({
+      ...errors,
+      [name]: validateField(name, value)
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validate all fields before submission
+    const fields = [...commonFields, ...getSpecificFields()];
+    const newErrors = {};
+    const newTouched = {};
+
+    fields.forEach(field => {
+      newTouched[field.name] = true;
+      newErrors[field.name] = validateField(field.name, formData[field.name]);
+    });
+
+    setTouched(newTouched);
+    setErrors(newErrors);
+
+    // Check if there are any errors
+    if (Object.values(newErrors).some(error => error !== '')) {
+      return;
+    }
+
     onSubmit({ ...formData, tuningType: type });
     onClose();
   };
@@ -128,12 +199,22 @@ function TuningServiceForm({ open, onClose, type = "", onSubmit }) {
     if (field.type === "select") {
       return (
         <VuiBox mb={2}>
+          <VuiTypography
+            component="label"
+            variant="caption"
+            fontWeight="bold"
+            color="white"
+          >
+            {field.label}{field.required ? ' *' : ''}
+          </VuiTypography>
           <VuiSelect
             fullWidth
             name={field.name}
             value={formData[field.name] || ""}
             onChange={handleChange}
+            onBlur={handleBlur}
             required={field.required}
+            error={touched[field.name] && Boolean(errors[field.name])}
             sx={{ minHeight: "37px" }}
           >
             {field.options.map((option) => (
@@ -157,19 +238,47 @@ function TuningServiceForm({ open, onClose, type = "", onSubmit }) {
               </MenuItem>
             ))}
           </VuiSelect>
+          {touched[field.name] && errors[field.name] && (
+            <VuiTypography
+              variant="caption"
+              color="error"
+              sx={{ mt: 1, display: 'block' }}
+            >
+              {errors[field.name]}
+            </VuiTypography>
+          )}
         </VuiBox>
       );
     }
     return (
       <VuiBox mb={2}>
+        <VuiTypography
+          component="label"
+          variant="caption"
+          fontWeight="bold"
+          color="white"
+        >
+          {field.label}{field.required ? ' *' : ''}
+        </VuiTypography>
         <VuiInput
           type={field.type}
           name={field.name}
           value={formData[field.name] || ""}
           onChange={handleChange}
+          onBlur={handleBlur}
           required={field.required}
+          error={touched[field.name] && Boolean(errors[field.name])}
           fullWidth
         />
+        {touched[field.name] && errors[field.name] && (
+          <VuiTypography
+            variant="caption"
+            color="error"
+            sx={{ mt: 1, display: 'block' }}
+          >
+            {errors[field.name]}
+          </VuiTypography>
+        )}
       </VuiBox>
     );
   };
@@ -199,37 +308,41 @@ function TuningServiceForm({ open, onClose, type = "", onSubmit }) {
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-              {commonFields.concat(getSpecificFields()).map((field) => (
-                <Grid item xs={12} md={6} key={field.name}>
-                  <VuiTypography variant="button" color="text" fontWeight="medium" mb={1}>
-                    {field.label}
-                  </VuiTypography>
+              {/* Common Fields */}
+              <Grid item xs={12}>
+                <VuiTypography variant="h6" color="white" mb={2}>
+                  Vehicle Information
+                </VuiTypography>
+              </Grid>
+              {commonFields.map((field) => (
+                <Grid item xs={12} sm={6} key={field.name}>
                   {renderField(field)}
                 </Grid>
               ))}
+
+              {/* Specific Fields */}
               <Grid item xs={12}>
-                <VuiTypography variant="button" color="text" fontWeight="medium" mb={1}>
-                  Additional Notes + Budget in USD
+                <VuiTypography variant="h6" color="white" mb={2}>
+                  {type} Specifications
                 </VuiTypography>
-                <VuiBox mb={2}>
-                  <VuiInput
-                    multiline
-                    rows={4}
-                    name="additionalNotes"
-                    value={formData.additionalNotes || ""}
-                    onChange={handleChange}
-                    fullWidth
-                  />
-                </VuiBox>
               </Grid>
+              {getSpecificFields().map((field) => (
+                <Grid item xs={12} sm={6} key={field.name}>
+                  {renderField(field)}
+                </Grid>
+              ))}
             </Grid>
           </form>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <VuiButton color="error" variant="contained" onClick={onClose}>
+          <VuiButton color="error" onClick={onClose}>
             Cancel
           </VuiButton>
-          <VuiButton color="info" variant="contained" onClick={handleSubmit}>
+          <VuiButton
+            color="info"
+            onClick={handleSubmit}
+            disabled={Object.keys(touched).length === 0}
+          >
             Submit Request
           </VuiButton>
         </DialogActions>
