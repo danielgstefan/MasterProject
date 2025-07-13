@@ -52,7 +52,6 @@ public class ForumPost {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Constructors
     public ForumPost() {}
 
     public ForumPost(String title, String content, User author, String category) {
@@ -62,7 +61,6 @@ public class ForumPost {
         this.category = category;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -107,7 +105,6 @@ public class ForumPost {
         return updatedAt;
     }
 
-    // Photo management methods
     public List<ForumPostPhoto> getPhotos() {
         return photos;
     }

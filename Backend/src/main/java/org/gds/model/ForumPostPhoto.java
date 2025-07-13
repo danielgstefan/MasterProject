@@ -21,15 +21,14 @@ public class ForumPostPhoto {
     @JoinColumn(name = "post_id", nullable = false)
     private ForumPost post;
 
-    // Constructors
     public ForumPostPhoto() {}
 
     public ForumPostPhoto(String filename, String url, String originalName, ForumPost post) {
         this.filename = filename;
         this.url = url;
         this.originalName = originalName;
-        this.title = originalName; // Default title to original filename
-        this.description = ""; // Default empty description
+        this.title = originalName;
+        this.description = "";
         this.post = post;
     }
 
@@ -38,7 +37,7 @@ public class ForumPostPhoto {
         this.url = url;
         this.originalName = originalName;
         this.title = title;
-        this.description = ""; // Default empty description
+        this.description = "";
         this.post = post;
     }
 
@@ -51,7 +50,6 @@ public class ForumPostPhoto {
         this.post = post;
     }
 
-    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

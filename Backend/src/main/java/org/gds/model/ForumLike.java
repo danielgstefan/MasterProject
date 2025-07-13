@@ -24,7 +24,6 @@ public class ForumLike {
     @JoinColumn(name = "post_id", nullable = false)
     private ForumPost post;
 
-    // true for like, false for dislike
     private boolean isLike;
 
     private LocalDateTime createdAt;
@@ -34,7 +33,6 @@ public class ForumLike {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Constructors
     public ForumLike() {}
 
     public ForumLike(User user, ForumPost post, boolean isLike) {
@@ -43,7 +41,6 @@ public class ForumLike {
         this.isLike = isLike;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

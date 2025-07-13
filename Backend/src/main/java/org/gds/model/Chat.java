@@ -21,19 +21,16 @@ public class Chat {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    // Default constructor
     public Chat() {
         this.timestamp = LocalDateTime.now();
     }
 
-    // Constructor with parameters
     public Chat(String message, User sender) {
         this.message = message;
         this.sender = sender;
         this.timestamp = LocalDateTime.now();
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

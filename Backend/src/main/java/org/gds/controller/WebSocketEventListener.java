@@ -39,8 +39,6 @@ public class WebSocketEventListener {
         if (username != null) {
             logger.info("User disconnected: " + username);
 
-            // Notify other users about the disconnection
-            // Use the new method that creates a ChatDTO directly to avoid lazy loading issues
             org.gds.dto.ChatDTO chatDTO = chatService.createSystemMessageDTO(username + " left the chat");
             messagingTemplate.convertAndSend("/topic/public", chatDTO);
         }

@@ -27,7 +27,6 @@ public class ChatController {
     public ResponseEntity<Page<ChatDTO>> getRecentMessages(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
-        // Use the new method that returns DTOs directly to avoid lazy loading issues
         Page<ChatDTO> messageDTOs = chatService.getRecentMessagesDTO(page, size);
         return ResponseEntity.ok(messageDTOs);
     }
@@ -37,7 +36,6 @@ public class ChatController {
     public ResponseEntity<Page<ChatDTO>> getChatHistory(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
-        // Use the new method that returns DTOs directly to avoid lazy loading issues
         Page<ChatDTO> messageDTOs = chatService.getChatHistoryDTO(page, size);
         return ResponseEntity.ok(messageDTOs);
     }
@@ -49,7 +47,6 @@ public class ChatController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
-        // Use the new method that creates a ChatDTO directly to avoid lazy loading issues
         ChatDTO messageDTO = chatService.sendMessageDTO(chatRequest.getMessage(), username);
         return ResponseEntity.ok(messageDTO);
     }

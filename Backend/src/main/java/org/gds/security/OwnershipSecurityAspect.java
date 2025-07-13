@@ -17,7 +17,6 @@ public class OwnershipSecurityAspect {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        // Get userId from method parameters
         Object[] args = joinPoint.getArgs();
         Long requestedUserId = null;
 
@@ -32,7 +31,6 @@ public class OwnershipSecurityAspect {
             throw new SecurityException("User ID not found in request");
         }
 
-        // Allow if user is admin or requesting their own data
         if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
             || userDetails.getId().equals(requestedUserId)) {
             return joinPoint.proceed();

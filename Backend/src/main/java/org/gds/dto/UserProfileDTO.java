@@ -13,7 +13,6 @@ public class UserProfileDTO {
     private String phoneNumber;
     private List<CarDTO> cars;
 
-    // Static factory method
     public static UserProfileDTO from(User user) {
         UserProfileDTO dto = new UserProfileDTO();
         dto.setUsername(user.getUsername());
@@ -32,7 +31,6 @@ public class UserProfileDTO {
         return dto;
     }
 
-    // Getters and Setters
     public String getUsername() {
         return username;
     }

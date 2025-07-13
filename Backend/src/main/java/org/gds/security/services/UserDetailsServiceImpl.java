@@ -18,7 +18,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-        // Caută întâi după username
         User user = userRepository.findByUsername(identifier)
                 .or(() -> userRepository.findByEmail(identifier)) // Dacă nu găsește, caută după email
                 .orElseThrow(() -> new UsernameNotFoundException(

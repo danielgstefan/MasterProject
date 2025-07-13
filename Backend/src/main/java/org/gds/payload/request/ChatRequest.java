@@ -9,7 +9,6 @@ public class ChatRequest {
     @Size(max = 1000, message = "Message cannot exceed 1000 characters")
     private String message;
 
-    // Getters and setters
     public String getMessage() {
         return message;
     }

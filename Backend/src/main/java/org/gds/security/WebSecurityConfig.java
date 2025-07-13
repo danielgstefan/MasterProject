@@ -32,7 +32,7 @@ public class WebSecurityConfig {
     private AuthEntryPointJwt unauthorizedHandler;
 
     @Autowired
-    private AuthTokenFilter authTokenFilter; // ✅ injectat corect ca bean
+    private AuthTokenFilter authTokenFilter;
 
 
     @Bean

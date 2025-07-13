@@ -30,7 +30,6 @@ public class TuningRequest {
     @Enumerated(EnumType.STRING)
     private TuningType tuningType;
 
-    // Engine Tuning specific fields
     @Column
     private String currentPower;
 
@@ -40,7 +39,6 @@ public class TuningRequest {
     @Column
     private Boolean removeEmissionControl;
 
-    // Exhaust Tuning specific fields
     @Column
     private String exhaustType;
 
@@ -50,7 +48,6 @@ public class TuningRequest {
     @Column
     private Boolean wantsSoundClip;
 
-    // Suspension Tuning specific fields
     @Column
     private String suspensionType;
 
@@ -81,7 +78,6 @@ public class TuningRequest {
         ENGINE, EXHAUST, SUSPENSION
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

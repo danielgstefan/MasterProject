@@ -14,15 +14,14 @@ public class CarPhoto {
     private String title;
     private String description;
 
-    // Constructors
     public CarPhoto() {}
 
     public CarPhoto(String filename, String url, String originalName) {
         this.filename = filename;
         this.url = url;
         this.originalName = originalName;
-        this.title = originalName; // Default title to original filename
-        this.description = ""; // Default empty description
+        this.title = originalName;
+        this.description = "";
     }
 
     public CarPhoto(String filename, String url, String originalName, String title) {
@@ -30,7 +29,7 @@ public class CarPhoto {
         this.url = url;
         this.originalName = originalName;
         this.title = title;
-        this.description = ""; // Default empty description
+        this.description = "";
     }
 
     public CarPhoto(String filename, String url, String originalName, String title, String description) {
@@ -41,7 +40,7 @@ public class CarPhoto {
         this.description = description;
     }
 
-    // Getters and setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

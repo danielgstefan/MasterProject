@@ -23,7 +23,6 @@ public class UserSearchController {
     public ResponseEntity<?> searchUserByUsername(@PathVariable String username) {
         return userService.getUserByUsername(username)
                 .map(user -> {
-                    // Force initialization of cars collection
                     user.getCars().size();
                     return ResponseEntity.ok(UserProfileDTO.from(user));
                 })

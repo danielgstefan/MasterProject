@@ -34,7 +34,6 @@ public class ForumService {
     @Autowired
     private ForumPostPhotoRepository photoRepository;
 
-    // Post operations
 
 
     public Page<ForumPost> getAllPosts(Pageable pageable) {
@@ -71,21 +70,17 @@ public class ForumService {
     @Transactional
     public void deletePost(Long id) {
         postRepository.findById(id).ifPresent(post -> {
-            // Delete all comments for the post
-            commentRepository.findByPost(post).forEach(comment -> 
+            commentRepository.findByPost(post).forEach(comment ->
                 commentRepository.delete(comment));
 
-            // Delete all likes for the post
             likeRepository.findAll().stream()
                 .filter(like -> like.getPost().getId().equals(id))
                 .forEach(like -> likeRepository.delete(like));
 
-            // Delete all photos for the post
             photoRepository.findByPost(post).forEach(photo -> {
                 photoRepository.delete(photo);
             });
 
-            // Delete the post
             postRepository.delete(post);
         });
     }
@@ -96,7 +91,6 @@ public class ForumService {
                 query, query, pageable);
     }
 
-    // Comment operations
 
 
     public Page<ForumComment> getCommentsByPostId(Long postId, Pageable pageable) {
@@ -129,7 +123,6 @@ public class ForumService {
         commentRepository.deleteById(id);
     }
 
-    // Like operations
 
 
     @Transactional
@@ -194,7 +187,6 @@ public class ForumService {
                 .orElse(null);
     }
 
-    // Photo operations
 
     public ForumPostPhoto savePhoto(ForumPostPhoto photo) {
         return photoRepository.save(photo);
