@@ -18,7 +18,6 @@ public class PostRequest {
     @Size(max = 50, message = "Category must be at most 50 characters")
     private String category;
 
-    // Constructors
     public PostRequest() {}
 
     public PostRequest(String title, String content, String category) {
@@ -27,7 +26,6 @@ public class PostRequest {
         this.category = category;
     }
 
-    // Getters and Setters
     public String getTitle() {
         return title;
     }

@@ -12,17 +12,16 @@ public class Audio {
     private String url;
     private String originalName;
     private String title;
-    private Integer lastPosition; // Store the last playback position in seconds
+    private Integer lastPosition;
 
-    // Constructors
     public Audio() {}
 
     public Audio(String filename, String url, String originalName) {
         this.filename = filename;
         this.url = url;
         this.originalName = originalName;
-        this.title = originalName; // Default title to original filename
-        this.lastPosition = 0; // Default starting position
+        this.title = originalName;
+        this.lastPosition = 0;
     }
 
     public Audio(String filename, String url, String originalName, String title) {
@@ -30,10 +29,9 @@ public class Audio {
         this.url = url;
         this.originalName = originalName;
         this.title = title;
-        this.lastPosition = 0; // Default starting position
+        this.lastPosition = 0;
     }
 
-    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

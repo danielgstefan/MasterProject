@@ -100,7 +100,6 @@ public class AuthController {
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
 
-        // Create new user's account
         User user = new User(
                 signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
@@ -166,7 +165,6 @@ public class AuthController {
             }
             SecurityContextHolder.clearContext();
         } else {
-            // Nu e autentificat – poate a expirat tokenul, etc.
             System.out.println("No authenticated user found during logout.");
         }
 
@@ -178,7 +176,6 @@ public class AuthController {
     public ResponseEntity<?> updateProfile(@Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // Check if principal is an instance of UserDetailsImpl
         Object principal = authentication.getPrincipal();
         if (!(principal instanceof UserDetailsImpl)) {
             return ResponseEntity
@@ -189,23 +186,20 @@ public class AuthController {
         UserDetailsImpl userDetails = (UserDetailsImpl) principal;
         Long userId = userDetails.getId();
 
-        // Check if username is already taken by another user
-        if (!userDetails.getUsername().equals(updateProfileRequest.getUsername()) && 
+        if (!userDetails.getUsername().equals(updateProfileRequest.getUsername()) &&
             userRepository.existsByUsername(updateProfileRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        // Check if email is already in use by another user
-        if (!userDetails.getEmail().equals(updateProfileRequest.getEmail()) && 
+        if (!userDetails.getEmail().equals(updateProfileRequest.getEmail()) &&
             userRepository.existsByEmail(updateProfileRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
 
-        // Update user information
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Error: User not found."));
 
@@ -220,20 +214,15 @@ public class AuthController {
 
         userRepository.save(user);
 
-        // If username changed, generate new token and return it
         if (usernameChanged) {
-            // Generate new JWT token with the updated username
             String newToken = jwtUtils.generateTokenFromUsername(user.getUsername());
 
-            // Get or create a new refresh token
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userId);
 
-            // Get user roles
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(item -> item.getAuthority())
                     .collect(Collectors.toList());
 
-            // Return new JWT response with updated tokens and user info
             return ResponseEntity.ok(new JwtResponse(
                     newToken,
                     refreshToken.getToken(),
@@ -247,7 +236,6 @@ public class AuthController {
                     roles));
         }
 
-        // If only other fields changed, return success message
         return ResponseEntity.ok(new MessageResponse("Profile updated successfully!"));
     }
 }

@@ -41,7 +41,6 @@ public class CarDTO {
         );
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

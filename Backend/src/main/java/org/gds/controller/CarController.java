@@ -91,7 +91,6 @@ public class CarController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> uploadCarImage(@RequestParam("file") MultipartFile file) {
         try {
-            // Create uploads directory if it doesn't exist
             String uploadDir = "uploads/cars";
             Path uploadPath = Paths.get(uploadDir);
 
@@ -99,7 +98,6 @@ public class CarController {
                 Files.createDirectories(uploadPath);
             }
 
-            // Generate a unique filename
             String originalFilename = file.getOriginalFilename();
             String fileExtension = "";
             if (originalFilename != null && originalFilename.contains(".")) {
@@ -107,11 +105,9 @@ public class CarController {
             }
             String filename = UUID.randomUUID().toString() + fileExtension;
 
-            // Save the file
             Path filePath = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Return the file URL
             String fileUrl = "/uploads/cars/" + filename;
             return ResponseEntity.ok(new MessageResponse(fileUrl));
         } catch (IOException e) {

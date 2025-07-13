@@ -50,7 +50,6 @@ public class ForumController {
     @Value("${forum.photo.upload.dir:uploads/forum}")
     private String uploadDir;
 
-    // Helper method to get the current authenticated user
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -58,7 +57,6 @@ public class ForumController {
                 .orElseThrow(() -> new IllegalStateException("User not found: " + username));
     }
 
-    // Post endpoints
 
 
     @GetMapping("/posts")
@@ -124,8 +122,7 @@ public class ForumController {
 
         return forumService.getPostById(id)
                 .map(post -> {
-                    // Check if the user is the author or an admin
-                    if (!post.getAuthor().getId().equals(currentUser.getId()) && 
+                    if (!post.getAuthor().getId().equals(currentUser.getId()) &&
                             !currentUser.getRoles().stream().anyMatch(role -> 
                                     role.getName().name().equals("ROLE_ADMIN"))) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -152,8 +149,7 @@ public class ForumController {
 
         return forumService.getPostById(id)
                 .map(post -> {
-                    // Check if the user is the author or an admin
-                    if (!post.getAuthor().getId().equals(currentUser.getId()) && 
+                    if (!post.getAuthor().getId().equals(currentUser.getId()) &&
                             !currentUser.getRoles().stream().anyMatch(role -> 
                                     role.getName().name().equals("ROLE_ADMIN"))) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -178,7 +174,6 @@ public class ForumController {
         return ResponseEntity.ok(posts);
     }
 
-    // Comment endpoints
 
 
     @GetMapping("/posts/{postId}/comments")
@@ -231,8 +226,7 @@ public class ForumController {
 
         return forumService.getCommentById(commentId)
                 .map(comment -> {
-                    // Check if the user is the author or an admin
-                    if (!comment.getAuthor().getId().equals(currentUser.getId()) && 
+                    if (!comment.getAuthor().getId().equals(currentUser.getId()) &&
                             !currentUser.getRoles().stream().anyMatch(role -> 
                                     role.getName().name().equals("ROLE_ADMIN"))) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -257,8 +251,7 @@ public class ForumController {
 
         return forumService.getCommentById(commentId)
                 .map(comment -> {
-                    // Check if the user is the author or an admin
-                    if (!comment.getAuthor().getId().equals(currentUser.getId()) && 
+                    if (!comment.getAuthor().getId().equals(currentUser.getId()) &&
                             !currentUser.getRoles().stream().anyMatch(role -> 
                                     role.getName().name().equals("ROLE_ADMIN"))) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -271,7 +264,6 @@ public class ForumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Like endpoints
 
 
     @PostMapping("/posts/{postId}/like")
@@ -328,7 +320,6 @@ public class ForumController {
             response.put("likesCount", likesCount);
             response.put("dislikesCount", dislikesCount);
 
-            // Add user's like status if authenticated
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.isAuthenticated() && 
                     !authentication.getName().equals("anonymousUser")) {
@@ -343,7 +334,6 @@ public class ForumController {
         }
     }
 
-    // Photo endpoints
 
     @PostMapping("/posts/{postId}/photos")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -355,8 +345,7 @@ public class ForumController {
 
         return forumService.getPostById(postId)
                 .map(post -> {
-                    // Check if the user is the author or an admin
-                    if (!post.getAuthor().getId().equals(currentUser.getId()) && 
+                    if (!post.getAuthor().getId().equals(currentUser.getId()) &&
                             !currentUser.getRoles().stream().anyMatch(role -> 
                                     role.getName().name().equals("ROLE_ADMIN"))) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -413,8 +402,7 @@ public class ForumController {
                 .map(photo -> {
                     ForumPost post = photo.getPost();
 
-                    // Check if the user is the author or an admin
-                    if (!post.getAuthor().getId().equals(currentUser.getId()) && 
+                    if (!post.getAuthor().getId().equals(currentUser.getId()) &&
                             !currentUser.getRoles().stream().anyMatch(role -> 
                                     role.getName().name().equals("ROLE_ADMIN"))) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -425,7 +413,6 @@ public class ForumController {
                         Path filePath = Paths.get(uploadDir).resolve(photo.getFilename());
                         Files.deleteIfExists(filePath);
                     } catch (IOException e) {
-                        // Log the error but continue with database deletion
                         System.err.println("Error deleting file: " + e.getMessage());
                     }
 

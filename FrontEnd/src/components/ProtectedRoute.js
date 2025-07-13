@@ -16,8 +16,8 @@ const ProtectedRoute = ({ component: Component, roleRequired, ...rest }) => {
         }
 
         // Check if route requires admin role
-        if (roleRequired === 2) {
-          if (currentUser && currentUser.roles === 2) {
+        if (roleRequired === "ROLE_ADMIN") {
+          if (currentUser && currentUser.roles && currentUser.roles.includes("ROLE_ADMIN")) {
             return <Component {...props} />;
           } else {
             // Not admin, redirect to home page

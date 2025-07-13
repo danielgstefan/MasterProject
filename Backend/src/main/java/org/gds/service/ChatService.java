@@ -58,24 +58,17 @@ public class ChatService {
         Chat chat = new Chat(message, user);
         chat = chatRepository.save(chat);
 
-        // Clean up old messages if necessary
         cleanupOldMessages();
 
         return chat;
     }
 
-    /**
-     * Private helper method to clean up old messages when the count exceeds 200
-     */
     private void cleanupOldMessages() {
-        // Check if we have more than 200 messages and delete the oldest ones
         long count = chatRepository.count();
         if (count > 200) {
-            // Get the oldest messages that exceed the 200 limit
             Pageable pageable = PageRequest.of(0, (int)(count - 200));
             Page<Chat> oldestMessages = chatRepository.findAllByOrderByTimestampAsc(pageable);
 
-            // Delete the oldest messages
             oldestMessages.forEach(oldMessage -> chatRepository.deleteById(oldMessage.getId()));
         }
     }
@@ -90,8 +83,6 @@ public class ChatService {
     public void deleteMessage(Long id) {
         chatRepository.deleteById(id);
 
-        // Notify clients about the deleted message
-        // Use the new method that creates a ChatDTO directly to avoid lazy loading issues
         ChatDTO chatDTO = createSystemMessageDTO("A message has been deleted by an administrator");
         messagingTemplate.convertAndSend("/topic/public", chatDTO);
     }
@@ -105,7 +96,6 @@ public class ChatService {
                     system.setEmail("system@example.com");
                     system.setPassword("not-applicable");
 
-                    // Completăm toate câmpurile marcate cu @NotBlank
                     system.setFirstName("System");
                     system.setLastName("User");
                     system.setPhoneNumber("-");
@@ -117,7 +107,6 @@ public class ChatService {
         Chat chat = new Chat(message, systemUser);
         chat = chatRepository.save(chat);
 
-        // Clean up old messages if necessary
         cleanupOldMessages();
 
         return chat;

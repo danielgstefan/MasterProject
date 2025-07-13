@@ -57,7 +57,6 @@ public class UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check if this is the last admin
         if (user.getRoles().stream().anyMatch(role -> role.getId() == 2)) {
             long adminCount = userRepository.findAll().stream()
                 .filter(u -> u.getRoles().stream().anyMatch(role -> role.getId() == 2))
@@ -67,10 +66,8 @@ public class UserService {
             }
         }
 
-        // First delete associated refresh tokens
         refreshTokenRepository.deleteByUser(user);
 
-        // Then delete the user
         userRepository.delete(user);
     }
 
@@ -79,7 +76,6 @@ public class UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check if this is the last admin
         if (user.getRoles().stream().anyMatch(role -> role.getId() == 2)) {
             long adminCount = userRepository.findAll().stream()
                 .filter(u -> u.getRoles().stream().anyMatch(role -> role.getId() == 2))
@@ -105,7 +101,7 @@ public class UserService {
         int roleId = user.getRoles().stream()
             .findFirst()
             .map(Role::getId)
-            .orElse(1); // Default to user role (1) if no roles found
+            .orElse(1);
         return new UserDto(
             user.getId(),
             user.getUsername(),

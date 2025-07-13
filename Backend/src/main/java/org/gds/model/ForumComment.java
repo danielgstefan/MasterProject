@@ -42,7 +42,6 @@ public class ForumComment {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Constructors
     public ForumComment() {}
 
     public ForumComment(String content, User author, ForumPost post) {
@@ -51,7 +50,6 @@ public class ForumComment {
         this.post = post;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
